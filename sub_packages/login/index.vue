@@ -64,10 +64,13 @@
 							uni.showToast({
 								title: '登录成功'
 							})
-							const pages = getCurrentPages(); 
-							const prevPage = pages[pages.length - 2]; 
-							prevPage.$vm.updateData(); 
-							uni.navigateBack();
+							// const pages = getCurrentPages(); 
+							// const prevPage = pages[pages.length - 2]; 
+							// prevPage.$vm.updateData(); 
+							// uni.navigateBack();
+							wx.reLaunch({
+							    url: `/pages/virtualNurse/index?pattern=2&shouldUpdate=true`,
+							})
 						}
 					})
 				})
@@ -94,7 +97,7 @@
 						}).then(r => {
 							if (r.data.code !== 200) {
 								uni.showToast({
-								    title: '登录失败',
+								    title: `登录失败`,
 								    icon: 'none',   
 								    duration: 2000 
 								}) 
@@ -104,7 +107,7 @@
 						})
 						.catch(err => {
 							uni.showToast({
-							    title: '登录失败',
+							    title: `登录失败:${err}`,
 							    icon: 'none',   
 							    duration: 2000 
 							})  

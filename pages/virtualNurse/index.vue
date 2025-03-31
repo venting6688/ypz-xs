@@ -25,8 +25,13 @@
 						<view class="robot-box"  v-if="x.type!==2">
 							<view class="triangle"></view>
 							<view class="center">
-								<view v-if="x.msgLoad" class="loading">
-									<image src="../../static/image/loading.gif" mode=""></image>
+								<view class="loading" v-if="x.msgLoad">
+									<text>思考中</text>
+									<view class="dot">
+										<view class="stage">
+											<view  class="dot-typing"></view>
+										</view>
+									</view>
 								</view>
 								<!-- <view v-if="x.msgLoad" class="cuIcon-loading turn-load" style="font-size: 50rpx;color: #60B6FE;"></view> -->
 								<view v-else class="msg" v-html="markdown(x.msg)"></view>
@@ -244,7 +249,6 @@
 			}
 		},
 		onShow() {
-			login.loginData()
 			const options = this.$mp.query;
 			if (options && options.patient) {
 				this.patient = JSON.parse(decodeURIComponent(options.patient))
@@ -272,6 +276,9 @@
 					]
 			    	
 			    }else{
+					if(options.shouldUpdate){
+						this.updateData()
+					}
 					if(manifestation){
 						this.answer(manifestation)
 					}else{
@@ -299,7 +306,8 @@
 		},
 		methods: {
 			tipsBtn(index){
-				this.msgList[index].tipsState = !this.msgList[index].tipsState
+				// 使用 this.$set 修改数组中某一项的属性
+				this.$set(this.msgList[index], 'tipsState', !this.msgList[index].tipsState);
 			},
 			markdown(item){
 				return this.md.render(item);
@@ -323,6 +331,10 @@
 				// });
 			},
 			footBarBtn(item){
+				if(!this.inputState){
+					// 数据流未完成不能切换
+					return
+				}
 				// 切换模式
 				if(item.name==='智能导诊'){
 					this.pattern = 1
@@ -439,8 +451,22 @@
 			},
 			// 回答问题
 			answer(msg){
-				this.msg = msg
-				this.sendMsg()
+				let loginValue = uni.getStorageSync("loginData");
+				if(loginValue){
+					let data = JSON.parse(loginValue)
+					if(data.defaultArchives){
+						this.msg = msg
+						this.sendMsg()
+					}else {
+						login.loginData().catch((error) => {
+                        });
+					}
+					
+				}else {
+					login.loginData().catch((error) => {
+					});
+				}
+				
 			},
 			sendMsg(){
 				// 消息为空不做任何操作
@@ -459,115 +485,112 @@
 			},
 			msgKf(msg){
 				// 必须建档
-				// this.$login.loginData().then(data => {
-					this.msgList.push({msgLoad:true})
-					this.inputState = false
-					const requestTask = wx.request({
-					  url: 'https://www.chinzsoft.com/api/v1/chat-messages', // 流式接口的URL
-					  method: 'POST',
-					  data: {
-					    query: msg,
-					   inputs: {
-					     sex: this.patient.sex?this.patient.sex:'男',
-					     age: this.patient.age?this.patient.age:24,
-					   },
-					    response_mode: "streaming",
-					    conversation_id: this.conversation_id,
-					    user: "abc-123"
-					  },
-					  enableChunked: true,
-					  // enableHttp2:true,
-					  header: {
-					    'Authorization': `Bearer ${this.pattern===1?this.patternList[0]:this.patternList[1]}`,
-					    'content-type': 'application/json',
-					  },
-					  success: (res) => {
-						  if(this.pattern===1){
-							this.test1 = ''
-							if(!this.test2.is_complete){
-								this.mode = this.test2.mode
-								if(this.test2.option.length){
-									this.DataList.main = this.test2.option.map(item=> {
-									    return {value:item}
-									})
-									this.$refs.popup.open('bottom')   //弹框
-								}
-							}else {
-								console.log('this.test2.reason',this.test2)
-								const content = {
-									my:false,
-									type:2,
-									msgLoad:false,
-									department:this.test2.option?this.test2.option:[],
-									tips:this.test2.reason?this.test2.reason:'',
-									tipsState:false,
-								}
-								this.conversation_id = ''
-								this.msgList.splice(this.msgList.length-1,1,content)
-							}  
-						  }else {
-							  this.test1 = ''
-						  }
-						  
-						  this.msgGo()
-						  this.inputState = true
-					  },
-					  fail: (err) => {
-						  console.log('err',err)
-						  this.inputState = true
-					  },
-					});
-					requestTask.onChunkReceived((response) => {
-						try {
-							// 收到流式数据，根据返回值进行相对应数据解码
-							const arrayBuffer = response.data;
-							const uint8Array = new Uint8Array(arrayBuffer);
-							let text = uni.arrayBufferToBase64(uint8Array)
-							text = new Buffer(text, 'base64')
-							let responseText = text.toString('utf-8')
-							let data = responseText.split('data: ')
-							let i 
-							for (let j = 0; j < data.length; j++) {
-								if(!j) continue;
-								if(!data[j].includes('message') || data[j].includes('message_end')){
-									break
-								}
-								i = JSON.parse(data[j])
-								console.log('i',i)
-								this.conversation_id = i.conversation_id
-								// i.answer = i.answer&&i.answer.replace(/[ \r\n\u21B5]/g,'')
-								if(i.answer){
-									this.test1 += i.answer
-									if(this.pattern===1){
-										this.test2 = parse(this.test1)
-										if(!this.test2.is_complete){
-											if(this.test2.response){
-												const content = {
-													my:false,
-													msgLoad:false,
-													msg:this.test2.response?this.test2.response.replace(/\[.*?\]/, ''):'',
-												}
-												this.msgList.splice(this.msgList.length-1,1,content)		  
+				this.msgList.push({msgLoad:true})
+				this.inputState = false
+				const requestTask = wx.request({
+				  url: 'https://www.chinzsoft.com/api/v1/chat-messages', // 流式接口的URL
+				  method: 'POST',
+				  data: {
+				    query: msg,
+				   inputs: {
+				     sex: this.patient.sex?this.patient.sex:'男',
+				     age: this.patient.age?this.patient.age:24,
+				   },
+				    response_mode: "streaming",
+				    conversation_id: this.conversation_id,
+				    user: "abc-123"
+				  },
+				  enableChunked: true,
+				  // enableHttp2:true,
+				  header: {
+				    'Authorization': `Bearer ${this.pattern===1?this.patternList[0]:this.patternList[1]}`,
+				    'content-type': 'application/json',
+				  },
+				  success: (res) => {
+					  if(this.pattern===1){
+						this.test1 = ''
+						if(!this.test2.is_complete){
+							this.mode = this.test2.mode
+							if(this.test2.option.length){
+								this.DataList.main = this.test2.option.map(item=> {
+								    return {value:item}
+								})
+								this.$refs.popup.open('bottom')   //弹框
+							}
+						}else {
+							this.conversation_id = ''
+						}  
+					  }else {
+						  this.test1 = ''
+					  }
+					  
+					  this.msgGo()
+					  this.inputState = true
+				  },
+				  fail: (err) => {
+					  console.log('err',err)
+					  this.inputState = true
+				  },
+				});
+				requestTask.onChunkReceived((response) => {
+					try {
+						// 收到流式数据，根据返回值进行相对应数据解码
+						const arrayBuffer = response.data;
+						const uint8Array = new Uint8Array(arrayBuffer);
+						let text = uni.arrayBufferToBase64(uint8Array)
+						text = new Buffer(text, 'base64')
+						let responseText = text.toString('utf-8')
+						let data = responseText.split('data: ')
+						let i 
+						for (let j = 0; j < data.length; j++) {
+							if(!j) continue;
+							if(!data[j].includes('message') || data[j].includes('message_end')){
+								break
+							}
+							i = JSON.parse(data[j])
+							this.conversation_id = i.conversation_id
+							// i.answer = i.answer&&i.answer.replace(/[ \r\n\u21B5]/g,'')
+							if(i.answer){
+								this.test1 += i.answer
+								if(this.pattern===1){
+									this.test2 = parse(this.test1)
+									if(!this.test2.is_complete){
+										if(this.test2.response){
+											const content = {
+												my:false,
+												msgLoad:false,
+												msg:this.test2.response?this.test2.response.replace(/\[.*?\]/, ''):'',
 											}
-										}	
+											this.msgList.splice(this.msgList.length-1,1,content)		  
+										}
 									}else {
+										const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState;
 										const content = {
 											my:false,
+											type:2,
 											msgLoad:false,
-											msg:this.test1?this.test1.replace(/\[.*?\]/, ''):'',
+											department:this.test2.option?this.test2.option:[],
+											tips:this.test2.reason?this.test2.reason:'',
+											tipsState: originalTipsState
 										}
 										this.msgList.splice(this.msgList.length-1,1,content)
 									}
-											 
+								}else {
+									const content = {
+										my:false,
+										msgLoad:false,
+										msg:this.test1?this.test1.replace(/\[.*?\]/, ''):'',
+									}
+									this.msgList.splice(this.msgList.length-1,1,content)
 								}
 							}
-						} catch (error) {
-							console.log('error',error)
-							//TODO handle the exception
 						}
-					  
-					});
-				// })
+					} catch (error) {
+						console.log('error',error)
+						//TODO handle the exception
+					}
+				  
+				});
 			},
 			//弹窗事件
 			choice(index){
@@ -1434,11 +1457,62 @@
 			/*---------------------------------- 语音样式结束------------------------------ */
 			
 		.loading {
-			image{
-				width: 50rpx;
-				height: 50rpx;
+			display: flex;
+			align-items: center;
+			color: #888;
+			.dot {
+				width: 45rpx;
+				.stage {
+				    display: flex;
+				    justify-content: center;
+				    align-items: center;
+					padding: 12rpx 0 0 0;
+				    overflow: hidden;
+					transform: translate(0,8rpx);
+					.dot-typing {
+					    position: relative;
+					    left: -9995px;
+					    width: 3px;
+					    height: 3px;
+					    border-radius: 3px;
+					    background-color: #888;
+					    color: #888;
+					    box-shadow: 9988px 0 0 0 #888, 9994px 0 0 0 #888,
+					      10000px 0 0 0 #888;
+					    animation: dotTyping 1.5s infinite linear;
+					}
+					@keyframes dotTyping {
+					        0% {
+					          box-shadow: 9988px 0 0 0 #888, 9994px 0 0 0 #888,
+					            10000px 0 0 0 #888;
+					        }
+					        16.667% {
+					          box-shadow: 9988px -3px 0 0 #888, 9994px 0 0 0 #888,
+					            10000px 0 0 0 #888;
+					        }
+					        33.333% {
+					          box-shadow: 9988px 0 0 0 #888, 9994px 0 0 0 #888,
+					            10000px 0 0 0 #888;
+					        }
+					        50% {
+					          box-shadow: 9988px 0 0 0 #888, 9994px -3px 0 0 #888,
+					            10000px 0 0 0 #888;
+					        }
+					        66.667% {
+					          box-shadow: 9988px 0 0 0 #888, 9994px 0 0 0 #888,
+					            10000px 0 0 0 #888;
+					        }
+					        83.333% {
+					          box-shadow: 9988px 0 0 0 #888, 9994px 0 0 0 #888,
+					            10000px -3px 0 0 #888;
+					        }
+					        100% {
+					          box-shadow: 9988px 0 0 0 #888, 9994px 0 0 0 #888,
+					            10000px 0 0 0 #888;
+					        }
+					      }
+				}
 			}
-			
 		}
 	}
 </style>

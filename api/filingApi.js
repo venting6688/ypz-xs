@@ -15,7 +15,7 @@ const patient = {
 	   		    phoneNum:phoneNum,
 	   		}
 	   
-	   	})
+	   	},2)
 	   	return res
 	   },
 	   /**
@@ -28,7 +28,7 @@ const patient = {
 	      		data:filingDTO,
 	      		
 	      
-	      	})
+	      	},2)
 	      	return res
 	      },
 		/**
@@ -41,7 +41,7 @@ const patient = {
 		   		data:filingDTO,
 		   		
 		   
-		   	})
+		   	},2)
 		   	return res
 		   },
 }

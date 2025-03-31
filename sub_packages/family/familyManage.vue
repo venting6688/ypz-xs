@@ -1,11 +1,11 @@
 <template>
 	<view class="manage">
 		<view class="information">
-			<ul>
+			<ul v-if="patientList.length">
 				<li v-for="(item,index) in patientList.slice(0,5)" :key="item.patientCard">
 					<view class="title">
 						<view class="name" @click="amend(index)">
-							<text class="big">{{pixelate(item.patientName)}}</text>
+							<text class="big">{{item.patientName?pixelate(item.patientName):''}}</text>
 							<text class="small">{{item.sex}}</text>
 							<text class="relation">{{item.relation}}</text>
 						    <image src="../static/image/icon-edit.png" mode=""></image>
@@ -19,7 +19,7 @@
 					<view class="center">
 						<view class="content">
 							<text>证件号：</text>
-							<text>{{pixelateNumber(item.patientCard.toString())}}</text>
+							<text>{{item.patientCard?pixelateNumber(item.patientCard.toString()):''}}</text>
 						</view>
 						
 						<view class="content" v-if="item.unfold">
@@ -69,14 +69,18 @@
 			let loginValue = uni.getStorageSync("loginData");
 			if(loginValue){
 				let registerData = JSON.parse(loginValue)
-				this.patientList = registerData && registerData.archivesList
-				this.patientList.forEach((item, i) => {
-				    item.defaul = false;
-				    this.$set(this.patientList, i, item);
-				});
-				const temp = this.patientList[0];
-				temp.default = true;
-				this.$set(this.patientList, 0, temp);
+				if(registerData && registerData.archivesList.length){
+					this.patientList = registerData.archivesList
+					this.patientList.forEach((item, i) => {
+					    item.defaul = false;
+					    this.$set(this.patientList, i, item);
+					});
+					console.log('registerData',registerData)
+					const temp = this.patientList[0];
+					temp.default = true;
+					this.$set(this.patientList, 0, temp);
+				}
+				
 			}
 		},
 		computed: {

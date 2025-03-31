@@ -40,12 +40,12 @@
 							{
 							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient.png',
 							    name:'智能导诊',
-								num:1,
+									num:1,
 						    },
 						    {
 							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient1.png',
 							    name:'预约挂号',
-								num:2,
+									num:2,
 						    },
 							{
 							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient3.png',
@@ -191,19 +191,19 @@
 							// },
 					    ]
 					},
-					// {
-					// 	title:'住院服务',
-					// 	list:[
+					{
+						title:'住院服务',
+						list:[
 					// 	    {
 					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized7.png',
 					// 	    	name:'住院充值',
 					// 	    	num:29,
 					// 	    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
-					// 	    	name:'入院登记',
-					// 	    	num:30,
-					// 	    },
+						    {
+						    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
+						    	name:'入院登记',
+						    	num:30,
+						    },
 					// 	    {
 					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized5.png',
 					// 	    	name:'住院费用',
@@ -256,8 +256,8 @@
 					// 	    	num:39,
 					// 	    },
 						    
-					//     ]
-					// },
+					    ]
+					},
 					
 				],
 				urlList:[
@@ -290,7 +290,7 @@
 					'空',
 					'空',
 					'空',
-					'空', //30
+					'/sub_packages/beHospitalizedRegister/index', //30
 					'空',
 					'空',
 					'空',

@@ -77,7 +77,7 @@ export default {
 				}
 				this.setDepartment(msg)
 				if(oldVal){
-					this.getTreatmentStageNew()
+					this.getTreatmentStageNew(3)
 				}
 			},
 		}
@@ -97,10 +97,10 @@ export default {
 	        	
 	        })
 			await this.getFirstVisit()
-			this.getTreatmentStageNew()
+			this.getTreatmentStageNew(3)
 			this.timer = setInterval(()=>{
-				this.getFirstVisit()
-				this.getTreatmentStageNew()
+				this.getFirstVisit({},3)
+				this.getTreatmentStageNew(3)
 			},20000)
 			this.animateText()
 		}
@@ -125,7 +125,7 @@ export default {
 			setDepartment:'SET_DEPARTMENT',
 		}),
 		//获取就诊阶段(上方横条)
-		async getTreatmentStageNew() {
+		async getTreatmentStageNew(state) {
 			try{
 				if(!this.headerEmit.orderCode){
 					let data = {
@@ -134,7 +134,7 @@ export default {
 						departmentCode:(this.department.data && this.department.data.queueId)||'',
 					}
 					const res = await HeaderbarApi
-					.getTreatmentStageNew(data)
+					.getTreatmentStageNew(data,state)
 					.then((data) => {
 						if(data.data.code===200){
 							if (this.barListData===null || JSON.stringify(data.data.data) !== JSON.stringify(this.barListData)) {
@@ -182,11 +182,11 @@ export default {
 			bus.$emit('complex-data-passed',msg)
 		},
 		//获取今日挂号数据
-		async getFirstVisit(data) {
+		async getFirstVisit(data,state) {
 			try{
 				let registrationList = []
 				let patientID = this.footData.patientUniquelyIdentifies
-				const res= await guideApi.getFirstVisit(patientID).then((res) => {
+				const res= await guideApi.getFirstVisit(patientID,state).then((res) => {
 					if(res.data.code===200){
 						registrationList = res.data.data.orders.order || []
 					}else {
@@ -296,12 +296,14 @@ export default {
 		departmentBtn(item,index){
 			if(item.visitNumber){
 				if(this.headerEmit.visitNumber !== item.visitNumber){
+					this.barListData=null
 					this.headerEmit.visitNumber = item.visitNumber
 					this.headerEmit.orderCode = ''
 					this.index = index
 				}
 			}else {
 				if(this.headerEmit.visitNumber !== item.orderCode){
+					this.barListData=null
 					this.headerEmit.visitNumber = item.orderCode
 					this.headerEmit.orderCode = item.orderCode
 					this.index = index

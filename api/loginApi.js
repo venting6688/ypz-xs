@@ -10,11 +10,11 @@ const patient = {
 	   		url: "XCXLogin",
 	   		method: "get",
 	   		data:{
-				phoneCode:data.phoneCode,
-	   		    openidCode:data.openidCode, 
+					phoneCode:data.phoneCode,
+					openidCode:data.openidCode, 
 	   		}
 	   
-	   	})
+	   	},2)
 	   	return res
 	   },
 }

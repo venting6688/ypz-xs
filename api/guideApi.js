@@ -7,14 +7,14 @@ const patient = {
 	/**
 		 * 获取初诊卡片数据
 	*/
-		async getFirstVisit(patientID) {
+		async getFirstVisit(patientID,state) {
 			const res = await cjRequest({
 				url: "cardContent/getFirstVisit",
 				method: "get",
 				data:{
 				patientID,
 				}
-			},1)
+			},state)
 			return res
 		},
 	/**

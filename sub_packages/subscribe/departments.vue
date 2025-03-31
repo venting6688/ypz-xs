@@ -44,10 +44,9 @@
 		},
 	    methods: {
 		    onSearchChange(value) {
-				console.log(88,value.detail)
-		        this.searchQuery = value.detail
-		        this.filterItemsFun();
-		      },
+					this.searchQuery = value.detail
+					this.filterItemsFun();
+				},
 			// 获取大科室
 			getServiceGroup() {
 			  		registrationApi.getServiceGroup().then(res => {

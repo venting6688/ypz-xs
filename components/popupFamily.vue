@@ -58,7 +58,7 @@
 			  }
 		    }
 		},
-		created() {
+		mounted() {
 			let loginValue = uni.getStorageSync("loginData");
 			if(loginValue){
 				this.registerData = JSON.parse(loginValue)
@@ -107,7 +107,7 @@
 						}
 					})
 				}catch(e){
-					console.log(e);
+					console.log('45',e);
 				}
 			},
 			recharge(num){

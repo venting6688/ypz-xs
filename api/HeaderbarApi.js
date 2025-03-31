@@ -6,7 +6,7 @@ const patient = {
 	/**
 	 * 获取就诊阶段(上方横条)
     */
-   async getTreatmentStageNew(data) {
+   async getTreatmentStageNew(data,state) {
 	   const queryParams = Object.keys(data)
 	   .map(key => `${key}=${data[key]}`)
 	   .join('&');
@@ -14,7 +14,7 @@ const patient = {
 	     	const res = await cjRequest({
 	     		url: url,
 	     		method: "get",
-	     	},1)
+	     	},state)
 	     	return res
    },
     /**
