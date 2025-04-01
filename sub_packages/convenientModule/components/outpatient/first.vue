@@ -339,7 +339,7 @@
 								}
 								bus.$emit('refreshGetFirstVisit',msg)
 								clearTimeout(this.timer2)
-y							},4000)
+							},4000)
 						}else {
 							this.toastObj = {
 								state:true,

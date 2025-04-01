@@ -36,65 +36,64 @@
 				moduleList:[
 					{
 						title:'门诊服务',
-						list:[
+						list: uni.getStorageSync("loginData") ? [
 							{
-							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient.png',
-							    name:'智能导诊',
-									num:1,
-						    },
-						    {
-							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient1.png',
-							    name:'预约挂号',
-									num:2,
-						    },
+								img:'https://aiwz.sdtyfy.com:8099/img/outpatient.png',
+								name:'智能导诊',
+								num:1,
+							},
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/outpatient1.png',
+								name:'预约挂号',
+								num:2,
+							},
 							{
 							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient3.png',
 							    name:'门诊缴费',
 								num:3,
 							},
-							// {
-							//     img:'https://aiwz.sdtyfy.com:8099/img/outpatient2.png',
-							//     name:'门诊充值',
-							// 	num:4,
-							// },
 							{
 							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient7.png',
 							    name:'就诊记录',
-								num:5,
+									num:5,
 							},
-							
 							{
 							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient4.png',
 							    name:'门诊报告',
-								num:6,
+									num:6,
 							},
-						  //   {
-							 //    img:'https://aiwz.sdtyfy.com:8099/img/outpatient6.png',
-							 //    name:'电子影像',
-								// num:7,
-						  //   },
-						    
-						  //   {
-							 //    img:'https://aiwz.sdtyfy.com:8099/img/outpatient5.png',
-							 //    name:'门诊病历',
-								// num:8,
-						  //   },	
+						] : [
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/outpatient1.png',
+								name:'预约挂号',
+								num:2,
+							},
+							{
+							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient3.png',
+							    name:'门诊缴费',
+								num:3,
+							},
+							{
+							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient7.png',
+							    name:'就诊记录',
+									num:5,
+							},
+							{
+							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient4.png',
+							    name:'门诊报告',
+									num:6,
+							},
 						],
 					},
 					{
 						title:'便民服务',
-						list:[
-						    // {
-						    // 	img:'https://aiwz.sdtyfy.com:8099/img/person1.png',
-						    // 	name:'院内导航',
-						    // 	num:9,
-						    // },
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/person3.png',
-						    	name:'疾病百科',
-						    	num:10,
-						    },
-						    {
+						list: uni.getStorageSync("loginData") ?  [
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/person3.png',
+								name:'疾病百科',
+								num:10,
+							},
+						   {
 						    	img:'https://aiwz.sdtyfy.com:8099/img/person2.png',
 						    	name:'药品查询',
 						    	num:11,
@@ -104,41 +103,42 @@
 						    	name:'电子票据',
 						    	num:12,
 						    },
-							{
-								img:'https://aiwz.sdtyfy.com:8099/img/health.png',
-								name:'医保凭证',
-								num:13,
-							},
-							{
-								img:'https://aiwz.sdtyfy.com:8099/img/medicalRecord.png',
-								name:'病案通',
-								num:14,
-							},
-							{
-								img:'https://aiwz.sdtyfy.com:8099/img/hospitalized4.png',
-								name:'营养点餐',
-								num:15,
-							},
-						    // {
-						    // 	img:'https://aiwz.sdtyfy.com:8099/img/person5.png',
-						    // 	name:'图文就诊',
-						    // 	num:16,
-						    // },
-						 //    {
-						 //    	img:'https://aiwz.sdtyfy.com:8099/img/person7.png',
-						 //    	name:'视频就诊',
-						 //    	num:17,
-						 //    },
-						 //    {
-						 //    	img:'https://aiwz.sdtyfy.com:8099/img/person6.png',
-						 //    	name:'线上购物',
-						 //    	num:18,
-						 //    },
-							// {
-							// 	img:'https://aiwz.sdtyfy.com:8099/img/person4.png',
-							// 	name:'家医签约',
-							// 	num:19,
-							// },
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/health.png',
+									name:'医保凭证',
+									num:13,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/medicalRecord.png',
+									name:'病案通',
+									num:14,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/hospitalized4.png',
+									name:'营养点餐',
+									num:15,
+								},
+					    ] : [
+						    {
+						    	img:'https://aiwz.sdtyfy.com:8099/img/electronicBills.png',
+						    	name:'电子票据',
+						    	num:12,
+						    },
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/health.png',
+									name:'医保凭证',
+									num:13,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/medicalRecord.png',
+									name:'病案通',
+									num:14,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/hospitalized4.png',
+									name:'营养点餐',
+									num:15,
+								},
 					    ]
 					},
 					{
@@ -191,19 +191,19 @@
 							// },
 					    ]
 					},
-					{
-						title:'住院服务',
-						list:[
+					// {
+					// 	title:'住院服务',
+					// 	list:[
 					// 	    {
 					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized7.png',
 					// 	    	name:'住院充值',
 					// 	    	num:29,
 					// 	    },
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
-						    	name:'入院登记',
-						    	num:30,
-						    },
+						    // {
+						    // 	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
+						    // 	name:'入院登记',
+						    // 	num:30,
+						    // },
 					// 	    {
 					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized5.png',
 					// 	    	name:'住院费用',
@@ -256,8 +256,8 @@
 					// 	    	num:39,
 					// 	    },
 						    
-					    ]
-					},
+					//     ]
+					// },
 					
 				],
 				urlList:[

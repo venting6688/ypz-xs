@@ -2,26 +2,23 @@
 	<view>
 		<view class="foot" :class="{footPadding:iosState}">
 			<view class="content">
-		        <view class="foot-name" v-if="footData.patientName">
-			        <view class="patient-code" @click="code">
-				        <view class="code">
+				<view class="foot-name" v-if="footData.patientName">
+					<view class="patient-code" @click="code">
+						<view class="code">
 							<image  src="@/static/image/Group 344.png" mode=""></image>
-				         </view>
-				        <view class="text" >
-							就诊码
-				        </view>
-			        </view>
-			         <view class="patient-name" @click="cutPatient">
-				        <view class="name">
-				             <text>{{footData.patientName?pixelate(footData.patientName):''}}</text>
-				             <image src="@/static/image/Frame.png" mode="widthFix"></image>
-				        </view>
-			         </view>
-		        </view>
-				<view class="wire"  v-if="footData.patientName">
+						 </view>
+						<view class="text" >就诊码</view>
+					</view>
+					 <view class="patient-name" @click="cutPatient">
+						<view class="name">
+							 <text>{{footData.patientName?pixelate(footData.patientName):''}}</text>
+							 <image src="@/static/image/Frame.png" mode="widthFix"></image>
+						</view>
+					 </view>
 				</view>
+				<view class="wire"  v-if="footData.patientName"></view>
 				<view class="foot-bar" :class="{'bar-w':!footData.patientName}">
-					<view class="piece" v-for="item in footList" :key="item.name" @click="footBtn(item)">
+					<view class="piece" :style="{ width: siginData ? '33.333%' : '50%' }" v-for="item in footList" :key="item.name" @click="footBtn(item)">
 						<view class="title">
 							<image v-if="item.type==footState" :src="item.selectedIconPath" mode="widthFix"></image>
 							<image v-else :src="item.iconPath" mode="widthFix"></image>
@@ -54,14 +51,14 @@
 	export default {
 		mixins: [mixin],
 		props: {
-		    footState: Number,
+		  footState: Number,
 		},
 		components:{
 			popupFamily
 		},
 		data() {
 			return {
-				footList:[
+				footList: uni.getStorageSync("loginData") ? [
 					{
 						pagePath: "/pages/virtualNurse/index",
 						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation+.png',
@@ -69,6 +66,21 @@
 						name:'虚拟护士',
 						type:1,
 					},
+					{
+						pagePath: "/pages/convenient/index",
+						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation1+.png',
+						selectedIconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation1.png',
+						name:'便捷导引',
+						type:2,
+					},
+					{
+						pagePath: "/pages/more/index",
+						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation2+.png',
+						selectedIconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation2.png',
+						name:'更多服务',
+						type:3,
+					},
+				] : [
 					{
 						pagePath: "/pages/convenient/index",
 						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation1+.png',
@@ -96,6 +108,7 @@
 				iosState:false,
 				cutPatientPopupState:true,
 				timer:null,
+				siginData: uni.getStorageSync('loginData')
 			}
 		},
         computed: { 
