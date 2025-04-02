@@ -66,18 +66,17 @@
 				</view>
 			</view>
 			<view class="btn">
-				    <view class="confirm" @click="confirm">
-			         	<text>确定预约</text>
-			        </view>
-			    <view class="agreement">
-			    	<view @click="agreementState = !agreementState">
-			    	<image v-if="agreementState" src="../static/image/icon-ok.png" mode=""></image>
-			    	<text v-else class="yuan"></text>
-			    	<text>预约即同意</text>
-			    	</view>
-			    	<text class="blue" @click="appointment">《预约须知》</text>
-			    	
-			    </view>
+				<view class="confirm" @click="confirm">
+					<text>确定预约</text>
+				</view>
+				<view class="agreement">
+					<view @click="agreementState = !agreementState">
+					<image v-if="agreementState" src="../static/image/icon-ok.png" mode=""></image>
+					<text v-else class="yuan"></text>
+					<text>预约即同意</text>
+					</view>
+					<text class="blue" @click="appointment">《预约须知》</text>
+				</view>
 			</view>
 		</view>
 		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :url="toastObj.url" :tips="toastObj.tips" :message="toastObj.message" />
@@ -264,8 +263,6 @@
 			      title: e.title
 			})
 			this.doctor = JSON.parse(decodeURIComponent(e.doctor))
-			
-			console.log('doctor',this.doctor,this.footData)
 		},
 	}
 </script>

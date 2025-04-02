@@ -1,16 +1,25 @@
 <template>
 	<view class="doctors">
-		<van-notice-bar
-		  text="温馨提示：开放7天号源，每天18：00放出第八天号源"
-		/>
+		<van-notice-bar text="温馨提示：开放7天号源，每天18：00放出第八天号源" />
 		<view class="timeCard">
-			<ul>
-				<li @click="getScheduleDetail(item,index)" :class="{back:timeObj.date===item.date}" v-for="(item,index) in timeList" :key="index">
+			<scroll-view 
+				:scroll-x="true" 
+				:show-scrollbar="true"
+				scroll-with-animation
+				class="scroll-container"
+			>
+				<view 
+					v-for="(item,index) in timeList" 
+					:key="index" 
+					class="scroll-item"
+					:class="{back:timeObj.date===item.date}"
+					@click="getScheduleDetail(item,index)"
+				>
 					<view>{{item.week}}</view>
 					<view>{{item.date.substring(item.date.indexOf("-") + 1)}}</view>
 					<view :class="{col:item.status==='无号'}">{{item.status}}</view>
-				</li>
-			</ul>
+				</view>
+			</scroll-view>
 		</view>
 		<!-- <view class="head">
 			<view class="left">
@@ -57,9 +66,7 @@
 								<text>{{i.AvailableLeftNum}}</text>
 							</view>
 						</view>
-						<view class="subscribe-btn" @click="getNumSource(i,item,x)">
-							预约
-						</view>
+						<view class="subscribe-btn" @click="getNumSource(i,item,x)">预约</view>
 					</view>
 				</view>
 			</view>
@@ -240,7 +247,6 @@
 			height: 58rpx;
 			font-size: 25rpx;
 			line-height: 25rpx;
-			
 			.van-notice-bar__wrap {
 				display: flex;
 				justify-content: center;
@@ -248,55 +254,87 @@
 				color: #4286ff;
 			}
 		}
-		
 		.timeCard{
-			// margin: 8rpx 0;
-			>ul{
-				overflow: auto;
-				// display: flex;
-				white-space: nowrap;
-				>li {
-					display: inline-block;
-					margin:18rpx 10rpx;
-					width: 130rpx;
-					height: 123rpx;
-					background: #ffffff;
-					border-radius: 11.45rpx;
-					text-align: center;
-					
+			.scroll-container {
+			  width: 100%;
+			  white-space: nowrap; /* 防止子元素换行 */
+			}
+			.scroll-item {
+				display: inline-block;
+				margin:18rpx 10rpx;
+				width: 130rpx;
+				height: 123rpx;
+				background: #ffffff;
+				border-radius: 11.45rpx;
+				text-align: center;
+				view {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					height: 33.33%;
 					
 					&:nth-of-type(1){
-						margin-left: 30rpx;
+						font-size: 23rpx;
+						line-height: 23rpx;
+						color: #666666;
 					}
-					&:last-of-type{
-						margin-right: 30rpx;
+					&:nth-of-type(2){
+						font-size: 27rpx;
+						line-height: 26rpx;
 					}
-					
-					view {
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						height: 33.33%;
-						
-						&:nth-of-type(1){
-							font-size: 23rpx;
-							line-height: 23rpx;
-							color: #666666;
-						}
-						&:nth-of-type(2){
-							font-size: 27rpx;
-							line-height: 26rpx;
-						}
-						&:nth-of-type(3){
-							font-size: 23rpx;
-							line-height: 23rpx;
-							color: #4286ff;
-						}
-						
-						
+					&:nth-of-type(3){
+						font-size: 23rpx;
+						line-height: 23rpx;
+						color: #4286ff;
 					}
 				}
 			}
+			// >ul{
+			// 	overflow: auto;
+			// 	// display: flex;
+			// 	white-space: nowrap;
+			// 	>li {
+			// 		display: inline-block;
+			// 		margin:18rpx 10rpx;
+			// 		width: 130rpx;
+			// 		height: 123rpx;
+			// 		background: #ffffff;
+			// 		border-radius: 11.45rpx;
+			// 		text-align: center;
+					
+					
+			// 		&:nth-of-type(1){
+			// 			margin-left: 30rpx;
+			// 		}
+			// 		&:last-of-type{
+			// 			margin-right: 30rpx;
+			// 		}
+					
+			// 		view {
+			// 			display: flex;
+			// 			justify-content: center;
+			// 			align-items: center;
+			// 			height: 33.33%;
+						
+			// 			&:nth-of-type(1){
+			// 				font-size: 23rpx;
+			// 				line-height: 23rpx;
+			// 				color: #666666;
+			// 			}
+			// 			&:nth-of-type(2){
+			// 				font-size: 27rpx;
+			// 				line-height: 26rpx;
+			// 			}
+			// 			&:nth-of-type(3){
+			// 				font-size: 23rpx;
+			// 				line-height: 23rpx;
+			// 				color: #4286ff;
+			// 			}
+						
+						
+			// 		}
+			// 	}
+			// }
 		}
 		
 		.head {

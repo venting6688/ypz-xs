@@ -4,7 +4,6 @@
 		<date @handle="show" />
 		<view class="head">
 			<view>
-				
 				<view class="name" @click="headBtn(1)">
 					<view :class="{black:headIndex===1}">
 						检查报告
@@ -100,9 +99,7 @@
 					this.getVisitRecord('00')
 				}else if(num===2){
 					this.getVisitRecord('99')
-					
 				}
-				
 			},
 			getVisitRecord(type){
 				try {
