@@ -57,7 +57,6 @@
 	import mixin from '@/mixins/mixin.js'
 	import {mapMutations , mapState} from 'vuex'
 	import HeaderbarApi from '@/api/HeaderbarApi.js'
-	const plugin = requirePlugin('healthCardPlugins');
 	export default {
 		mixins: [mixin],
 		data(){

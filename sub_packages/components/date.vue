@@ -2,18 +2,17 @@
 	<view class="box">
 		<view class="header">
 			<view class="date">
-				<picker mode="date" header-text="选择年"  :start="startIndex" :end="endIndex" fields="year" :value="year" @change="bindDateChange">
-				    <view class="date">
-				        <text>{{year!=='无'?year+'年':year}}</text>
-				        <image src="../../static/image/Frame.png" mode=""></image>
-				    </view>
+				<picker 
+					:class="{'datePicker': true, 'blue': dateState === 0}"
+					mode="date" 
+					:value="selectDate" 
+					:start="startDate" 
+					:end="endDate" 
+					fields="month"
+					@change="dateChange"
+				>
+				    <text class="picker birth">{{selectDate}}</text>
 				</picker>
-				<picker @change="bindPickerdateChange" :value="index" :range="monthArr">
-				    <view class="date">
-				      <text>{{monthArr[index]}}</text>
-					  <image src="../../static/image/Frame.png" mode=""></image>
-				    </view>
-				  </picker>
 			</view>
 			<view class="date-btn">
 				<view :class="{blue:dateState===1}" @click="timeClick(1)">
@@ -34,67 +33,60 @@
 		
 		data(){
 			return {
-				year: '无',
-				indexValue:'',
 				date:{},
 				index:0,
 				dateState:0,
-				startIndex:null,
-				endIndex:null,
-				monthArr:['无','1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+				selectDate: moment().format('YYYY-MM'),
 			}
 		},
-
+		computed:{
+			startDate() {
+				return this.getDate('start');
+			},
+			endDate() {
+				return this.getDate('end');
+			}
+		},
 		methods: {
-			bindDateChange(e) {
-				this.year = e.detail.value;
-				this.dateState = 0
-				this.dateFun()
-			},
-			bindPickerdateChange(e) {
-			    this.index = e.detail.value;
-				if(this.index.length===1){
-					this.indexValue = `0${this.index}`
-				}				
-				this.dateState = 0
-				this.dateFun()
-			},
 			timeClick(num){
 				this.dateState = num
-				this.year = '无'
-				this.index = 0
-				this.dateFun()
-			},
-			dateFun(){
-				if(!this.dateState){
-					let date = this.getMonthStartEnd(this.indexValue, this.year);
-					this.date.startTime = date.start
-					this.date.endTime = date.end
-				} else {
-					let monthNum = this.dateState === 1 ? 6 : 3;
-					this.date = {
-						startTime: moment().subtract(monthNum, 'months').format('YYYY-MM-DD'),
-						endTime: moment().format('YYYY-MM-DD'),
-					}
+				let monthNum = this.dateState === 1 ? 6 : 3;
+				this.date = {
+					startTime: moment().subtract(monthNum, 'months').format('YYYY-MM-DD'),
+					endTime: moment().format('YYYY-MM-DD'),
 				}
 				this.$emit('handle',this.date)
 			},
-			padDate(value) { return value < 10 ? '0' + value : value },
-			// 获取月份的起止时间
-			getMonthStartEnd(month, year) {
-			  // 创建一个 moment 对象，设置为该月的第一天
-			  const start = moment({year: year, month: month - 1, day: 1}).startOf('month');
-			  // 获取当月的最后一天
-			  const end = moment(start).endOf('month');  
-			  return {
-			    start: start.format('YYYY-MM-DD'),
-			    end: end.format('YYYY-MM-DD')
-			  };
+			dateChange: function(e) {
+				this.dateState = 0
+				this.selectDate = e.detail.value;
+				let year = this.selectDate.split('-')[0];
+				let month = this.selectDate.split('-')[1];
+				let startDate = moment({year: year, month: month - 1, day: 1}).startOf('month');
+				let endDate = moment(startDate).endOf('month');
+				this.date = {
+					startTime: moment(startDate).format('YYYY-MM-DD'),
+					endTime: moment(endDate).format('YYYY-MM-DD'),
+				}
+				this.$emit('handle',this.date)
+			},
+			getDate(type) { //年月日
+			    const date = new Date();
+			    let year = date.getFullYear();
+			    let month = date.getMonth() + 1;
+			    let day = date.getDate();
+			    			
+			    if (type === 'start') {
+			        year = year - 100;
+			    } else if (type === 'end') {
+			        year = year;
+			    }
+			    month = month > 9 ? month : '0' + month;
+			    day = day > 9 ? day : '0' + day;
+			    return `${year}-${month}-${day}`;
 			},
 		},
 		mounted() {
-			this.endIndex= new Date().getFullYear();
-			this.startIndex = this.endIndex - 5;
 			this.timeClick(2)
 		},
 		
@@ -113,15 +105,26 @@
 			justify-content: space-between;
 			align-items: center;
 			padding: 24rpx 30rpx;
-			
+			.blue {
+				background: #4286ff !important;
+				color: #ffffff !important;
+			}
 			.date {
-				min-width: 208rpx;
-				height: 72rpx;
-				background: #ffffff;
-				border-radius: 12rpx;
-				display: flex;
-				justify-content: center;
-				align-items: center;
+				.datePicker {
+					height: 56rpx;
+					font-size: 28rpx;
+					line-height: 56rpx;
+					border: 2rpx solid #4286ff;
+					border-radius: 42rpx;
+					padding: 0 50rpx;
+					color: #076aff;
+					margin-left: 20rpx;
+				}
+				.birth{
+					height: 86rpx;
+					display: inline-block;
+					text-align: left;
+				}
 				.date {
 					display: flex;
 					justify-content: center;
@@ -153,10 +156,7 @@
 					color: #076aff;
 					margin-left: 20rpx;
 				}
-				.blue {
-					background: #4286ff !important;
-					color: #ffffff !important;
-				}
+				
 			}
 		}
 	}

@@ -338,11 +338,7 @@
 				"van-toast": "/wxcomponents/vant/toast/index",
 				"van-rate": "/wxcomponents/vant/rate/index",
 				"van-loading": "/wxcomponents/vant/loading/index",
-				"van-progress": "/wxcomponents/vant/progress/index",
-				"health-card-login": "plugin://healthCardPlugins/healthCardLogin",
-				"health-card-users": "plugin://healthCardPlugins/healthCardUsers",
-				"health-card-create-card": "plugin://healthCardPlugins/healthCardCreateCard",
-				"health-card-query-comp": "plugin://healthCardPlugins/healthCardQueryComp"
+				"van-progress": "/wxcomponents/vant/progress/index"
 		},
 		"permission":{
 			"scope.userLocation":{
