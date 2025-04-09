@@ -77,34 +77,30 @@
 				}
 			},
 			toggle() {
-			      const animation = uni.createAnimation({
-			        duration: 0,
-			        timingFunction: 'ease'
-			      });
-				  animation.opacity(0).step();
-			      this.animationData = animation.export();
-				  setTimeout(()=>{
-				  	const animation = uni.createAnimation({
-				    duration: 800,
-				    timingFunction: 'linear'
-				  });
-				  animation.opacity(1).step();
-				  this.animationData = animation.export();			  
-				  },0)
-			    },
+				const animation = uni.createAnimation({
+					duration: 0,
+					timingFunction: 'ease'
+				});
+				animation.opacity(0).step();
+				this.animationData = animation.export();
+				setTimeout(()=>{
+					const animation = uni.createAnimation({
+						duration: 800,
+						timingFunction: 'linear'
+					});
+					animation.opacity(1).step();
+					this.animationData = animation.export();			  
+				},0)
+			},
 			async show(str){
 				this.touchMove()
-				if(!str){
+				if(!str) {
 					await this.toggle()
-				}else{
-					this.headerEmit = {
-					    state:'',
-					    visitNumber:''
-					}
+				} else {
+					this.headerEmit = { state:'', visitNumber:'' }
 					setTimeout(()=>{
 						this.headerEmit = str
 					},0)
-					
 				}
 			},
 			

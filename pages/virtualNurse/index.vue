@@ -135,7 +135,7 @@
 			<view class="bottom-dh-char flex-row-around" style="font-size: 55rpx; padding:60rpx 0 100rpx 0;">
 		<view class="record-layer">
 		    		
-		    		<!-- 语音遮罩层 -->
+		<!-- 语音遮罩层 -->
 		<view class="voice-mask" v-show="mask" catchtouchmove="true">
 			<!-- 语音音阶动画 -->
 			<view class="voice-bar " :class="{voiceDel:needCancel}" >
@@ -196,8 +196,8 @@
 				md: new MarkdownIt(),
 				pattern:2,
 				patternList:[
-					'app-3y1tj6dptbvU0KIcFJorXU4Z',
-					'app-jvcTkWue6jt4pb06TWZGAsHI',
+					'app-Vy92nlKqlkwEkc6U3DK1xp5y',
+					'app-S78Iz1QpwXOIApLqed51DbrG',
 				],
 				showComponent: true,
 				text:'',
@@ -210,21 +210,21 @@
 				mode:'',
 				msgList:[
 					{
-					    my:false,
+					  my:false,
 						type:1,
 						msg:'您可以向我询问以下问题：',
 						questionList:['感冒吃什么药','头孢的作用是什么'],
 					}
-				],      //消息集合
+				],              //消息集合
 				DataList:{},    //底部弹窗
 				footBar:[
 					{
-					name:'智能导诊',
-					state:1,
-				    },
+						name:'智能导诊',
+						state:1,
+					},
 					{
-					name:'智能问答',
-					state:2,
+						name:'智能问答',
+						state:2,
 					},
 				],
 				voiceState:false,        //底部切换状态
@@ -257,10 +257,10 @@
 		},
 		onLoad(options) {
 			if (Object.keys(options).length > 0) {
-			    this.pattern = Number(options.pattern)
-			    let manifestation = options.manifestation
+				this.pattern = Number(options.pattern)
+				let manifestation = options.manifestation
 				console.log('manifestation',manifestation)
-			    if(this.pattern===1){
+				if(this.pattern===1){
 					uni.showToast({
 					    title: '已为您切换到智能导诊',
 					    icon: 'none',   
@@ -458,8 +458,7 @@
 						this.msg = msg
 						this.sendMsg()
 					}else {
-						login.loginData().catch((error) => {
-                        });
+						login.loginData().catch((error) => {});
 					}
 					
 				}else {
@@ -503,7 +502,7 @@
 				  enableChunked: true,
 				  // enableHttp2:true,
 				  header: {
-				    'Authorization': `Bearer ${this.pattern===1?this.patternList[0]:this.patternList[1]}`,
+				    'Authorization': `Bearer ${this.pattern===1 ? this.patternList[0] : this.patternList[1]}`,
 				    'content-type': 'application/json',
 				  },
 				  success: (res) => {

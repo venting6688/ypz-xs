@@ -72,7 +72,7 @@
 			documentReview(item){
 				try {
 					let data = {
-						patientID:this.footData.patientUniquelyIdentifies,
+						patientID: '0001896456', //this.footData.patientUniquelyIdentifies,
 						// patientID:'0001954286',
 						// patientID:'0001347569',
 						// visitNumber:'861560',
@@ -104,11 +104,11 @@
 								  reportDoctor: E14?.content,
 								  auditDoctor: E20?.content,
 								  manifestation:str,
+									department: '',
 								  title:'检验'
 								};
 								this.report = {...this.report,...newData}
 							}
-							console.log('list',this.list)
 							// this.list = data.filter(item => {
 							// 	return item.desc==='检验子项结果'
 							// })

@@ -190,13 +190,9 @@
 	import Toast from '../../../components/toast.vue'
 	import { mapState } from 'vuex'
 	export default {
-		components:{
-			Toast,
-		},
+		components:{ Toast },
 		mixins: [mixin],
-		props: {
-		           headerEmit: Object,
-		        },
+		props: { headerEmit: Object },
 		data() {
 			return {
 				firstContent:{},
@@ -282,10 +278,11 @@
 			},
 			navigateToPage() {
 				let data = JSON.stringify(this.firstContent)
-			      uni.navigateTo({
-			        url: '/sub_packages/convenientModule/inquiry?params='+data
-			      });
-			    },
+				console.log(data);
+				uni.navigateTo({
+					url: '/sub_packages/convenientModule/inquiry?params='+data
+				});
+			},
 			// 退号
 			async cancelRegistration() {
 				try{

@@ -38,10 +38,6 @@
 								<text>{{item.documentID}}</text>
 							</view>
 							<view class="no">
-								<text>申请科室：</text>
-								<text>{{item.queueName}}</text>
-							</view>
-							<view class="no">
 								<text>{{headIndex===1?'检查':'检验'}}项目：</text>
 								<text>{{item.documentTitle}}</text>
 							</view>
@@ -86,59 +82,27 @@
 				const datePattern = /^\d{4}-\d{2}-\d{2}$/.test(time.startTime);
 				if(datePattern){
 					this.date = time
-					if(this.headIndex === 1){
-						this.getVisitRecord('00')
-					}else{
-						this.getVisitRecord('99')
-					}
+					let type = this.headIndex === 1 ? '00' : '99';
+					this.getVisitRecord(type)
 				}
 			},
 			headBtn(num){
 				this.headIndex = num
-				if(num===1){
-					this.getVisitRecord('00')
-				}else if(num===2){
-					this.getVisitRecord('99')
-				}
+				let type = num === 1 ? '00' : '99';
+				this.getVisitRecord(type)
 			},
 			getVisitRecord(type){
 				try {
-					console.log(this.footData.patientUniquelyIdentifies)
 					let data = {
-						patientID:this.footData.patientUniquelyIdentifies,
-						startDate:this.date.startTime,
-						endDate:this.date.endTime,
-					}
-					elseApi.getVisitRecord(data).then(res => {
-						if(res.data.code===200){
-							let arr = res.data.data.orders.order || []
-							for (let item of arr) {
-							  this.getDocumentRetrieval(type,item)
-							}
-							
-						}else {
-							this.List = []
-						}
-					})
-				} catch (error) {
-					console.log(error)
-					//TODO handle the exception
-				}
-			},
-			getDocumentRetrieval(type,i){
-				try {
-					let data = {
-						patientID:this.footData.patientUniquelyIdentifies,
-						// patientID:'0001954286',
-						// patientID:'0001347569',
-						// visitNumber:'861560',
-						visitNumber:i.visitNumber,
-						documentType:type,
+						patientID: this.footData.patientUniquelyIdentifies, //'0000004548',
+						visitNumber: '',
+						documentType: type,
+						startDate: this.date.startTime,
+						endDate: this.date.endTime,
 					}
 					elseApi.getDocumentRetrieval(data).then(res => {
 						if(res.data.code===200){
-							this.List = res.data.data
-							.map(item => ({ ...item, ...i }));
+							this.List = res.data.data;
 						}else {
 							this.List = []
 						}

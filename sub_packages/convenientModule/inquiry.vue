@@ -318,6 +318,7 @@
 				department:{},
 				requestTask:null,
 				scene:false,     //判断是否是从外部小程序跳转
+				visitNumber: '',
 			}
 		},
 		computed: {
@@ -342,6 +343,7 @@
 					deptName:content.queueName,
 					doctorName:content.doctorName,
 				}
+				this.visitNumber = content.visitNumber
 			}
 		},
 		beforeDestroy() {
@@ -423,8 +425,8 @@
 				  data: {
 				    query: m,
 				    inputs: {
-				      sex: this.patient.sex?this.patient.sex:'男',
-				      age: this.patient.age?this.patient.age:30,
+				      sex: this.patient.sex ? this.patient.sex : '男',
+				      age: this.patient.age ? this.patient.age : 30,
 				    },
 				    response_mode: "streaming",
 				    conversation_id: this.conversation_id,
@@ -433,7 +435,7 @@
 				  enableChunked: true,
 				  // enableHttp2:true,
 				  header: {
-				    'Authorization': 'Bearer app-Wdonm1evx4bCyRtZQsspM6gG',
+				    'Authorization': 'Bearer app-mrRTWorQfWqlgQZttV9tFiJx',
 				    'content-type': 'application/json',
 				  },
 				  success: (res) => {
@@ -534,6 +536,7 @@
 			async complete(index){
 				if(index==1) {
 					try{
+						this.summary.visitNumber = this.visitNumber;
 						const res= await guideApi.PreConsultation({
 							data:this.summary,
 					    }).then((res) => {

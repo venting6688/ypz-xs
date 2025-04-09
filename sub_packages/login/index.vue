@@ -61,16 +61,8 @@
 						if (data.code === 200) {
 							let items = JSON.stringify(data.data)
 							uni.setStorageSync('loginData', items)
-							uni.showToast({
-								title: '登录成功'
-							})
-							// const pages = getCurrentPages(); 
-							// const prevPage = pages[pages.length - 2]; 
-							// prevPage.$vm.updateData(); 
-							// uni.navigateBack();
-							wx.reLaunch({
-							    url: `/pages/virtualNurse/index?pattern=2&shouldUpdate=true`,
-							})
+							uni.showToast({ title: '登录成功' })
+							wx.reLaunch({ url: `/pages/virtualNurse/index?pattern=2&shouldUpdate=true` })
 						}
 					})
 				})

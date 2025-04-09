@@ -50,7 +50,7 @@
 							{
 							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient3.png',
 							    name:'门诊缴费',
-								num:3,
+									num:3,
 							},
 							{
 							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient7.png',

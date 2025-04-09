@@ -122,9 +122,6 @@
 				try {
 					let data = {
 						patientID:this.footData.patientUniquelyIdentifies,
-						// patientID:'0001954286',
-						// patientID:'0001347569',
-						// visitNumber:'861560',
 						visitNumber:this.information.visitNumber,
 						documentType:type,
 					}
@@ -145,7 +142,7 @@
 			async getPaymentRecord(){
 				try {
 					let data = {
-						patientID:this.footData.patientUniquelyIdentifies,
+						patientID: '0001896456', //this.footData.patientUniquelyIdentifies,
 						startDate:this.information.startTime,
 						endDate:this.information.endTime,
 						visitNumber:this.information.visitNumber,

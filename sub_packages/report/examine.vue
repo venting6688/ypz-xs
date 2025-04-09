@@ -55,22 +55,23 @@
 			documentReview(item){
 				try {
 					let data = {
-						patientID:this.footData.patientUniquelyIdentifies,
-						// patientID:'0001915678',
-						// patientID:'0001347569',
-						// visitNumber:'849424',
+						patientID: '0001896456', //this.footData.patientUniquelyIdentifies,
 						visitNumber:this.report.visitNumber,
 						documentType:item.documentType,
 						documentID:item.documentID
 					}
 					elseApi.documentReview(data).then(res => {
 						if(res.data.code===200){
-							this.conclusion = res.data.data.body.documentSearchRp.documents.document[0].documentContentJson.clinicalDocument.structuredBody.section[1] || []
+							let result = res.data.data.body.documentSearchRp.documents.document[0].documentContentJson.clinicalDocument;
+							this.conclusion = result.structuredBody.section[1] || [];
+							let department = result.structuredBody.E0077.content;
+							
 							const { E15, E13,E08 } = this.conclusion;
 							const newData = {
 							  reportDoctor: E15?.content,
 							  auditDoctor: E13?.content,
 							  manifestation: E08?.content,
+								department,
 							  title:'检查'
 							};
 							this.report = {...this.report,...newData}

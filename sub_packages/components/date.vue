@@ -28,6 +28,8 @@
 </template>
 
 <script>
+	import moment from 'moment';
+	
 	export default {
 		
 		data(){
@@ -45,10 +47,9 @@
 
 		methods: {
 			bindDateChange(e) {
-			      this.year = e.detail.value;
-				 
-				  this.dateState = 0
-				  this.dateFun()
+				this.year = e.detail.value;
+				this.dateState = 0
+				this.dateFun()
 			},
 			bindPickerdateChange(e) {
 			    this.index = e.detail.value;
@@ -66,59 +67,30 @@
 			},
 			dateFun(){
 				if(!this.dateState){
-					this.date.startTime = `${this.year}-${this.indexValue}-01`
-				    this.date.endTime = `${this.year}-${this.indexValue}-31`
-				}else{
-					if(this.dateState === 1 ){
-						this.date = this.getLastMonth(6)
-					}else {
-						this.date = this.getLastMonth(3)
+					let date = this.getMonthStartEnd(this.indexValue, this.year);
+					this.date.startTime = date.start
+					this.date.endTime = date.end
+				} else {
+					let monthNum = this.dateState === 1 ? 6 : 3;
+					this.date = {
+						startTime: moment().subtract(monthNum, 'months').format('YYYY-MM-DD'),
+						endTime: moment().format('YYYY-MM-DD'),
 					}
 				}
 				this.$emit('handle',this.date)
 			},
-			padDate(value) {
-			    return value < 10 ? '0' + value : value
+			padDate(value) { return value < 10 ? '0' + value : value },
+			// 获取月份的起止时间
+			getMonthStartEnd(month, year) {
+			  // 创建一个 moment 对象，设置为该月的第一天
+			  const start = moment({year: year, month: month - 1, day: 1}).startOf('month');
+			  // 获取当月的最后一天
+			  const end = moment(start).endOf('month');  
+			  return {
+			    start: start.format('YYYY-MM-DD'),
+			    end: end.format('YYYY-MM-DD')
+			  };
 			},
-			// 获取近i月的时间段
-			getLastMonth(i) {
-			  const now = new Date()
-			  const year = now.getFullYear()
-			  let month = now.getMonth() + 1
-			  month = 2
-			  const day = now.getDate()
-			  let dateRange = {}
-			  dateRange.endTime = `${year}-${this.padDate(month)}-${this.padDate(day)}`;
-			  let nowMonthDay = new Date(year, month, 0).getDate() //当前月的总天数
-			  if (i == 12) {
-			    //如果是12月，年数往前推一年
-			    dateRange.startTime = `${year - 1}-${this.padDate(month)}-${this.padDate(day)}`;
-			  } else{
-			        let startYear = year;
-			        let startMonth = month - i;
-			        while (startMonth <= 0) {
-			            startYear--;
-			            startMonth += 12;
-			        }
-			        const startDate = new Date(startYear, startMonth - 1, 1); // 注意这里月份要减1，因为构造Date对象时月份是0-11范围
-			        const endDate = new Date(year, month - 1, 1);
-			
-			        const startMonthDays = new Date(startYear, startMonth, 0).getDate();
-			        const endMonthDays = new Date(year, month, 0).getDate();
-			
-			        // 计算起始时间的日期部分，考虑边界情况
-			        let startDay = Math.min(day, startMonthDays);
-			        if (startMonthDays < endMonthDays && day === endMonthDays) {
-			            startDay = startMonthDays;
-			        }
-			
-			        dateRange.startTime = `${startYear}-${this.padDate(startMonth)}-${this.padDate(startDay)}`;
-			    }
-			  return dateRange
-			},
-			
-
-			
 		},
 		mounted() {
 			this.endIndex= new Date().getFullYear();

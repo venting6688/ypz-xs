@@ -1,6 +1,7 @@
 <template>
 	<view class="box" v-if="showState">
 		<bar />
+		<date @handle="show" />
 		<view class="head">
 			<view>
 				<view class="name" @click="headBtn(1)">
@@ -23,26 +24,18 @@
 				<li v-for="(item,index) in billList" :key="index">
 					<view class="middle">
 						<view class="title">
-							<view class="time">
-								2023年12月20日
-							</view>
-							<view class="clinic">
-								<text>就诊科室：{{item.admDept}}</text>
-								<text>就诊医生：{{item.admDoctor}}</text>
-							</view>
-							
+							<view class="clinic"><text>就诊时间：{{item.admDate}}</text></view>
+							<view class="clinic"><text>就诊科室：{{item.admLoc}}</text></view>
+							<view class="clinic"><text>就诊医生：{{item.admDoc}}</text></view>
 						</view>
 						<view class="center"  v-for="(i,x) in item.itemList.item" :key="x">
 							<view class="no">
-								<view class="name">
-									{{i.itemName}}
-								</view>
+								<view class="name">{{i.itemName}}</view>
 								<view class="price">
 									<text>单价：{{i.itemPrice}}</text>
 									<text>￥{{i.itemSum}}</text>
 								</view>
 							</view>
-							
 						</view>
 					</view>
 					<view class="totalMoney">
@@ -52,12 +45,8 @@
 						</view>
 					</view>
 					<view class="btn">
-						<view class="medical">
-							医保支付
-						</view>
-						<view class="self-paying" @click="pay(item)">
-							立即缴费
-						</view>
+						<!-- <view class="medical">医保支付</view> -->
+						<view class="self-paying" @click="pay(item)">立即缴费</view>
 					</view>
 				</li>
 			</ul>
@@ -68,7 +57,7 @@
 				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 			</view>
 			<ul v-if="headIndex===2">
-				<template v-if="alreadyList.length==3">
+				<template v-if="alreadyList.length">
 					<li @click="particulars(item)" v-for="(item,index) in alreadyList" :key="index">
 						<view class="middle">
 							<view class="title">
@@ -115,6 +104,7 @@
 <script>
 	import mixin from '@/mixins/mixin'
 	import bar from '../components/bar.vue'
+	import date from '../components/date.vue'
 	import Toast from '../components/toast.vue'
 	import { mapState } from 'vuex'
 	import bus from '@/utils/bus.js'
@@ -124,6 +114,7 @@
 		components:{
 			bar,
 			Toast,
+			date,
 		},
 		data(){
 			return {
@@ -142,14 +133,15 @@
 					state:false,
 				},
 				checkState:false,
+				date: {},
 			}
 		},
 		computed: {
 			...mapState(['footData','showState']),
 		},
-		mounted(){
-			this.queryMedicalRecords()
-		},
+		// mounted(){
+		// 	this.queryMedicalRecords()
+		// },
 		onLoad(option) {
 			if(option.checkState){
 				this.checkState = option.checkState
@@ -160,77 +152,74 @@
 				this.toastObj.state = state
 			},
 			particulars(detail){
-				uni.navigateTo({
-					url: `/sub_packages/outpatientExpenditure/particulars?detail=${encodeURIComponent(JSON.stringify(detail))}`
-				})
+				uni.navigateTo({ url: `/sub_packages/outpatientExpenditure/particulars?detail=${encodeURIComponent(JSON.stringify(detail))}`});
 			},
+			//时间插件
+			show(time){
+				const datePattern = /^\d{4}-\d{2}-\d{2}$/.test(time.startTime);
+				if(datePattern){
+					this.date = time
+					this.headIndex === 1 ? this.queryMedicalRecords() : this.getPaymentRecord();
+				}
+			},
+			headBtn(num){
+				this.loading.loadingState = false
+				this.headIndex = num
+				num === 1 ? this.queryMedicalRecords() : this.getPaymentRecord();
+			},
+			//未交费
 			async queryMedicalRecords() {
-			    if (this.footData.patientUniquelyIdentifies) {
-			          this.loading = {
-			            loadingState: true,
-			            loadingName: '加载中'
-			          };
-					  this.billList = []
-			          const time = await this.getWeek('上一周');
-			          const msg = {
-			            patientID: this.footData.patientUniquelyIdentifies,
-			            startDate: time.startDate,
-			            endDate: time.endDate
-			          };
-			          const res = await outpatientExpenditureApi.queryMedicalRecords(msg);
-			          if (res.data.code === 200 && res.data.data.resultCode!== '-1') {
-			            this.list1 = res.data.data.admList.admItem;
-			            for (const [i, item] of this.list1.entries()) {
-			              try {
-			                const result = await this.fetchToBePaid(this.footData.patientUniquelyIdentifies, item.adm, time.startDate, time.endDate);
-			                await this.processResult(result, i);
-			              } catch (error) {
-			                console.error('Error', error);
-			                this.toastObj = {
-			                  state: true,
-							  type:'fail',
-			                  message: '获取待支付信息时出错，请稍后重试'
-			                };
-			              }
-			            }
-			        }else {
-						this.billList = []
-						this.loading = {
-						  loadingState: false,
-						};
+				if (this.footData.patientUniquelyIdentifies) {
+					this.loading = {
+						loadingState: true,
+						loadingName: '加载中'
+					};
+					let data = {
+					    patientID: '0001896456', //this.footData.patientUniquelyIdentifies,
+							// patientID: '0000004548','0001896456'
+					    visitNumber: '',
+					    startDate: this.date.startTime,
+					    endDate: this.date.endTime,
+					};
+					outpatientExpenditureApi.getToBePaid(data).then(res => {
+						this.loading = { loadingState: false };
+						if (res.data.code === 200 && res.data.data.payOrdList != null) {
+							let data = res.data.data.payOrdList.payOrder;
+							this.billList = data;
+						} else {
+							this.toastObj = {
+								state: true,
+								type:'fail',
+								message: res.data.data.resultMsg,
+							};
+						}
+					}).catch(err => {
+						console.log('error：', err);
+					});
+					
+				}
+			},
+			
+			//缴费记录
+			async getPaymentRecord(){
+				try {
+					let data = {
+						patientID: '0001896456',//this.footData.patientUniquelyIdentifies,
+						startDate: this.date.startTime,
+						endDate: this.date.endTime,
 					}
-			    }
+					outpatientExpenditureApi.getPaymentRecord(data).then(res => {
+						if(res.data.code===200){
+							this.alreadyList = res.data.data||[]
+						}
+					})
+				} catch (error) {
+					console.log(error)
+					//TODO handle the exception
+				}
 			},
-			async fetchToBePaid(patientID, visitNumber, startDate, endDate) {
-			    const data = {
-			        patientID,
-			        visitNumber,
-			        startDate,
-			        endDate
-			    };
-			    const result = await outpatientExpenditureApi.getToBePaid(data);
-			    return result;
-			},
-			async processResult(result, i) {
-			  if (result.data.code === 200 && result.data.data.resultCode!== -1) {
-			    this.list2 = result.data.data.payOrdList.payOrder;
-			    if (this.list2.length) {
-			      this.loading.loadingState = false;
-			      for (const item of this.list2) {
-			        item.admDept = this.list1[i].admDept;
-			        item.admDoctor = this.list1[i].admDoctor;
-			        item.adm = this.list1[i].adm;
-			        this.billList.push(item);
-			      }
-			    } else {
-			      this.toastObj = {
-			        state: true,
-					type:'fail',
-			        message: result.data.data.resultMsg
-			      };
-			    }
-			  }
-			},
+			
+			//支付
 			pay(item){
 				let loginValue = uni.getStorageSync("loginData");
 				let data = JSON.parse(loginValue)
@@ -341,35 +330,7 @@
 					console.log('errrrrr：', err);
 				})
 			},
-			async getPaymentRecord(){
-				try {
-					let time = await this.getWeek('上一周')
-					let data = {
-						patientID:this.footData.patientUniquelyIdentifies,
-						// startDate:time.startDate,
-						startDate:'2024-11-22',
-						endDate:time.endDate,
-					}
-					outpatientExpenditureApi.getPaymentRecord(data).then(res => {
-						if(res.data.code===200){
-							this.alreadyList = res.data.data||[]
-						}
-					})
-				} catch (error) {
-					console.log(error)
-					//TODO handle the exception
-				}
-			},
 			
-			headBtn(num){
-				this.loading.loadingState = false
-				this.headIndex = num
-				if(num===1){
-				    this.queryMedicalRecords()
-				}else {
-					this.getPaymentRecord()
-				}
-			},
 		},
 		
 	}
@@ -450,15 +411,12 @@
 						border-top: 2rpx solid #eeeeee;
 						
 						.title {
-							.time {
-							    padding: 15rpx 0;
-							}
+							.time { padding: 15rpx 0; }
+							.clinic { padding: 15rpx 0 0; }
 							.header {
-								
 								display: flex;
 								justify-content: space-between;
 								align-items: center;
-								
 								image {
 									width: 12rpx;
 									height: 18rpx;

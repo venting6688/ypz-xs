@@ -23,28 +23,28 @@
 				fail: () => {},
 				complete: () => {}
 			});
-	}else {
-		uni.showModal({
-			title: '您的账户下没有添加家庭成员信息，您需要添加家庭成员后使用',
-			cancelText: '暂不绑定',
-			confirmText: '立即绑定',
-			confirmColor: '#576B95',
-			success: res => {
-				if (res.confirm) { 
-					uni.navigateTo({
-						url:"/sub_packages/family/familyInformation"
-					})
-					reject()
-				} else if (res.cancel) {
-					// wx.exitMiniProgram()
-					reject()
-				}
-				store.commit('SET_SHOW_MODAL_STATE', false);
-			},
-			fail: () => {},
-			complete: () => {}
-		});
-	}
+		} else {
+			uni.showModal({
+				title: '您的账户下没有添加家庭成员信息，您需要添加家庭成员后使用',
+				cancelText: '暂不绑定',
+				confirmText: '立即绑定',
+				confirmColor: '#576B95',
+				success: res => {
+					if (res.confirm) { 
+						uni.navigateTo({
+							url:"/sub_packages/family/familyInformation"
+						})
+						reject()
+					} else if (res.cancel) {
+						// wx.exitMiniProgram()
+						reject()
+					}
+					store.commit('SET_SHOW_MODAL_STATE', false);
+				},
+				fail: () => {},
+				complete: () => {}
+			});
+		}
 	})
 }
 export default {

@@ -19,11 +19,7 @@
 					</view>
 					<view class="no">
 						<text>申请科室：</text>
-						<text>{{report.queueName?report.queueName:''}}</text>
-					</view>
-					<view class="no">
-						<text>申请医生：</text>
-						<text>{{report.doctorName?report.doctorName:''}}</text>
+						<text>{{report.department?report.department:''}}</text>
 					</view>
 					<view class="no two">
 						<text>检查时间：</text>
@@ -103,10 +99,7 @@
 				}else{
 					
 				}
-				wx.reLaunch({
-				    url: `/pages/virtualNurse/index?pattern=2&&manifestation=${this.report.manifestation}`,
-				})
-				console.log(this.report.manifestation)
+				wx.reLaunch({ url: `/pages/virtualNurse/index?pattern=2&&manifestation=${this.report.manifestation}` })
 			},
 		},
 		mounted() {

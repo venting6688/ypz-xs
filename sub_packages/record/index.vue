@@ -61,7 +61,7 @@
 			getVisitRecord(){
 				try {
 					let data = {
-						patientID:this.footData.patientUniquelyIdentifies,
+						patientID: this.footData.patientUniquelyIdentifies,
 						startDate:this.date.startTime,
 						endDate:this.date.endTime,
 					}

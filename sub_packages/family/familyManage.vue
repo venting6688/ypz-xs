@@ -38,11 +38,11 @@
 							<!-- <image src="../static/image/healthCard.png" mode=""></image> -->
 						</view>
 					</view>
-					<view class="bottomBtn" @click="unfoldFun(index)">
+					<!-- <view class="bottomBtn" @click="unfoldFun(index)">
 						<text>{{!item.unfold?'展开详情':'收起详情'}}</text>
 						<image v-if="!item.unfold" src="../static/image/bottom.png" mode=""></image>
 						<image v-else src="../static/image/top.png" mode=""></image>
-					</view>
+					</view> -->
 				</li>
 			</ul>
 		</view>

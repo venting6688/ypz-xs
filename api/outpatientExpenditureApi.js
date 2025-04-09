@@ -7,12 +7,11 @@ const patient = {
 	   		url: "cardContent/getToBePaid",
 	   		method: "get",
 	   		data:{
-				patientID:data.patientID,
-	   		    visitNumber:data.visitNumber, 
-	   		    startDate:data.startDate, 
-	   		    endDate:data.endDate, 
+					patientID:data.patientID,
+					visitNumber:data.visitNumber, 
+					startDate:data.startDate, 
+					endDate:data.endDate, 
 	   		}
-	   
 	   	},)
 	   	return res
 	   },
@@ -23,8 +22,8 @@ const patient = {
 	   		method: "get",
 	   		data:{
 	   			patientID:data.patientID,
-	   		    startDate:data.startDate, 
-	   		    endDate:data.endDate, 
+					startDate:data.startDate, 
+					endDate:data.endDate, 
 	   		}
 	   
 	   	},)
