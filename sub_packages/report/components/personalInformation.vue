@@ -17,9 +17,9 @@
 						<text>检查项目：</text>
 						<text>{{report.documentTitle?report.documentTitle:''}}</text>
 					</view>
-					<view class="no">
+					<view class="no" v-if="report.department">
 						<text>申请科室：</text>
-						<text>{{report.department?report.department:''}}</text>
+						<text>{{report.department ? report.department : ''}}</text>
 					</view>
 					<view class="no two">
 						<text>检查时间：</text>

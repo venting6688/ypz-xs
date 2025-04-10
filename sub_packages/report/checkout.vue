@@ -2,41 +2,23 @@
 	<view class="details">
 		<view class="middle">
 			<personalInformation :report="report" />
-			<view class="personal-2" v-for="(i,x) in list" :key="i">
-				<view class="center">
-					<view class="title">
-						<view></view>
-						<view>代号</view>
-						<view>项目</view>
-						<view>状态</view>
-						<view>结果</view>
-						<view>参考值</view>
-					</view>
-					<ul>
-						<li v-for="(item,index) in i.section" :key="index">
-							<view>
-								{{index+20}}
-							</view>
-							<view>
-								{{item.E01.content?item.E01.content:''}}
-							</view>
-							<view>
-								{{item.E02.content?item.E02.content:''}}
-							</view>
-							<view>
-								{{item.E07.content?flagType(item.E07.content):''}}
-							</view>
-							<view>
-								{{item.E03.content?item.E03.content:''}}
-							</view>
-							
-							<view>
-								{{item.E06.content?item.E06.content:''}}
-							</view>
-						</li>
-					</ul>
-				</view>
+			<view class="uni-container">
+				<uni-table border stripe emptyText="暂无更多数据" v-for="(i,x) in list" :key="i">
+					<uni-tr>
+						<uni-th>项目</uni-th>
+						<!-- <uni-th>状态</uni-th> -->
+						<uni-th>结果</uni-th>
+						<uni-th>参考值</uni-th>
+					</uni-tr>
+					<uni-tr v-for="(item,index) in i.section" :key="index">
+						<uni-td>{{item.E02.content ? item.E02.content : ''}}</uni-td>
+						<!-- <uni-td>{{item.E07.content && flagType(item.E07.content) != null ? flagType(item.E07.content) : ''}}</uni-td> -->
+						<uni-td>{{item.E05.content ? item.E05.content : ''}}</uni-td>
+						<uni-td>{{item.E06.content ? item.E06.content : ''}}</uni-td>
+					</uni-tr>
+				</uni-table>
 			</view>
+			
 		</view>
 	</view>
 </template>
@@ -145,6 +127,14 @@
 		.middle {
 			overflow: auto;
 			margin-bottom: 50rpx;
+			.uni-container {
+				width: 96%;
+				margin: 0 auto;
+				uni-table {
+				  width: 100%;
+				  table-layout: auto; 
+				}
+			}
 			.personal-2{
 				background: #ffffff;
 				width: 722rpx;
