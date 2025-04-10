@@ -12,7 +12,7 @@ const patient = {
 					startDate:data.startDate, 
 					endDate:data.endDate, 
 	   		}
-	   	},)
+	   	}, 2)
 	   	return res
 	   },
 	   // 待缴费就诊记录
@@ -26,7 +26,7 @@ const patient = {
 					endDate:data.endDate, 
 	   		}
 	   
-	   	},)
+	   	}, 2)
 	   	return res
 	   },
 	   // 拉起缴费
@@ -72,7 +72,7 @@ const patient = {
 	      	const res = await cjRequest({
 	      		url: url,
 	      		method: "get",
-	      	})
+	      	}, 2)
 	      	return res
 	   },
 	   // 已缴费就诊记录明细

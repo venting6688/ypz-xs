@@ -100,8 +100,9 @@
 </template>
 
 <script>
-	import registrationApi from '@/api/registrationApi.js'
 	import {mapState} from 'vuex'
+	import login from '@/utils/login.js'
+	import registrationApi from '@/api/registrationApi.js'
 	export default {
 		
 		data() {
@@ -166,31 +167,36 @@
 			
 			// 获取医生号源
 			getNumSource(half,day,index){
-				if(day){
-					this.optList = day
+				let loginValue = uni.getStorageSync("loginData");
+				if (!loginValue) {
+					login.loginData().catch((error) => {});
+				} else {
+					if(day){
+						this.optList = day
+					}
+					this.doctor = {
+						DoctorName:day[index].DoctorName?day[index].DoctorName:'',
+						DoctorSessType:day[index].DoctorSessType?day[index].DoctorSessType:'',
+						AdmitAddress:day[index].AdmitAddress?day[index].AdmitAddress:'',
+						Fee:day[index].Fee?day[index].Fee:'',
+						ServiceDate:half.ServiceDate,
+						SessionName:half.SessionName,
+						clinic:this.title,
+						today:this.today,
+						scheduleItemCode:half.ScheduleItemCode,
+					}
+					registrationApi.getNumSource({
+						patientID:this.footData.patientUniquelyIdentifies,
+						dateStr:half.ServiceDate,
+						scheduleItemCode:half.ScheduleItemCode
+					}).then(res => {
+						this.doctorTimeList = res.data.data
+					})
+					.catch(err => {
+						console.log('2：', err);
+					})
+					this.$refs.popup.open('bottom')
 				}
-				this.doctor = {
-					DoctorName:day[index].DoctorName?day[index].DoctorName:'',
-					DoctorSessType:day[index].DoctorSessType?day[index].DoctorSessType:'',
-					AdmitAddress:day[index].AdmitAddress?day[index].AdmitAddress:'',
-					Fee:day[index].Fee?day[index].Fee:'',
-					ServiceDate:half.ServiceDate,
-					SessionName:half.SessionName,
-					clinic:this.title,
-					today:this.today,
-					scheduleItemCode:half.ScheduleItemCode,
-				}
-				registrationApi.getNumSource({
-					patientID:this.footData.patientUniquelyIdentifies,
-					dateStr:half.ServiceDate,
-					scheduleItemCode:half.ScheduleItemCode
-				}).then(res => {
-					this.doctorTimeList = res.data.data
-				})
-				.catch(err => {
-					console.log('2：', err);
-				})
-				this.$refs.popup.open('bottom')
 			},
 			doctorDetails(item){
 				this.$refs.popup.close()

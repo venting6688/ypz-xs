@@ -25,7 +25,7 @@ const patient = {
 	   	const res = await cjRequest({
 	   		url: url,
 	   		method: "get",
-	   	})
+	   	}, 2)
 	   	return res
 	},
 	// 就诊记录详情列表
@@ -37,7 +37,7 @@ const patient = {
 	   	const res = await cjRequest({
 	   		url: url,
 	   		method: "get",
-	   	})
+	   	}, 2)
 	   	return res
 	},
 	// 获取报告详情

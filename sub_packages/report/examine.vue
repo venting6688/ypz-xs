@@ -55,7 +55,7 @@
 			documentReview(item){
 				try {
 					let data = {
-						patientID: '0001896456', //this.footData.patientUniquelyIdentifies,
+						patientID: this.footData.patientUniquelyIdentifies,
 						visitNumber:this.report.visitNumber,
 						documentType:item.documentType,
 						documentID:item.documentID

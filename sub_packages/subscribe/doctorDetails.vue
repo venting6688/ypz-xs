@@ -85,6 +85,7 @@
 
 <script>
 	import { mapState } from 'vuex'
+	import login from '@/utils/login.js'
 	import Toast from '../components/toast.vue'
 	import registrationApi from '@/api/registrationApi.js'
 	export default {
@@ -139,15 +140,18 @@
 					 return
 				}
 				let loginValue = uni.getStorageSync("loginData");
-				let data = JSON.parse(loginValue)
-				if(this.doctor.today){
-					// 当天预约
-					this.today(data)
-				}else{
-					// 其他时间预约
-					this.otherTime(data)
+				if (!loginValue) {
+					login.loginData().catch((error) => {});
+				} else {
+					let data = JSON.parse(loginValue)
+					if(this.doctor.today){
+						// 当天预约
+						this.today(data)
+					}else{
+						// 其他时间预约
+						this.otherTime(data)
+					}
 				}
-				
 			},
 			today(data){
 				let msg = {
@@ -161,7 +165,6 @@
 				}
 				registrationApi.registrationPreOrder(msg).then(res => {
 					if(res.data.code===200) {
-						console.log('支付',res)
 						let obj = res.data.data.prePayResponse
 						let registrationPrePayResponse = res.data.data
 						registrationPrePayResponse.patientCard = data.defaultArchives.patientCard
@@ -221,7 +224,6 @@
 				})
 			},
 			otherTime(data){
-				console.log('data',data)
 				// 其他时间预约
 				let obj = {
 				    patientID: this.footData.patientUniquelyIdentifies,

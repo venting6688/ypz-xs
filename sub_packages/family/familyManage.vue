@@ -124,7 +124,7 @@
 				}
 				try{
 					let data = {
-						phone:item.phoneNum,
+						phone:value.phoneNum,
 						patientCard:item.patientCard,
 					}
 				const res = await HeaderbarApi

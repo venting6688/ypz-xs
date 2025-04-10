@@ -3,7 +3,7 @@ import store from '../store';
 let requestCount = 0
 /**
  *
- * @param state   1: 没有加载弹框    2：跳过判断登录弹窗     3：定时刷新接口不弹窗
+ * @param state   1: 没有加载弹框    2：跳过判断登录弹窗     3：定时刷新接口不弹窗   
 */
 export const cjRequest =  (parmas, state) => {
 	if(!store.state.loginValue && state!==2){

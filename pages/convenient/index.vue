@@ -7,10 +7,11 @@
 		    <check @handle="show" v-if="headerEmit.state=='查验'" :headerEmit="headerEmit" />
 			<answer @handle="show" v-if="headerEmit.state=='回诊'" :headerEmit="headerEmit" />
 			<prescription @handle="show" v-if="headerEmit.state=='处方'" :headerEmit="headerEmit" />
-			<view class="img" v-if="!headerEmit.state">
+			<view class="img" v-if="!headerEmit.state || !signData">
 				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
+		
 		<foot :footState="footState"/>
 	</view>
 </template>
@@ -38,6 +39,7 @@
 			prepare,
 			doing,
 			inventory,
+			signData: uni.getStorageSync("loginData")
 		},
 		data() {
 			return {

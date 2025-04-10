@@ -6,13 +6,9 @@
 			<view class="scroll" >
 			 <view class="middle">
 				<view class="li" v-for="(item,index) in personageObj.list" :key="index" @click="updateDefaultArchives(item)" :class="{blue:personageObj.sole.patientName==item.patientName}">
-					
 					<view class="name">
 						<text>{{item.patientName}}</text>
 					</view>
-					<!-- <view class="price">
-						状态:<text>{{item.state}}</text>
-					</view> -->
 					<view class="img" >
 						<image v-if="personageObj.sole.patientName==item.patientName" src="@/static/image/right.png" mode="widthFix"></image>
 					</view>
@@ -79,7 +75,7 @@
 				}
 				try{
 					let data = {
-						phone:item.phoneNum,
+						phone:value.phoneNum,
 						patientCard:item.patientCard,
 					}
 				const res = await HeaderbarApi
@@ -96,9 +92,7 @@
 			// 刷新用户信息
 			async refreshUserInfo(phoneNum){
 				try{
-				    const res = await HeaderbarApi
-					.refreshUserInfo(phoneNum)
-					.then((result) => {
+				  const res = await HeaderbarApi.refreshUserInfo(phoneNum).then((result) => {
 						if(result.data.code === 200){
 							let data = result.data.data
 							this.setFootData(data.defaultArchives)

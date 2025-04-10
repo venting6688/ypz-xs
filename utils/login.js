@@ -5,7 +5,7 @@
 		if (!loginValue) {
 			uni.showModal({
 				title: '您未登录账户，请您登录后使用。',
-				cancelText: '暂不登录',
+				cancelText: '取消登录',
 				confirmText: '立即登录',
 				confirmColor: '#576B95',
 				success: res => {

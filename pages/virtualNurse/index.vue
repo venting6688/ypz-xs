@@ -196,8 +196,8 @@
 				md: new MarkdownIt(),
 				pattern:2,
 				patternList:[
-					'app-Vy92nlKqlkwEkc6U3DK1xp5y',
-					'app-S78Iz1QpwXOIApLqed51DbrG',
+					'app-3y1tj6dptbvU0KIcFJorXU4Z',
+					'app-jvcTkWue6jt4pb06TWZGAsHI',
 				],
 				showComponent: true,
 				text:'',

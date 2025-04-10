@@ -142,7 +142,7 @@
 			async getPaymentRecord(){
 				try {
 					let data = {
-						patientID: '0001896456', //this.footData.patientUniquelyIdentifies,
+						patientID: this.footData.patientUniquelyIdentifies,
 						startDate:this.information.startTime,
 						endDate:this.information.endTime,
 						visitNumber:this.information.visitNumber,

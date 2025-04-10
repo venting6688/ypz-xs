@@ -2,18 +2,18 @@
 	<view class="department">
 		<HeaderBar :HeaderBar="HeaderBar" />
 		<van-search
-		    v-model="searchQuery"
-		    placeholder="搜索科室"
-		    @change="onSearchChange"
+			v-model="searchQuery"
+			placeholder="搜索科室"
+			@change="onSearchChange"
 		/>
 		<van-tree-select
-		      height="880rpx"
-		      :items="filteredItems"
-		      :main-active-index.sync="mainActiveIndex"
-		      :active-id.sync="activeId"
-		      @click-nav="onNavClick"
-		      @click-item="onItemClick"
-		    />
+			height="880rpx"
+			:items="filteredItems"
+			:main-active-index.sync="mainActiveIndex"
+			:active-id.sync="activeId"
+			@click-nav="onNavClick"
+			@click-item="onItemClick"
+		/>
 	</view>
 </template>
 
@@ -25,19 +25,19 @@
 			HeaderBar
 		},
 	    data() {
-	        return {
-				HeaderBar:{
-					title:'预约挂号',
-					state:true,
-				},
-	            searchQuery: '',
-				items:[],
-	            filteredItems: [],
-				stairDepartment:[],     //一级科室
-				secondDepartment:[],     //二级科室
-	            activeId: null,
-	            mainActiveIndex: 0
-	        };
+				return {
+					HeaderBar:{
+						title:'预约挂号',
+						state:true,
+					},
+					searchQuery: '',
+					items:[],
+					filteredItems: [],
+					stairDepartment:[],     //一级科室
+					secondDepartment:[],     //二级科室
+					activeId: null,
+					mainActiveIndex: 0
+				};
 	    },
 		onShow() {
 			this.getServiceGroup()
@@ -47,33 +47,30 @@
 					this.searchQuery = value.detail
 					this.filterItemsFun();
 				},
-			// 获取大科室
-			getServiceGroup() {
-			  		registrationApi.getServiceGroup().then(res => {
+				// 获取大科室
+				getServiceGroup() {
+					registrationApi.getServiceGroup().then(res => {
 						if(res.data.code===200) {
 							this.stairDepartment = res.data.data.ClinicServiceGroup.map(item =>({text:item.CliSerGroupName,...item}));
 							if(this.stairDepartment.length){
 								let CliSerGroupID = this.stairDepartment[this.mainActiveIndex].CliSerGroupID
 								this.getSpecialtyGroup(CliSerGroupID)
 							}
-							
 						}
-			  		})
-			  		.catch(err => {
-			  			console.log('errrrrr：', err);
-			  		})
-			  },
+					}).catch(err => {
+						console.log('errrrrr：', err);
+					})
+				},
 			  // 获取小科室
-			getSpecialtyGroup(CliSerGroupID) {
-				registrationApi.getSpecialtyGroup(CliSerGroupID).then(res => {
-       					if(Array.isArray(res.data.data.ClinicGroup)){
-						    this.secondDepartment = res.data.data.ClinicGroup.map(item =>({text:item.CLGRPDesc,...item}));
-					    }else {
-						    this.secondDepartment = [res.data.data.ClinicGroup].map(item =>({text:item.CLGRPDesc,...item}));
-					    }
-					    this.integration()
-				})
-				.catch(err => {
+				getSpecialtyGroup(CliSerGroupID) {
+					registrationApi.getSpecialtyGroup(CliSerGroupID).then(res => {
+						if(Array.isArray(res.data.data.ClinicGroup)){
+							this.secondDepartment = res.data.data.ClinicGroup.map(item =>({text:item.CLGRPDesc,...item}));
+						}else {
+							this.secondDepartment = [res.data.data.ClinicGroup].map(item =>({text:item.CLGRPDesc,...item}));
+						}
+						this.integration()
+				}).catch(err => {
 					console.log('2：', err);
 				})
 			},
@@ -117,17 +114,17 @@
 				let CliSerGroupID = this.filteredItems[this.mainActiveIndex].CliSerGroupID
 				this.getSpecialtyGroup(CliSerGroupID)
 			},
-	        onNavClick(index) {
-	            this.mainActiveIndex = index.target.index;
+			onNavClick(index) {
+				this.mainActiveIndex = index.target.index;
 				let CliSerGroupID = this.filteredItems[this.mainActiveIndex].CliSerGroupID
 				this.getSpecialtyGroup(CliSerGroupID)
-	        },
-	        onItemClick(item) {
-	            this.activeId = item.target.text;
+			},
+			onItemClick(item) {
+				this.activeId = item.target.text;
 				this.searchQuery = ''
 				this.filteredItems = []
 				this.items = []
-	            // 处理点击事件
+				// 处理点击事件
 				uni.navigateTo({
 					url: `/sub_packages/subscribe/doctors?title=${item.target.text}&CLGRPRowId=${item.target.CLGRPRowId}`
 				})
@@ -135,10 +132,8 @@
 				// 	url: '../hpvOrder-detail/hpvOrder-detail?key=' + encodeURIComponent(JSON.stringify(item))
 				// })
 				
-	        }
-	    },
-	    mounted() {
-	    }
+			}
+		},
 	};
 </script>
 

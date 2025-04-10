@@ -86,16 +86,15 @@ export default {
 		...mapState(['footData','department']),
 	},
 	async created() {
-		if(this.footState===2){
-	        bus.$on('refreshGetFirstVisit',(data)=>{
+		if(this.footState===2 && uni.getStorageSync("loginData") != ''){
+			bus.$on('refreshGetFirstVisit',(data)=>{
 				if(data.callingInterface){
 					// 取消挂号或取消预约后马上调用接口更新数据
 					this.getFirstVisit(data)
 				}else{
 					this.refreshData(data)
 				}
-	        	
-	        })
+			})
 			await this.getFirstVisit()
 			this.getTreatmentStageNew(3)
 			this.timer = setInterval(()=>{

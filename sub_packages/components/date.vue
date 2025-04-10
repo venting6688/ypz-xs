@@ -115,7 +115,7 @@
 					font-size: 28rpx;
 					line-height: 56rpx;
 					border: 2rpx solid #4286ff;
-					border-radius: 42rpx;
+					border-radius: 15rpx;
 					padding: 0 50rpx;
 					color: #076aff;
 					margin-left: 20rpx;
@@ -151,7 +151,7 @@
 					font-size: 28rpx;
 					line-height: 28rpx;
 					border: 2rpx solid #4286ff;
-					border-radius: 42rpx;
+					border-radius: 15rpx;
 					padding: 0 20rpx;
 					color: #076aff;
 					margin-left: 20rpx;

@@ -72,7 +72,7 @@
 			documentReview(item){
 				try {
 					let data = {
-						patientID: '0001896456', //this.footData.patientUniquelyIdentifies,
+						patientID: this.footData.patientUniquelyIdentifies,
 						// patientID:'0001954286',
 						// patientID:'0001347569',
 						// visitNumber:'861560',

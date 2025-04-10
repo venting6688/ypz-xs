@@ -19,7 +19,7 @@
 			<button @click="btn" :open-type="agreementState?'getPhoneNumber':''" @getphonenumber="onGetPhoneNumber">手机号授权登录</button>
 		</view>
 		<view class="cancel" @click="back">
-			暂不登录
+			取消登录
 		</view>
 	</view>
 </template>

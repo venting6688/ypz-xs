@@ -6,48 +6,48 @@ import { cjRequest } from '@/utils/service.js'
 const patient = {
 	// 获取所有服务组(大科室)
 	async getServiceGroup(data) {
-	   	const res = await cjRequest({
-	   		url: "getServiceGroup",
-	   		method: "get",
-	   	})
-	   	return res
+		const res = await cjRequest({
+			url: "getServiceGroup",
+			method: "get",
+		}, 2)
+		return res
 	},
 	// 获取所有专业组(小科室)
 	async getSpecialtyGroup(cliSerGroupID) {
-	   	const res = await cjRequest({
+		const res = await cjRequest({
 	   		url: "getSpecialtyGroup",
 	   		method: "get",
 			data:{
 			cliSerGroupID: cliSerGroupID,
 			},
-	   	})
-	   	return res
+		}, 2)
+		return res
 	},
 	// 获取7天号源
 	async getScheduleDates(data) {
-	   	const res = await cjRequest({
-	   		url: "getScheduleDates",
+		const res = await cjRequest({
+			url: "getScheduleDates",
 	   		method: "get",
-			data:{
-			patientID: data.patientID,
-			days: data.days,
-			specialtyGroupId: data.specialtyGroupId,
-			},
-	   	})
-	   	return res
+				data:{
+					patientID: data.patientID,
+					days: data.days,
+					specialtyGroupId: data.specialtyGroupId,
+				},
+		}, 2)
+		return res
 	},
 	// 获取医生
 	async getScheduleDetail(data) {
-	   	const res = await cjRequest({
-	   		url: "getScheduleDetail",
-	   		method: "get",
+		const res = await cjRequest({
+			url: "getScheduleDetail",
+			method: "get",
 			data:{
-			patientID: data.patientID,
-			dateStr: data.dateStr,
-			specialtyGroupId: data.specialtyGroupId,
+				patientID: data.patientID,
+				dateStr: data.dateStr,
+				specialtyGroupId: data.specialtyGroupId,
 			},
-	   	})
-	   	return res
+		}, 2)
+		return res
 	},
 	// 其他时间预约
 	async appointmentRegister(data) {
@@ -58,21 +58,21 @@ const patient = {
 	   	const res = await cjRequest({
 	   		url: url,
 	   		method: "post",
-	   	})
+	   	}, 2)
 	   	return res
 	},
 	// 获取医生号源
 	async getNumSource(data) {
-	   	const res = await cjRequest({
-	   		url: "getNumSource",
-	   		method: "get",
+		const res = await cjRequest({
+			url: "getNumSource",
+			method: "get",
 			data:{
-			patientID: data.patientID,
-			dateStr: data.dateStr,
-			scheduleItemCode: data.scheduleItemCode,
+				patientID: data.patientID,
+				dateStr: data.dateStr,
+				scheduleItemCode: data.scheduleItemCode,
 			},
-	   	})
-	   	return res
+		})
+		return res
 	},
 	// 拉起支付
 	async registrationPreOrder(data) {

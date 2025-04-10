@@ -143,6 +143,7 @@
 		// 	this.queryMedicalRecords()
 		// },
 		onLoad(option) {
+			this.loading.loadingState = false
 			if(option.checkState){
 				this.checkState = option.checkState
 			}
@@ -168,31 +169,27 @@
 				num === 1 ? this.queryMedicalRecords() : this.getPaymentRecord();
 			},
 			//未交费
+			
 			async queryMedicalRecords() {
 				if (this.footData.patientUniquelyIdentifies) {
-					this.loading = {
-						loadingState: true,
-						loadingName: '加载中'
-					};
 					let data = {
-					    patientID: '0001896456', //this.footData.patientUniquelyIdentifies,
-							// patientID: '0000004548','0001896456'
+					    patientID: this.footData.patientUniquelyIdentifies,
 					    visitNumber: '',
 					    startDate: this.date.startTime,
 					    endDate: this.date.endTime,
 					};
 					outpatientExpenditureApi.getToBePaid(data).then(res => {
-						this.loading = { loadingState: false };
 						if (res.data.code === 200 && res.data.data.payOrdList != null) {
 							let data = res.data.data.payOrdList.payOrder;
 							this.billList = data;
-						} else {
-							this.toastObj = {
-								state: true,
-								type:'fail',
-								message: res.data.data.resultMsg,
-							};
-						}
+						} 
+						// else {
+						// 	this.toastObj = {
+						// 		state: true,
+						// 		type:'fail',
+						// 		message: res.data.data.resultMsg,
+						// 	};
+						// }
 					}).catch(err => {
 						console.log('error：', err);
 					});
@@ -204,7 +201,7 @@
 			async getPaymentRecord(){
 				try {
 					let data = {
-						patientID: '0001896456',//this.footData.patientUniquelyIdentifies,
+						patientID: this.footData.patientUniquelyIdentifies,
 						startDate: this.date.startTime,
 						endDate: this.date.endTime,
 					}
@@ -293,9 +290,6 @@
 						if(res.data.code===999){
 							this.queryPayResultForToBePaid(data)
 						}else if(res.data.code===200){
-							this.loading = {
-								loadingState:false,
-							}
 							this.toastObj = {
 								state:true,
 								message:res.data.msg,
