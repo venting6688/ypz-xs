@@ -32,7 +32,7 @@
 							<view class="no">
 								<view class="name">{{i.itemName}}</view>
 								<view class="price">
-									<text>单价：{{i.itemPrice}}</text>
+									<text>单价：{{parseFloat(i.itemPrice).toFixed(2)}}</text>
 									<text>￥{{i.itemSum}}</text>
 								</view>
 							</view>
@@ -41,7 +41,7 @@
 					<view class="totalMoney">
 						<view class="">
 							<text>待缴费金额：</text>
-							<text>{{item.orderSum}}元</text>
+							<text>￥{{item.orderSum}}元</text>
 						</view>
 					</view>
 					<view class="btn">
@@ -85,7 +85,7 @@
 						<view class="totalMoney">
 							<view>
 								<text>费用合计：</text>
-								<text class="black">{{item.totalAmt}}元</text>
+								<text class="black">￥{{item.totalAmt}}元</text>
 							</view>
 						</view>
 						
@@ -169,7 +169,6 @@
 				num === 1 ? this.queryMedicalRecords() : this.getPaymentRecord();
 			},
 			//未交费
-			
 			async queryMedicalRecords() {
 				if (this.footData.patientUniquelyIdentifies) {
 					let data = {
@@ -201,7 +200,7 @@
 			async getPaymentRecord(){
 				try {
 					let data = {
-						patientID: this.footData.patientUniquelyIdentifies,
+						patientID: '0001896456',//this.footData.patientUniquelyIdentifies,
 						startDate: this.date.startTime,
 						endDate: this.date.endTime,
 					}

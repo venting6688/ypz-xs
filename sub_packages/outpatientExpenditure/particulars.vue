@@ -39,7 +39,7 @@
 									{{item.itemName}}
 								</view>
 								<view class="price">
-									<text>单价：{{item.itemPrice}}</text>
+									<text>单价：￥{{parseFloat(item.itemPrice).toFixed(2)}}</text>
 									<text>￥{{item.itemSum}}</text>
 								</view>
 							</view>
@@ -50,7 +50,7 @@
 				<view class="totalMoney">
 					<view>
 						<text>合计：</text>
-						<text>{{detail.totalAmt}}元</text>
+						<text>￥{{detail.totalAmt}}元</text>
 					</view>
 				</view>
 			</view>

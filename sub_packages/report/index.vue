@@ -94,7 +94,7 @@
 			getVisitRecord(type){
 				try {
 					let data = {
-						patientID: this.footData.patientUniquelyIdentifies, //'0000004548',
+						patientID: this.footData.patientUniquelyIdentifies, //'0000795059' 0000004548,
 						visitNumber: '',
 						documentType: type,
 						startDate: this.date.startTime,

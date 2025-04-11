@@ -6,19 +6,32 @@
 				<uni-table border stripe emptyText="暂无更多数据" v-for="(i,x) in list" :key="i">
 					<uni-tr>
 						<uni-th>项目</uni-th>
-						<!-- <uni-th>状态</uni-th> -->
 						<uni-th>结果</uni-th>
 						<uni-th>参考值</uni-th>
 					</uni-tr>
 					<uni-tr v-for="(item,index) in i.section" :key="index">
 						<uni-td>{{item.E02.content ? item.E02.content : ''}}</uni-td>
-						<!-- <uni-td>{{item.E07.content && flagType(item.E07.content) != null ? flagType(item.E07.content) : ''}}</uni-td> -->
-						<uni-td>{{item.E05.content ? item.E05.content : ''}}</uni-td>
+						<uni-td>
+							<view :class="{ 'text-red': isAbnormal(item) }">
+								{{
+									item.E03.content && item.E06.content && item.E06.content.indexOf('--')
+										? (
+												item.E03.content < item.E06.content.split('--')[0]
+													? item.E03.content + '（低）'
+													: (
+															item.E03.content > item.E06.content.split('--')[1]
+																? item.E03.content + '（高）'
+																: item.E03.content
+														)
+											)
+										: (item.E03.content ? item.E03.content : (item.E07.content?flagType(item.E07.content):''))
+								}}
+							</view>
+						</uni-td>
 						<uni-td>{{item.E06.content ? item.E06.content : ''}}</uni-td>
 					</uni-tr>
 				</uni-table>
 			</view>
-			
 		</view>
 	</view>
 </template>
@@ -51,6 +64,13 @@
 			
 		},
 		methods: {
+			isAbnormal(item) {
+				if (item.E03.content && item.E06.content) {
+					const [minNum, maxNum] = item.E06.content.split('--');
+					return item.E03.content < minNum || item.E03.content > maxNum;
+				}
+				return false;
+			},
 			documentReview(item){
 				try {
 					let data = {
@@ -133,6 +153,9 @@
 				uni-table {
 				  width: 100%;
 				  table-layout: auto; 
+				}
+				.text-red {
+				  color: red;
 				}
 			}
 			.personal-2{
