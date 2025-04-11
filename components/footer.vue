@@ -18,7 +18,7 @@
 				</view>
 				<view class="wire"  v-if="footData.patientName"></view>
 				<view class="foot-bar" :class="{'bar-w':!footData.patientName}">
-					<view class="piece" :style="{ width: siginData ? '33.333%' : '50%' }" v-for="item in footList" :key="item.name" @click="footBtn(item)">
+					<view class="piece" :style="{ width: siginData ? '33.333%' : '100%' }" v-for="item in footList" :key="item.name" @click="footBtn(item)">
 						<view class="title">
 							<image v-if="item.type==footState" :src="item.selectedIconPath" mode="widthFix"></image>
 							<image v-else :src="item.iconPath" mode="widthFix"></image>
@@ -81,13 +81,6 @@
 						type:3,
 					},
 				] : [
-					{
-						pagePath: "/pages/convenient/index",
-						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation1+.png',
-						selectedIconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation1.png',
-						name:'便捷导引',
-						type:2,
-					},
 					{
 						pagePath: "/pages/more/index",
 						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation2+.png',
