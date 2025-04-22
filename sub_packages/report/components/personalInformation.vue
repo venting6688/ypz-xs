@@ -99,6 +99,7 @@
 				}else{
 					
 				}
+				console.log(JSON.stringify(this.report));
 				wx.reLaunch({ url: `/pages/virtualNurse/index?pattern=2&&manifestation=${this.report.manifestation}` })
 			},
 		},

@@ -129,7 +129,7 @@ export default {
 				if(!this.headerEmit.orderCode){
 					let data = {
 						visitNumber:this.headerEmit.visitNumber,
-						patientID:this.footData.patientUniquelyIdentifies,
+						patientID: this.footData.patientUniquelyIdentifies, //'0000111227',
 						departmentCode:(this.department.data && this.department.data.queueId)||'',
 					}
 					const res = await HeaderbarApi
@@ -184,7 +184,8 @@ export default {
 		async getFirstVisit(data,state) {
 			try{
 				let registrationList = []
-				let patientID = this.footData.patientUniquelyIdentifies
+				let patientID = this.footData.patientUniquelyIdentifies //'0000111227'
+				
 				const res= await guideApi.getFirstVisit(patientID,state).then((res) => {
 					if(res.data.code===200){
 						registrationList = res.data.data.orders.order || []
@@ -204,7 +205,7 @@ export default {
 			try{
 				const time = await this.getWeek('下一周');
 				const msg = {
-				  patientID: this.footData.patientUniquelyIdentifies,
+				  patientID: this.footData.patientUniquelyIdentifies, //'0000111227',
 				  startTime: time.startDate,
 				  endTime: time.endDate
 				};
@@ -247,10 +248,8 @@ export default {
 							bus.$emit('complex-data-passed',msg)
 						}
 					}
-					
-			    })
+				})
 			}catch(e){
-				console.log('e',e)
 				this.toastObj = {
 					state:true,
 					type:'fail',
@@ -308,7 +307,6 @@ export default {
 					this.index = index
 				}
 			}
-			
 		},
 		animateText() {
 			if (this.interval) {
@@ -318,14 +316,13 @@ export default {
 			let index = 0
 			if(this.getSuggestText){
 				this.interval = setInterval(() => {
-				this.animatedText += this.getSuggestText[index]
-				index++
-				if (index === this.getSuggestText.length) {
-					clearInterval(this.interval)
-				}
-			}, 100)
+					this.animatedText += this.getSuggestText[index]
+					index++
+					if (index === this.getSuggestText.length) {
+						clearInterval(this.interval)
+					}
+				}, 100)
 			}
-			
 		}
 	},
 	

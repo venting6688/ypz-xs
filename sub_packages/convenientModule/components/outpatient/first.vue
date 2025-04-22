@@ -2,35 +2,19 @@
 	<view class="first">
 		<view class="center" v-if="firstContent.queueName">
 			<view class="title" v-if="callObj.deptName">
-				<view class="clinic">
-					{{callObj.deptName ?callObj.deptName :''}}
-				</view>
-				
+				<view class="clinic">{{firstContent.room ? firstContent.room : ''}}</view>
 				<view class=" title-calling">
 					<view class="left">
-					   <view class="no">
-						    {{callObj.waitCallNo?callObj.waitCallNo+'号':''}}
-					    </view>
-						
-					    <view class="text">
-						    就诊序号
-					    </view>
+					   <view class="no">{{callObj.waitCallNo ? callObj.waitCallNo+'号' : ''}}</view>
+					    <view class="text">就诊序号</view>
 				    </view>
 					<view class="middle">
-					    <view class="call">
-							{{callObj.callNo?callObj.callNo+'号':''}}
-					    </view>
-					    <view class="text">
-						    正在呼叫
-					    </view>
+					    <view class="call">{{callObj.callNo ? callObj.callNo+'号' : '暂无'}}</view>
+					    <view class="text">正在呼叫</view>
 					</view>
 				    <view class="right">
-					    <view class="time">
-				    		{{callObj.queueWaitNum?callObj.queueWaitNum:''}}
-					    </view>
-					    <view class="text">
-						    等候人数
-					    </view>
+					    <view class="time">{{callObj.queueWaitNum ? callObj.queueWaitNum : '0'}}</view>
+					    <view class="text">等候人数</view>
 				    </view>
 				</view>
 			</view>
@@ -47,20 +31,16 @@
 				</view>
 				<ul>
 					<li v-if="firstContent.queueName">
-						<view class="attribute">
-							挂号科室:
-						</view>
-						<view class="name">
-							{{firstContent.queueName}}
-						</view>
+						<view class="attribute">挂号科室:</view>
+						<view class="name">{{firstContent.queueName}}</view>
+					</li>
+					<li v-if="firstContent.admitAddress">
+						<view class="attribute">科室房间:</view>
+						<view class="name">{{firstContent.admitAddress}}</view>
 					</li>
 					<li v-if="firstContent.doctorName">
-						<view class="attribute">
-							挂号医生:
-						</view>
-						<view class="name">
-							{{firstContent.doctorName}}
-						</view>
+						<view class="attribute">挂号医生:</view>
+						<view class="name">{{firstContent.doctorName}}</view>
 					</li>
 					<!-- <li v-if="firstContent.callState=='已签到' && callObj.medicalTreatmentNumber">
 						<view class="attribute">
@@ -71,30 +51,17 @@
 						</view>
 					</li> -->
 					<li v-if="firstContent.appointmentTime">
-						<view class="attribute">
-							预约时间:
-						</view>
-						<view class="name">
-							{{firstContent.appointmentTime}}
-						</view>
+						<view class="attribute">预约时间:</view>
+						<view class="name">{{firstContent.appointmentTime}}</view>
 					</li>
 					<li v-if="firstContent.queueLocation">
-						<view class="attribute">
-							科室位置:
-						</view>
-						<view class="name">
-							{{firstContent.queueLocation}}
-						</view>
+						<view class="attribute">科室位置:</view>
+						<view class="name">{{firstContent.queueLocation}}</view>
 					</li>
 					<li v-if="firstContent.precautions">
-						<view class="attribute">
-							注意事项:
-						</view>
-						<view class="name">
-							{{firstContent.precautions}}
-						</view>
+						<view class="attribute">注意事项:</view>
+						<view class="name">{{firstContent.precautions}}</view>
 					</li>
-					
 				</ul>
 				<view class="btn" v-if="firstContent.queueName">
 					<view>
@@ -105,7 +72,6 @@
 					    <button class="cu-btn" @click="navigation">导航到院</button> -->
 					</view>
 				</view>
-				
 				<!-- <view class="footer" v-else>
 					<view>
 						<text>初诊已经结束，请您移步至检查检验科室继续就诊</text>
@@ -118,9 +84,7 @@
 								<image src="../../../static/image/inquiry.png" mode=""></image>
 								<text>智能问诊</text>
 							</view>
-							<view class="inquiryBtn" @click="navigateToPage">
-								去填写
-							</view>
+							<view class="inquiryBtn" @click="navigateToPage">去填写</view>
 						</view>
 					</view>
 				</view>
@@ -129,9 +93,7 @@
 		<view v-if="subscribeObj.department">
 			<view class="center">
 				<view class="head" v-if="subscribeObj.days && subscribeObj.days!=='0'">
-					<view class="">
-						距离您的就诊日还有 {{subscribeObj.days}} 天
-					</view>
+					<view class="">距离您的就诊日还有 {{subscribeObj.days}} 天</view>
 				</view>
 				<view class="wire-box wireState"></view>
 				<view class="content">
@@ -142,31 +104,17 @@
 					</view>
 					<ul>
 						<li v-if="subscribeObj.department">
-							<view class="attribute">
-								挂号科室:
-							</view>
-							<view class="name">
-								{{subscribeObj.department}}
-							</view>
+							<view class="attribute">挂号科室:</view>
+							<view class="name">{{subscribeObj.department}}</view>
 						</li>
 						<li v-if="subscribeObj.doctor">
-							<view class="attribute">
-								挂号医生:
-							</view>
-							<view class="name">
-								{{subscribeObj.doctor}}
-							</view>
+							<view class="attribute">挂号医生:</view>
+							<view class="name">{{subscribeObj.doctor}}</view>
 						</li>
-						
 						<li v-if="subscribeObj.admitDate">
-							<view class="attribute">
-								预约时间:
-							</view>
-							<view class="name">
-								{{subscribeObj.admitDate}}
-							</view>
+							<view class="attribute">预约时间:</view>
+							<view class="name">{{subscribeObj.admitDate}}</view>
 						</li>
-						
 					</ul>
 					<view class="btn">
 						<view>
@@ -174,11 +122,9 @@
 							<button v-if="subscribeObj.days==='0'" class="cu-btn" @click="takeANumberPrePay(subscribeObj)">预约取号</button>
 						</view>
 					</view>
-					
 				</view>
 			</view>
 		</view>
-		
 		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :message="toastObj.message"/>
 	</view>
 </template>
@@ -231,7 +177,6 @@
 					this.subscribeObj = {}
 					this.$set(this.headerEmiter,'state','')
 					this.$emit('handle',this.headerEmiter)
-					
 				}
 				// 回传的effectState  渐入效果渲染
 				if(data.effectState){
@@ -271,14 +216,13 @@
 				let latitude = 36.183242794928994
 				let longitude = 117.07709640617486
 				wx.openLocation({
-				          latitude: latitude,//目的地的纬度
-				          longitude: longitude,//目的地的经度
-				          name: '山东第一医科大学第二附属医院', 
-				        })
+					latitude: latitude,//目的地的纬度
+					longitude: longitude,//目的地的经度
+					name: '山东第一医科大学第二附属医院', 
+				})
 			},
 			navigateToPage() {
 				let data = JSON.stringify(this.firstContent)
-				console.log(data);
 				uni.navigateTo({
 					url: '/sub_packages/convenientModule/inquiry?params='+data
 				});
@@ -286,6 +230,7 @@
 			// 退号
 			async cancelRegistration() {
 				try{
+					console.log(JSON.stringify(this.firstContent))
 					const res= await guideApi.cancelRegistration(this.firstContent.visitNumber).then((res) => {
 						if(res.data.code===200){ 
 							this.toastObj = {
@@ -439,22 +384,25 @@
 			},
 			// 刷新信息
 			async getQueueingMessage() {
+				uni.showLoading({
+					title: '加载中...',
+					mask: true // 防止触摸穿透
+				});
 				try{
 					let data = {
 						patientID:this.footData.patientUniquelyIdentifies,
 						DepartmentCode:this.firstContent.queueId,
-			        }
+					}
+					
 					const res= await guideApi.getQueueingMessage(data).then((res) => {
+						uni.hideLoading();
 						if(res.data.code===200){
 							this.callObj = res.data.data.queLists.queList[0] || {}
-						}else{
-							// this.toastObj = {
-							// 	state:true,
-							// 	type:'fail',
-							// 	message:res.data.msg,
-							// }
+							console.log(JSON.stringify(this.callObj));
+						} else {
+							this.callObj = {}
 						}
-			                })
+					})
 				}catch(e){
 					this.toastObj = {
 						state:true,

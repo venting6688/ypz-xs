@@ -328,11 +328,10 @@
 			
 		},
 		onShow() {
-		    const options = this.$mp.query;
+			const options = this.$mp.query;
 			if (options && options.patient) {
 				this.scene = true
 				this.patient = JSON.parse(decodeURIComponent(options.patient))
-			    console.log(this.patient);
 			}else if(options && options.params){
 				this.scene = false
 				let content = JSON.parse(options.params)

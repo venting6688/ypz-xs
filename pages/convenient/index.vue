@@ -4,7 +4,7 @@
 		<!-- <report @handle="expandBtn" :expand="expand" v-if="visitNumber!=='1358799' && (headerEmit.state=='查验' || headerEmit.state=='回诊')" /> -->
 		<view v-if="showState" class="scroll-Y" :animation="animationData" @touchmove='touchMove'>
 			<first @handle="show" v-if="headerEmit.state=='初诊'" :headerEmit="headerEmit" />
-		    <check @handle="show" v-if="headerEmit.state=='查验'" :headerEmit="headerEmit" />
+		  <check @handle="show" v-if="headerEmit.state=='查验'" :headerEmit="headerEmit" />
 			<answer @handle="show" v-if="headerEmit.state=='回诊'" :headerEmit="headerEmit" />
 			<prescription @handle="show" v-if="headerEmit.state=='处方'" :headerEmit="headerEmit" />
 			<view class="img" v-if="!headerEmit.state || !signData">

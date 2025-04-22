@@ -39,34 +39,55 @@
 			<view class="center" v-for="(item,index) in doctorList" :key="index">
 				<view class="datum">
 					<view class="img">
-						<image src="../../static/image/doctor.png" mode=""></image>
+						<image :src="item.doctorImg" v-if="item.doctorImg"></image>
+						<image src="../../static/image/doctor.png" mode="" v-else></image>
 					</view>
 					<view class="message">
 						<view class="name">
 						    <text>{{item[0].DoctorName}}</text>
 						    <text>{{item[0].DoctorSessType}}</text>
 					    	<text  class="expert" v-if="item.expert">{{item.expert}}</text>
-						    <text class="money">￥{{item[0].Fee}}</text>
+						    <!-- <text class="money">￥{{item[0].Fee}}</text> -->
 					    </view> 
-						<view class="synopsis">
-						</view>
+						<view class="synopsis">{{item.doctorSpec ? item.doctorSpec : '暂无简介'}}</view>
 					</view>
 				</view>
 				<view class="footer">
 					<view class="subscribe" v-for="(i,x) in item" :key="x">
 						<view class="num">
-							<view class="subscribe-time">
-								{{i.ServiceDate}}
-							</view>
-							<view class="subscribe-am">
-								{{i.SessionName}}
-							</view>
-							<view class="subscribe-number">
+							<view class="subscribe-time">{{i.ServiceDate}}</view>
+							<view class="subscribe-am">{{i.SessionName}}</view>
+							<!-- <view class="subscribe-number">
 								<text>剩余</text>
 								<text>{{i.AvailableLeftNum}}</text>
-							</view>
+							</view> -->
 						</view>
-						<view class="subscribe-btn" @click="getNumSource(i,item,x)">预约</view>
+						
+						<view>
+							<text class="money">￥{{item[0].Fee}}</text>
+						</view>
+						
+						<view>
+							<button
+								v-if="i.AvailableLeftNum > 0"
+								type="primary" 
+								size="mini" 
+								style="background-color: #007AFF; color: white; margin-right: 10rpx;" 
+								@click="getNumSource(i,item,x)"
+							>
+								剩余{{i.AvailableLeftNum}}
+							</button>
+							<button
+								v-else
+								type="primary" 
+								size="mini" 
+								style="background-color: #ccc; color: white; margin-right: 10rpx;" 
+							>
+								剩余0
+							</button>
+						</view>
+						
+						<!-- <view class="subscribe-btn">预约</view> -->
 					</view>
 				</view>
 			</view>
@@ -150,7 +171,7 @@
 					this.today = false
 				}
 				registrationApi.getScheduleDetail({
-					patientID:this.footData.patientUniquelyIdentifies,
+					patientID: this.footData.patientUniquelyIdentifies, //'0000111227',
 					dateStr:item.date,
 					specialtyGroupId:this.CLGRPRowId
 				}).then(res => {
@@ -161,8 +182,7 @@
 				})
 			},
 			onChange(detail) {
-				console.log(detail)
-			    this.checked = detail.detail
+				this.checked = detail.detail
 			},
 			
 			// 获取医生号源
@@ -295,52 +315,6 @@
 					}
 				}
 			}
-			// >ul{
-			// 	overflow: auto;
-			// 	// display: flex;
-			// 	white-space: nowrap;
-			// 	>li {
-			// 		display: inline-block;
-			// 		margin:18rpx 10rpx;
-			// 		width: 130rpx;
-			// 		height: 123rpx;
-			// 		background: #ffffff;
-			// 		border-radius: 11.45rpx;
-			// 		text-align: center;
-					
-					
-			// 		&:nth-of-type(1){
-			// 			margin-left: 30rpx;
-			// 		}
-			// 		&:last-of-type{
-			// 			margin-right: 30rpx;
-			// 		}
-					
-			// 		view {
-			// 			display: flex;
-			// 			justify-content: center;
-			// 			align-items: center;
-			// 			height: 33.33%;
-						
-			// 			&:nth-of-type(1){
-			// 				font-size: 23rpx;
-			// 				line-height: 23rpx;
-			// 				color: #666666;
-			// 			}
-			// 			&:nth-of-type(2){
-			// 				font-size: 27rpx;
-			// 				line-height: 26rpx;
-			// 			}
-			// 			&:nth-of-type(3){
-			// 				font-size: 23rpx;
-			// 				line-height: 23rpx;
-			// 				color: #4286ff;
-			// 			}
-						
-						
-			// 		}
-			// 	}
-			// }
 		}
 		
 		.head {
@@ -375,10 +349,11 @@
 			
 			.center {
 				width: 680rpx;
-				height: 350rpx;
+				// height: 350rpx;
 				background: #ffffff;
 				border-radius: 11.45rpx;
 				margin: 25rpx auto;
+				padding: 20rpx 0;
 				
 				&:nth-of-type(1){
 					margin-top: 5rpx;
@@ -404,6 +379,7 @@
 					}
 					.message {
 						margin-left:24rpx;
+						padding-top: 20rpx;
 						.name {
 							display: flex;
 							align-items: center;
@@ -437,14 +413,7 @@
 								justify-content: center;
 								align-items: center;
 							}
-							.money {
-								font-size: 36rpx;
-								line-height: 26.72rpx;
-								color: #ffc03d;
-								text-align: right;
-								position: absolute;
-								right: 10rpx;
-							}
+							
 							
 						}
 						.synopsis {
@@ -469,18 +438,17 @@
 						justify-content: space-between;
 						align-items: center;
 						height: 57.25rpx;
-						margin: 20rpx 10rpx;
-						
-						
+						margin: 20rpx;
+						.money {
+							font-size: 32rpx;
+							color: #FAAA03;
+						}
 						.num {
 							display: flex;
 							align-items: center;
 							
 							.subscribe-time{
-								margin-right: 30rpx;
-							}
-							.subscribe-am{
-								margin-right: 30rpx;
+								margin-right: 80rpx;
 							}
 							.subscribe-number{
 								text {
@@ -586,3 +554,4 @@
 					
 	}
 </style>
+

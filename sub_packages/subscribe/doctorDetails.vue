@@ -27,7 +27,7 @@
 					</view>
 					<view>
 						<text>诊查费</text>
-						<text class="money">￥{{doctor.Fee || ''}}</text>
+						<text class="money">￥{{doctor.Fee || '0'}}</text>
 					</view>
 					<view>
 						<text>就诊日期</text>
@@ -147,81 +147,103 @@
 					if(this.doctor.today){
 						// 当天预约
 						this.today(data)
-					}else{
+					} else{
 						// 其他时间预约
 						this.otherTime(data)
 					}
 				}
 			},
 			today(data){
-				let msg = {
-					patientID:this.footData.patientUniquelyIdentifies,
-					patientName:this.footData.patientName,
-					scheduleItemCode:this.doctor.scheduleItemCode,
-					startTime:this.doctor.StartTime,
-					endTime:this.doctor.EndTime,
-					amount:this.doctor.Fee,
-					patientOpenid:data.xcxOpenId,
-				}
-				registrationApi.registrationPreOrder(msg).then(res => {
-					if(res.data.code===200) {
-						let obj = res.data.data.prePayResponse
-						let registrationPrePayResponse = res.data.data
-						registrationPrePayResponse.patientCard = data.defaultArchives.patientCard
-						registrationPrePayResponse.cardType = data.defaultArchives.cardTypeCode
-						uni.requestPayment({
-							provider: 'wxpay', // 服务提提供商
-							timeStamp: obj.body.miniPayRequest.timeStamp, // 时间戳
-							nonceStr: obj.body.miniPayRequest.nonceStr, // 随机字符串
-							package: obj.body.miniPayRequest.pkg,
-							signType: obj.body.miniPayRequest.signType, // 签名算法
-							paySign: obj.body.miniPayRequest.paySign, // 签名
-							success:(result)=> {
-								console.log('支付成功',result);
-								registrationApi.queryPayResult(registrationPrePayResponse).then(r => {
-									console.log('r',r)
-									this.toastObj = {
-										state:true,
-										message:'预约成功',
-										url:'/pages/convenient/index',
-										tips:'秒自动为您切换便捷导引',
-									}
-								})
-								.catch(err => {
-									console.log('errrrrr：', err);
-								})
-							},
-							fail:(err)=> {
-								console.log('支付失败',err);
-								let unLockNumData = {
-									patientID:res.data.data.patientID,
-									scheduleItemCode:res.data.data.lockNumResponse.scheduleItemCode,
-									lockQueueNo:res.data.data.lockNumResponse.lockQueueNo,
-									transactionId:res.data.data.lockNumResponse.transactionId,
-								}
-								registrationApi.unLockNum(unLockNumData).then(r => {
-									console.log('取消锁号',r)
-									this.toastObj = {
-										state:true,
-										type:'fail',
-										message:'支付失败'
-									}
-									
-								})
-							}
-						});	
-						
-					}else {
-						this.toastObj = {
-							state:true,
-							type:'fail',
-							message:res.data.msg?res.data.msg:'',
-						}
+				if (this.doctor.Fee === '') {
+					let msg = {
+						patientID: this.footData.patientUniquelyIdentifies, //'0000111227',
+						patientCard: this.footData.patientCard, //'370921198210254828',
+						patientName:this.footData.patientName,
+						cardType: this.footData.cardTypeCode,
+						scheduleItemCode:this.doctor.scheduleItemCode,
+						startTime:this.doctor.StartTime,
+						endTime:this.doctor.EndTime,
+						amount: 0,
 					}
-				})
-				.catch(err => {
-					console.log('errrrrr：', err);
-				})
+					registrationApi.freeForThreeDays(msg).then(res => {
+						if(res.data.code===200) {
+							this.toastObj = {
+								state:true,
+								message:'预约成功',
+								url:'/pages/convenient/index',
+								tips:'秒自动为您切换便捷导引',
+							}
+						}
+					});
+				} else {
+					let msg = {
+						patientID:this.footData.patientUniquelyIdentifies,
+						patientName:this.footData.patientName,
+						scheduleItemCode:this.doctor.scheduleItemCode,
+						startTime:this.doctor.StartTime,
+						endTime:this.doctor.EndTime,
+						amount: this.doctor.Fee,
+						patientOpenid:data.xcxOpenId,
+					}
+					registrationApi.registrationPreOrder(msg).then(res => {
+						if(res.data.code===200) {
+							let obj = res.data.data.prePayResponse
+							let registrationPrePayResponse = res.data.data
+							registrationPrePayResponse.patientCard = data.defaultArchives.patientCard
+							registrationPrePayResponse.cardType = data.defaultArchives.cardTypeCode
+							uni.requestPayment({
+								provider: 'wxpay', // 服务提提供商
+								timeStamp: obj.body.miniPayRequest.timeStamp, // 时间戳
+								nonceStr: obj.body.miniPayRequest.nonceStr, // 随机字符串
+								package: obj.body.miniPayRequest.pkg,
+								signType: obj.body.miniPayRequest.signType, // 签名算法
+								paySign: obj.body.miniPayRequest.paySign, // 签名
+								success:(result)=> {
+									registrationApi.queryPayResult(registrationPrePayResponse).then(r => {
+										console.log('r',r)
+										this.toastObj = {
+											state:true,
+											message:'预约成功',
+											url:'/pages/convenient/index',
+											tips:'秒自动为您切换便捷导引',
+										}
+									})
+									.catch(err => {
+										console.log('errrrrr：', err);
+									})
+								},
+								fail:(err)=> {
+									console.log('支付失败',err);
+									let unLockNumData = {
+										patientID:res.data.data.patientID,
+										scheduleItemCode:res.data.data.lockNumResponse.scheduleItemCode,
+										lockQueueNo:res.data.data.lockNumResponse.lockQueueNo,
+										transactionId:res.data.data.lockNumResponse.transactionId,
+									}
+									registrationApi.unLockNum(unLockNumData).then(r => {
+										console.log('取消锁号',r)
+										this.toastObj = {
+											state:true,
+											type:'fail',
+											message:'支付失败'
+										}
+										
+									})
+								}
+							});	
+							
+						}else {
+							this.toastObj = {
+								state:true,
+								type:'fail',
+								message:res.data.msg?res.data.msg:'',
+							}
+						}
+					})
+					.catch(err => {
+						console.log('errrrrr：', err);
+					})
+				}
 			},
 			otherTime(data){
 				// 其他时间预约
@@ -262,7 +284,7 @@
 		},
 		onLoad(e) {
 			wx.setNavigationBarTitle({
-			      title: e.title
+			  title: e.title
 			})
 			this.doctor = JSON.parse(decodeURIComponent(e.doctor))
 		},

@@ -9,7 +9,7 @@
 		</view>
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
-				<view  id="okk" style="padding-bottom: 100rpx;">
+				<view id="okk" style="padding-bottom: 100rpx;">
 					<view class="msgList" v-for="(x,i) in msgList" :key="i" :class="{ 'padd': i === msgList.length - 1 }">
 					<!-- 用户消息 -->
 				    <view class="my"  v-if="x.my">
@@ -83,7 +83,6 @@
 		    </scroll-view>
 			<!-- 选择症状、疾病 弹窗 -->
 			<uni-popup class="Dialog"  :mask-click="false" ref="popup" type="bottom" mask-background-color="transparent" :safeArea="false" >
-				
 			  <view class="center">
 				<scroll-view class="scroll" scroll-y="true">
 				<view class="middle">
@@ -259,7 +258,6 @@
 			if (Object.keys(options).length > 0) {
 				this.pattern = Number(options.pattern)
 				let manifestation = options.manifestation
-				console.log('manifestation',manifestation)
 				if(this.pattern===1){
 					uni.showToast({
 					    title: '已为您切换到智能导诊',

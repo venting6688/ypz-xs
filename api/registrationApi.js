@@ -91,14 +91,27 @@ const patient = {
 	   	})
 	   	return res
 	},
+	
+	//3日内挂号0元
+	async freeForThreeDays(data) { 
+		const queryParams = Object.keys(data)
+		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+		.join('&');
+		const res = await cjRequest({
+			url: `freeForThreeDays?${queryParams}`,
+			method: "post",
+		})
+		return res
+	},
+	
 	// 查询支付结果
 	async queryPayResult(registrationPrePayResponse) {
-	   	const res = await cjRequest({
-	   		url: "queryPayResult",
-	   		method: "post",
-			data:registrationPrePayResponse,
-	   	})
-	   	return res
+		const res = await cjRequest({
+			url: "queryPayResult",
+			method: "post",
+		data:registrationPrePayResponse,
+		})
+		return res
 	},
 	// 取消锁号
 	async unLockNum(data) {
