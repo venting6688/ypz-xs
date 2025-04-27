@@ -48,6 +48,19 @@ const patient = {
 			})
 			return res
 		},
+		
+		/**
+			 * 查询退款状态
+		*/
+		async queryRefundResult(data) {
+			const res = await cjRequest({
+				url: `queryRefundResult`,
+				method: "post",
+				data
+			})
+			return res
+		},
+		 
 	/**
 		 * 预约取号
 	*/

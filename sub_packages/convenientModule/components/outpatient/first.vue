@@ -183,6 +183,7 @@
 					this.$emit('handle')
 				}
 			})
+			
 		},
 		mounted() {
 			// 只有初次创建需要渐入效果  effectState为true
@@ -227,26 +228,52 @@
 					url: '/sub_packages/convenientModule/inquiry?params='+data
 				});
 			},
+			
 			// 退号
 			async cancelRegistration() {
 				try{
-					console.log(JSON.stringify(this.firstContent))
 					const res= await guideApi.cancelRegistration(this.firstContent.visitNumber).then((res) => {
-						if(res.data.code===200){ 
-							this.toastObj = {
-								state:true,
-								message:'退号成功',
-							}
-							this.timer2 = setTimeout(()=>{
-								let msg = {
-									callingInterface:true,   //调用接口
-									firstState:true,     //初诊组件
-									effectState:false,   //动态效果
-								}
-								bus.$emit('refreshGetFirstVisit',msg)
-								clearTimeout(this.timer2)
+						if(res.data.code === 200){ 
+							if (res.data.data && res.data.data.cancelRegistrationResponse.returnFee !== '0') {
+								res.data.data.patientID = this.footData.patientUniquelyIdentifies;
+								res.data.data.cardNo = this.footData.patientCard;
+								res.data.data.cardType = this.footData.cardTypeCode;
 								
-							},4000)
+								this.callApiWithRetry(res.data.data).then((r) => {
+									this.toastObj = {
+										state:true,
+										message:'退号成功',
+									}
+									
+									this.timer2 = setTimeout(()=>{
+										let msg = {
+											callingInterface:true,   //调用接口
+											firstState:true,     //初诊组件
+											effectState:false,   //动态效果
+										}
+										bus.$emit('refreshGetFirstVisit',msg)
+										clearTimeout(this.timer2)
+									},4000)
+								});
+								
+							} else {
+								this.toastObj = {
+									state:true,
+									message:'退号成功',
+								}
+								
+								this.timer2 = setTimeout(()=>{
+									let msg = {
+										callingInterface:true,   //调用接口
+										firstState:true,     //初诊组件
+										effectState:false,   //动态效果
+									}
+									bus.$emit('refreshGetFirstVisit',msg)
+									clearTimeout(this.timer2)
+									
+								},4000)
+							}
+							
 						}else {
 							this.toastObj = {
 								state:true,
@@ -254,8 +281,7 @@
 								message:res.data.msg,
 							}
 						}
-						
-				            })
+				  })
 				}catch(e){
 					this.toastObj = {
 						state:true,
@@ -264,6 +290,36 @@
 					}
 				}
 			},
+			
+			//退号查询
+			async callApiWithRetry(data, maxRetry = 5) {
+			  let retryCount = 0;
+			  
+			  while (retryCount < maxRetry) {
+			    try {
+			      const res = await guideApi.queryRefundResult(data);
+			      if (res.data.code !== 999) {
+			        return res.data;
+			      }
+			      // 如果是999状态码，增加重试计数
+			      retryCount++;
+			      // 等待1秒后继续下一次循环
+			      await new Promise(resolve => setTimeout(resolve, 1000));
+			    } catch (e) {
+			      this.toastObj = {
+			        state: true,
+			        type: 'fail',
+			        message: e.toString(),
+			      };
+			      // 异常直接抛出
+			      throw e;
+			    }
+			  }
+			  
+			  // 达到最大重试次数仍返回999
+			  throw new Error('达到最大重试次数');
+			},
+			
 			// 取消预约
 			async cancelAppointmentRegister(orderCode) {
 				try{
@@ -290,7 +346,7 @@
 							}
 						}
 						
-				            })
+					})
 				}catch(e){
 					this.toastObj = {
 						state:true,
@@ -339,7 +395,7 @@
 							}
 						}
 						
-				            })
+				  })
 				}catch(e){
 					this.toastObj = {
 						state:true,

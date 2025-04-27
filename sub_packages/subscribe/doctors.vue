@@ -39,7 +39,7 @@
 			<view class="center" v-for="(item,index) in doctorList" :key="index">
 				<view class="datum">
 					<view class="img">
-						<image :src="item.doctorImg" v-if="item.doctorImg"></image>
+						<image :src="item[0].DoctorImg" v-if="item[0].DoctorImg" mode="aspectFit"></image>
 						<image src="../../static/image/doctor.png" mode="" v-else></image>
 					</view>
 					<view class="message">
@@ -49,7 +49,7 @@
 					    	<text  class="expert" v-if="item.expert">{{item.expert}}</text>
 						    <!-- <text class="money">￥{{item[0].Fee}}</text> -->
 					    </view> 
-						<view class="synopsis">{{item.doctorSpec ? item.doctorSpec : '暂无简介'}}</view>
+						<view class="synopsis">{{item[0].DoctorSpec ? item[0].DoctorSpec : '暂无简介'}}</view>
 					</view>
 				</view>
 				<view class="footer">
@@ -206,7 +206,7 @@
 						scheduleItemCode:half.ScheduleItemCode,
 					}
 					registrationApi.getNumSource({
-						patientID:this.footData.patientUniquelyIdentifies,
+						patientID:'0001762004',//this.footData.patientUniquelyIdentifies,
 						dateStr:half.ServiceDate,
 						scheduleItemCode:half.ScheduleItemCode
 					}).then(res => {
@@ -219,7 +219,17 @@
 				}
 			},
 			doctorDetails(item){
+				let filterDoctor = {};
+				this.doctorList.map(val => {
+					val.map(v => {
+						if (v.ScheduleItemCode == item.ScheduleItemCode) {
+							filterDoctor = v
+						}
+					})
+				})
 				this.$refs.popup.close()
+				this.doctor.DoctorSpec = filterDoctor && filterDoctor.DoctorSpec != undefined ? filterDoctor.DoctorSpec : '';
+				this.doctor.DoctorImg = filterDoctor && filterDoctor.DoctorImg != undefined ? filterDoctor.DoctorImg : '';
 				this.doctor.StartTime = item.StartTime
 				this.doctor.EndTime = item.EndTime
 				uni.navigateTo({

@@ -64,7 +64,7 @@
 					获取验证码
 				</view>
 				<view class="answer" v-else>
-					{{time}}s
+					{{time}}
 				</view>
 			</view>
 		</form>

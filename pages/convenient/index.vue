@@ -2,7 +2,7 @@
 	<view class="box" >
 		<HeaderBar @handle="show" v-if="showState" :footState="footState" />
 		<!-- <report @handle="expandBtn" :expand="expand" v-if="visitNumber!=='1358799' && (headerEmit.state=='查验' || headerEmit.state=='回诊')" /> -->
-		<view v-if="showState" class="scroll-Y" :animation="animationData" @touchmove='touchMove'>
+		<!-- <view v-if="showState" class="scroll-Y" :animation="animationData" @touchmove='touchMove'>
 			<first @handle="show" v-if="headerEmit.state=='初诊'" :headerEmit="headerEmit" />
 		  <check @handle="show" v-if="headerEmit.state=='查验'" :headerEmit="headerEmit" />
 			<answer @handle="show" v-if="headerEmit.state=='回诊'" :headerEmit="headerEmit" />
@@ -10,6 +10,12 @@
 			<view class="img" v-if="!headerEmit.state || !signData">
 				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 			</view>
+		</view> -->
+		
+		<view class="scroll-Y" :animation="animationData">
+			<prepare v-if="headerEmit.state=='住院信息'" :headerEmit="headerEmit" />
+			<doing v-if="headerEmit.state=='住院事项'" :headerEmit="headerEmit" />
+			<inventory v-if="headerEmit.state=='住院日清单'" :headerEmit="headerEmit" />
 		</view>
 		
 		<foot :footState="footState"/>

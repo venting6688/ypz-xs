@@ -183,6 +183,7 @@
 
 <script>
 	import mixin from '@/mixins/mixin.js'
+	import hospitalizationApi from '@/api/hospitalizationApi.js'
 	export default {
 		mixins: [mixin],
 		data (){
@@ -247,6 +248,9 @@
 		        return this.getDate('end');
 		    }
 		},
+		onShow() {
+			
+		},
 		methods: {
 			skip(){
 				uni.navigateBack();
@@ -300,6 +304,10 @@
 				this.informationObj.region = event.detail.value.toString()
 			},
 			
+			async getHospitalization () {
+				let res = await hospitalizationApi.getHospitalization(this.footData.patientUniquelyIdentifies);
+				console.log(JSON.stringify(res));
+			},
 		},
 	}
 	

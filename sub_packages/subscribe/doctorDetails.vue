@@ -4,16 +4,15 @@
 			<view class="center">
 				<view class="datum">
 					<view class="img">
-						<image src="../../static/image/doctor.png" mode=""></image>
+						<image :src="doctor.DoctorImg" v-if="doctor.DoctorImg" mode="aspectFit"></image>
+						<image src="../../static/image/doctor.png" mode="" v-else></image>
 					</view>
 					<view class="message">
 						<view class="name">
 						    <text>{{doctor.DoctorName||''}}</text>
 						    <text>{{doctor.DoctorSessType||''}}</text>
 					    </view>
-						<view class="synopsis">
-							
-						</view>
+						<view class="synopsis">{{doctor.DoctorSpec ? doctor.DoctorSpec : '暂无简介'}}</view>
 					</view>
 				</view>
 				<view class="information">
@@ -330,6 +329,7 @@
 					}
 					.message {
 						margin-left:24rpx;
+						padding-top: 15rpx;
 						.name {
 							display: flex;
 							align-items: center;

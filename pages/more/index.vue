@@ -191,19 +191,19 @@
 							// },
 					    ]
 					},
-					// {
-					// 	title:'住院服务',
-					// 	list:[
+					{
+						title:'住院服务',
+						list:[
 					// 	    {
 					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized7.png',
 					// 	    	name:'住院充值',
 					// 	    	num:29,
 					// 	    },
-						    // {
-						    // 	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
-						    // 	name:'入院登记',
-						    // 	num:30,
-						    // },
+						    {
+						    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
+						    	name:'入院登记',
+						    	num:30,
+						    },
 					// 	    {
 					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized5.png',
 					// 	    	name:'住院费用',
@@ -230,8 +230,8 @@
 					// 	    	num:35,
 					// 	    },
 					
-					//     ]
-					// },
+					    ]
+					},
 					// {
 					// 	title:'体检服务',
 					// 	list:[
