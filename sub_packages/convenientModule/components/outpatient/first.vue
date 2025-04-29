@@ -454,7 +454,6 @@
 						uni.hideLoading();
 						if(res.data.code===200){
 							this.callObj = res.data.data.queLists.queList[0] || {}
-							console.log(JSON.stringify(this.callObj));
 						} else {
 							this.callObj = {}
 						}

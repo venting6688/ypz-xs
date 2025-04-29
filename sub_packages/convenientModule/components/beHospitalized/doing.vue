@@ -2,94 +2,62 @@
 	<view class="doing">
 		<view class="center">
 			<view class="title">
-				<view @click="matter(i.num)" :class="{b:number===i.num}" v-for="(i,x) in titleList" :key="x">{{i.name}}</view>
+				<view @click="matter(i.type)" :class="{b:type===i.type}" v-for="(i,x) in titleList" :key="x">{{i.name}}({{type == i.type ? matterList.length : 0}}项)</view>
 			</view>
-			<ul class="today" v-if="number===1">
-				<li>
+			<ul class="today" v-if="type ==='today'">
+				<li v-for="(item, index) in matterList" :key="index">
 					<view class="time">
 						<view>治疗时间:</view>
-						<view>
-							<view>
-								2023年11月21日 上午8:10
-							</view>
-						</view>
+						<view><view>{{item.date}}</view></view>
 					</view>
-					<view class="project">
-						<view>治疗项目:</view>
-						<view>
-							<view>
-								静脉采血
-							</view>
-						</view>
-					</view>
-				</li>
-				<li>
-					<view class="time">
-						<view>治疗时间:</view>
-						<view>
-							<view>
-								2023年11月21日 上午8:10
-							</view>
-						</view>
-					</view>
-					<view class="project">
-						<view>治疗项目:</view>
-						<view>
-							<view>
-								静脉输液
-							</view>
-							<view class="list">
-								<text>阿莫西林钠克拉维酸钾</text>
-								<text>0.3g*1支</text>
-							</view>
-							<view class="list">
-								<text>9%氯化钠注射液</text>
-								<text>250ML*1袋</text>
-							</view>
-						</view>
-					</view>
+					<uni-table border stripe>
+						<uni-tr>
+							<uni-th>项目</uni-th>
+							<uni-th>状态</uni-th>
+						</uni-tr>
+						<uni-tr v-for="(val,key) in item.detail" :key="key">
+							<uni-td>{{val.OrdDesc}}</uni-td>
+							<uni-td>{{val.ExStatus}}</uni-td>
+						</uni-tr>
+					</uni-table>
 				</li>
 			</ul>
-			<ul  class="subscribe" v-else>
-				<li>
-					<view class="attribute">
-						预约时间:
-					</view>
-					<view class="name">
-						2023年11月22日 上午9:25
-					</view>
-				</li>
-				<li>
-					<view class="attribute">
-						预约项目:
-					</view>
-					<view class="name">
-						胸部DR检查
+			
+			<ul class="today" v-else>
+				<li style="border-bottom: 1px solid #eee;">
+					<view class="project">
+						<view><uni-icons type="info-filled"></uni-icons>注意:</view>
+						<view>
+							<view>请提前半个小时到检查科室等候检查</view>
+						</view>
 					</view>
 				</li>
-				<li>
-					<view class="attribute">
-						检查科室:
+				<li v-for="(item, index) in matterList" :key="index" style="border-bottom: 1px solid #eee;">
+					<view class="time">
+						<view>预约时间:</view>
+						<view>
+							<view>{{item.date}}</view>
+						</view>
 					</view>
-					<view class="name">
-						放射科
-					</view>
-				</li>
-				<li>
-					<view class="attribute">
-						检查地点:
-					</view>
-					<view class="name">
-						医技楼负一楼东区
-					</view>
-				</li>
-				
-				<li>
-					<view class="attribute">
-						注意事项:
-					</view>
-					<view class="name">
-						请提前半个小时到检查科室等候检查。
+					<view v-for="(val, key) in item.detail" :key="key">
+						<view class="project">
+							<view>预约项目:</view>
+							<view>
+								<view>{{val.OrdDesc}}</view>
+							</view>
+						</view>
+						<view class="project">
+							<view>检查科室:</view>
+							<view>
+								<view>放射科</view>
+							</view>
+						</view>
+						<view class="project">
+							<view>检查地点:</view>
+							<view>
+								<view>二楼西区</view>
+							</view>
+						</view>
 					</view>
 				</li>
 			</ul>
@@ -98,147 +66,258 @@
 </template>
 
 <script>
-	import guideApi from '@/api/guideApi.js'
+	import moment from 'moment';
 	import bus from "@/utils/bus.js";
+	import { mapState } from 'vuex';
+	import hospitalizationApi from '@/api/hospitalizationApi.js';
 	export default {
-		props: {
-		           headerEmit: Object,
-		        },
+		props: { headerEmit: Object },
 		data() {
 			return {
-				firstContent:{},
-				callObj:{
-					calling:'',
-					departmentName:'',
-					expectToWait:'',
-					medicalTreatmentNumber:''
-				},
+				matterList: [],
+				otherNum: 0,
+				type: 'today',
 				titleList:[
 					{
-						name:'今日事项(2项)',
-						num:1,
+						name:'今日事项',
+						type:'today',
 					},
 					{
-						name:'预约事项(1项)',
-						num:2,
+						name:'预约事项',
+						type:'other',
 					},
 				],
-				number:1,
 			}
 		},
+		computed: {
+			...mapState(['footData','department']),
+		},
 		mounted() {
-			this.registrationCardAPI()
+			this.getMattersList('today')
 		},
 		
 		methods: {
-			matter(num){
-				this.number = num
+			matter(val){
+				this.type = val
+				this.getMattersList(this.type)
 			},
-			navigation(){
-				let latitude = 36.183242794928994
-				let longitude = 117.07709640617486
-				wx.openLocation({
-				          latitude: latitude,//目的地的纬度
-				          longitude: longitude,//目的地的经度
-				          name: '山东第一医科大学第二附属医院', 
-				        })
-			},
-			navigateToPage() {
-			      uni.navigateTo({
-			        url: '/sub_packages/convenientModule/inquiry?params='+this.headerEmit.userId
-			      });
-			    },
-			btn(value) {
-			            switch (value) {
-			                case '未签到':
-			                    return '立即签到'
-			                case '已签到':
-			                    return '刷新信息'
-			                
-			                
-			            }
-			},
-			// 签到按钮
-			leftBtn(item){
-				if(item=='未签到'){
-					try{
-						// 签到
-						const res =  guideApi.signIn({
-							visitNumber:this.headerEmit.visitNumber,
-							signInType:'初诊',
-							queueId:this.firstContent.queueId
-					   }).then((res) => {
-					   this.registrationCardAPI()
-					           }) 
-					}catch(e){
-						console.log(e)
+			// 获取事项
+			async getMattersList(type) {
+				let res = await hospitalizationApi.getHospitalRecord(this.footData.patientUniquelyIdentifies);
+				if (res.data.code === 200) {
+					let admId = res.data.data.admInfoList.admInfo[0].admID;
+					let nowDate = moment().format('YYYY-MM-DD');
+					let sendDate = moment().add(1, 'days').format('YYYY-MM-DD');
+					let nextDate = moment(sendDate).add(7, 'days').format('YYYY-MM-DD');
+					let str = {
+						admId,
+						startTime: type == 'today' ? nowDate : sendDate,
+						endTime: type == 'today' ? nowDate : nextDate,
 					}
-					// this.firstContent.callState='已签到'
-					// console.log(this.firstContent)
-					// this.registrationCardAPI()
-					         
+					let matterRes = await hospitalizationApi.getMattersRecord(str);
+					matterRes.data.code = 200
+					if (matterRes.data.code === 200){
+						// this.matterList = matterRes.data.data.Data
+						let data = {
+							"2025-03-19 11:34": [
+								{
+									"OrdDesc": "心内科护理常规",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "低盐低脂饮食",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "常规心电图检查(含床旁)",
+									"ExStatus": "已执行"
+								}
+							],
+							"2025-03-19 11:35": [
+								{
+									"OrdDesc": "(日间常规)心脏彩超+左心功能测定+室壁运动分析",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "(心内科专用)双侧颈动脉+双侧椎动脉彩超",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "256排CT平扫(胸部)",
+									"ExStatus": "已执行"
+								}
+							],
+							"2025-03-19 11:39": [
+								{
+									"OrdDesc": "病毒四项",
+									"ExStatus": "已执行"
+								},
+								{
+									"OrdDesc": "中性粒细胞载脂蛋白(HNL)检测(自费)",
+									"ExStatus": "已执行"
+								},
+								{
+									"OrdDesc": "糖化血红蛋白",
+									"ExStatus": "已执行"
+								},
+								{
+									"OrdDesc": "甲功三项",
+									"ExStatus": "已执行"
+								},
+								{
+									"OrdDesc": "粪便隐血试验",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "尿一般检查",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "尿沉渣定量检测",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "白蛋白",
+									"ExStatus": "已执行"
+								},
+								{
+									"OrdDesc": "总蛋白",
+									"ExStatus": "已执行"
+								},
+								{
+									"OrdDesc": "同型半胱氨酸(HCY)",
+									"ExStatus": "已执行"
+								},
+								{
+									"OrdDesc": "备血用输血相容性检测",
+									"ExStatus": "已执行"
+								}
+							],
+							"2025-03-19 11:41": [
+								{
+									"OrdDesc": "肌钙蛋白Ⅰ",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-19 11:49": [
+								{
+									"OrdDesc": "双侧下肢动脉+双侧足动脉彩超",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-19 12:00": [
+								{
+									"OrdDesc": "尼可地尔片[5mgx24片/盒]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "0.9%氯化钠注射液[0.9% 250ml/袋]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "注射用盐酸地尔硫卓[10mg/瓶](石药)",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-19 12:01": [
+								{
+									"OrdDesc": "地奥心血康软胶囊[0.35gx30粒/盒]",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-19 16:00": [
+								{
+									"OrdDesc": "单硝酸异山梨酯片[20mgx60片/瓶]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "尼可地尔片[5mgx24片/盒]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "地奥心血康软胶囊[0.35gx30粒/盒]",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-19 20:00": [
+								{
+									"OrdDesc": "阿托伐他汀钙片[20mgx14片/盒]",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-20 08:00": [
+								{
+									"OrdDesc": "单硝酸异山梨酯片[20mgx60片/瓶]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "阿司匹林肠溶片[100mgx30片/盒]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "硫酸氢氯吡格雷片[75mgx7片/盒]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "尼可地尔片[5mgx24片/盒]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "0.9%氯化钠注射液[0.9% 250ml/袋]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "注射用盐酸地尔硫卓[10mg/瓶](石药)",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "地奥心血康软胶囊[0.35gx30粒/盒]",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-20 12:00": [
+								{
+									"OrdDesc": "尼可地尔片[5mgx24片/盒]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "地奥心血康软胶囊[0.35gx30粒/盒]",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-20 16:00": [
+								{
+									"OrdDesc": "单硝酸异山梨酯片[20mgx60片/瓶]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "尼可地尔片[5mgx24片/盒]",
+									"ExStatus": "未执行"
+								},
+								{
+									"OrdDesc": "地奥心血康软胶囊[0.35gx30粒/盒]",
+									"ExStatus": "未执行"
+								}
+							],
+							"2025-03-20 20:00": [
+								{
+									"OrdDesc": "阿托伐他汀钙片[20mgx14片/盒]",
+									"ExStatus": "未执行"
+								}
+							]
+						}
+						this.matterList = Object.entries(data).map(([date, detail]) => ({
+						  date,
+						  detail
+						}));
+					} else {
+						this.matterList = [];
+					}
 					
-				}else{
-					this.getQueueingDTO()
+					console.log(JSON.stringify(this.matterList));
 				}
 			},
-			
-			// 获取初诊数据
-			async registrationCardAPI() {
-				try{
-					const res= await guideApi.registrationCardAPI({
-						visitNumber:this.headerEmit.visitNumber,
-						tag:'1',
-			        }).then((res) => {
-					this.firstContent = res.data?res.data:{}
-					if(this.firstContent.callState=='已签到'){
-						this.getQueueingDTO()
-					}
-			                })
-				}catch(e){
-					console.log(e);
-				}
-				
-					// this.firstContent = {
-					// 	queuename:'呼吸内科',
-					// 	doctorName:'张海松',
-					// 	queueLocation:'门诊楼三楼西侧内科门诊',
-					// 	precautions:'就诊前请到分诊台检查血压',
-					// 	appointmentTime:'2024/8/8 09:35',
-					// 	callState:this.firstContent.callState=='已签到'?'已签到':'未签到',
-						
-					// }
-					// if(this.firstContent.callState=='已签到'){
-					// 	this.getQueueingDTO()
-					// }
-				
-			     
-			},
-			// 刷新信息
-			async getQueueingDTO() {
-				try{
-					 const res= await guideApi.getQueueingDTO({
-						visitNumber:this.headerEmit.visitNumber,
-						queueCode:this.firstContent.queueId,
-			        }).then((res) => {
-					this.callObj = res.data
-						
-			                })
-				}catch(e){
-					console.log(e);
-				}
-					// this.callObj = {
-					// 	calling:'8',
-					// 	expectToWait:'10分钟',
-					// 	medicalTreatmentNumber:'16',
-					// }
-				
-			    
-			},
-			
 		},
-		
-		
 	}
 </script>
 
@@ -255,7 +334,7 @@
 	   }
 	   .b {
 	   	background: #f0f7ff;
-		color: #0B69B6;
+			color: #0B69B6;
 	   }
 	.doing{
 		// background: fuchsia;
@@ -264,8 +343,6 @@
 			width: 684rpx;
 			background: #ffffff;
 			border-radius: 12rpx;
-			
-			
 			.title {
 				display: flex;
 				align-items: center;
@@ -274,8 +351,6 @@
 				margin: 0 20rpx;
 				border-bottom: 2rpx solid #eeeeee;
 				color: #7D7D7D;
-				
-				
 				view {
 					display: flex;
 					align-items: center;
@@ -286,13 +361,10 @@
 			}
 			.today {
 				text-align: left;
-				// display: flex;
-				// flex-wrap: wrap;
 				padding-bottom: 10rpx;
 				> li {
 					margin: 0 20rpx;
 					padding: 20rpx 0;
-					border-bottom: 2rpx solid #eeeeee;
 					
 					&:last-child{
 						border: 0;
@@ -300,7 +372,8 @@
 					// width: 100%;
 					.time {
 						display: flex;
-						padding: 10rpx 0;
+						padding: 10rpx 0 20rpx;
+						font-weight: 600;
 						>view {
 							&:first-child{
 								margin-right: 10rpx;
@@ -311,6 +384,9 @@
 						display: flex;
 						padding: 10rpx 0;
 						>view {
+							.text-red {
+							  color: red;
+							}
 							&:first-child{
 								width: 20%;
 								color: #999999;
