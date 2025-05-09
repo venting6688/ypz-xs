@@ -97,7 +97,6 @@ export default {
 		...mapState(['footData','department']),
 	},
 	async created() {
-			console.log('change4.....');
 		if(this.footState===2 && uni.getStorageSync("loginData") != ''){
 			//接收到数据之后进行处理
 			if(this.departmentList.length) {
@@ -129,7 +128,6 @@ export default {
 		}
 	},
 	beforeDestroy() {
-			console.log('change5.....');
 		if(this.footState){
 			bus.$off('refreshGetFirstVisit')
 			clearInterval(this.interval)
@@ -139,7 +137,6 @@ export default {
 		
 	},
 	mounted() {
-			console.log('change6.....');
 		this.throttle_btns = this.throttle(this.btns, 1200)
 	},
 	methods: {

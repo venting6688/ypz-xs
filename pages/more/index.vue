@@ -204,11 +204,11 @@
 						    	name:'入院登记',
 						    	num:30,
 						    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized5.png',
-					// 	    	name:'住院费用',
-					// 	    	num:31,
-					// 	    },
+						    {
+						    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized5.png',
+						    	name:'住院费用',
+						    	num:31,
+						    },
 					// 	    {
 					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized6.png',
 					// 	    	name:'床旁结算',
@@ -291,7 +291,7 @@
 					'空',
 					'空',
 					'/sub_packages/beHospitalizedRegister/index', //30
-					'空',
+					'/sub_packages/convenientModule/index', //31
 					'空',
 					'空',
 					'空',

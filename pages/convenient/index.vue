@@ -90,7 +90,7 @@
 				isRequest: false,
 				firstState: false,
 				effectState: false,
-				yuyue: [],
+				isChange: false,
 			}
 		},
 		computed: {
@@ -104,6 +104,15 @@
 		
 		async created() {
 			this.departmentList = this.getFirstVisit();
+			this.$store.watch(
+				state => state.showState,(newVal, oldVal) => {
+					this.isRequest = true;
+					this.firstState = true;
+					this.effectState = true;
+					// this.isChange = true;
+					this.departmentList = this.getFirstVisit();
+				}
+			);
 			if(this.footState === 2 && uni.getStorageSync("loginData") != ''){
 				bus.$on('refreshGetFirstVisit',(data)=>{
 					if(data.callingInterface){
@@ -112,7 +121,7 @@
 						this.firstState = data.firstState;
 						this.effectState = data.effectState;
 						this.getFirstVisit(data)
-					}else{
+					} else{
 						this.refreshData(data)
 					}
 				})
@@ -258,9 +267,9 @@
 							if (list != undefined && list.length > 0 && list[0].queueName != '') {
 								this.departmentList.push(list[0]);
 							}
+							
 							if (this.isRequest && this.departmentList.length) {
-								if (this.departmentList.length) {
-									let found = false
+ 									let found = false
 									// 判断存下的visitNumber和数组中有没有匹配的如果没有重新赋值
 									this.departmentList.forEach(item => {
 										if (item.visitNumber === this.headerEmit.visitNumber || item.orderCode === this.headerEmit.visitNumber) {
@@ -289,10 +298,7 @@
 										visitNumber: number,
 									}
 									this.setDepartment(msg)
-								}
-								
 								if(this.firstState){
-									// 当初诊卡片创建后传值
 									let msg = {
 										data:this.departmentList,
 										effectState:this.effectState,
@@ -300,7 +306,6 @@
 									bus.$emit('complex-data-passed',msg)
 								}
 							}
-							
 					})
 				} catch(e) {
 					this.toastObj = {

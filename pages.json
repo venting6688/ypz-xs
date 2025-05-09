@@ -306,10 +306,19 @@
 			},
 			{
 				//住院清单
-				"path" : "convenientModule/detail",
+				"path" : "convenientModule/index",
 				"style" : 
 				{
 					"navigationBarTitleText": "住院日清单",
+					"disableScroll": true
+				}
+			},
+			{
+				//住院清单详情
+				"path" : "convenientModule/detail",
+				"style" : 
+				{
+					"navigationBarTitleText": "清单明细",
 					"disableScroll": true
 				}
 			}

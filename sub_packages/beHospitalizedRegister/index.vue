@@ -1,6 +1,7 @@
 <template>
 	<view class="register">
-		<view class="application">
+		<bar />
+		<view class="application" v-if="preHospitalization.length">
 			<view class="head">住院信息</view>
 			<view class="middle">
 				<view>
@@ -37,7 +38,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="content">
+		<view class="content" v-if="preHospitalization.length">
 			<view class="head">住院人信息</view>
 			<form>
 				<view class="cu-form-group">
@@ -65,17 +66,23 @@
 					<input placeholder="请输入手机号" v-model="informationObj.fPhon" maxlength="11" type="number" name="input" />
 				</view>
 			</form>
-			<view class="btn" v-if="!register"><button class="cu-btn" @click="registerBtn">入院登记</button></view>
+			<view class="btn" v-if="!register && iPBook !=''"><button class="cu-btn" @click="registerBtn">入院登记</button></view>
+		</view>
+		<view v-else class="application">
+			<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 		</view>
 	</view>
+	
 </template>
 
 <script>
 	import { mapState } from 'vuex';
 	import mixin from '@/mixins/mixin.js'
+	import bar from '../components/bar.vue'
 	import hospitalizationApi from '@/api/hospitalizationApi.js'
 	export default {
 		mixins: [mixin],
+		components:{ bar },
 		data (){
 			return {
 				register: false,
