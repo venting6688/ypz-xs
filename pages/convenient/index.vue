@@ -1,28 +1,40 @@
 <template>
 	<view class="box" >
-		<HeaderBar @handle="show" v-if="showState && departmentList.length > 0" :footState="footState" :data="departmentList" />
-		<!-- <report @handle="expandBtn" :expand="expand" v-if="visitNumber!=='1358799' && (headerEmit.state=='查验' || headerEmit.state=='回诊')" /> -->
-		<view v-if="showState" class="scroll-Y" :animation="animationData" @touchmove='touchMove'>
-			<first @handle="show" v-if="headerEmit.state=='初诊'" :headerEmit="headerEmit" />
+		<!-- 头文件 -->
+		<HeaderBar 
+			@handle="show" 
+			v-if="showState && departmentList != undefined && departmentList.length > 0" 
+			:footState="footState" 
+			:data="departmentList" 
+		/>
+		<HeaderBar
+			@handle="show" 
+			v-if="showState && departmentList == undefined || departmentList.length == 0" 
+			:footState="footState" 
+			:data="departmentList" 
+		/>
+		<!-- 预约、挂号部分 -->
+		<view v-if="showState && departmentList != undefined && departmentList.length > 0 && ['初诊','查验','回诊','处方'].includes(headerEmit.state)" class="scroll-Y" :animation="animationData" @touchmove='touchMove'>
+			<first @handle="show" v-if="headerEmit.state=='初诊'" :emit="headerEmit" />
 		  <check @handle="show" v-if="headerEmit.state=='查验'" :headerEmit="headerEmit" />
 			<answer @handle="show" v-if="headerEmit.state=='回诊'" :headerEmit="headerEmit" />
 			<prescription @handle="show" v-if="headerEmit.state=='处方'" :headerEmit="headerEmit" />
 		</view>
-		
-		<view class="scroll-Y" :animation="animationData" v-else>
+		<!-- 住院部分 -->
+		<view class="scroll-Y" v-if="hospitalRecord != undefined && hospitalRecord.length && ['住院信息','住院事项','住院日清单'].includes(headerEmit.state)">
 			<prepare v-if="headerEmit.state=='住院信息'" :headerEmit="headerEmit" />
 			<doing v-if="headerEmit.state=='住院事项'" :headerEmit="headerEmit" />
 			<inventory v-if="headerEmit.state=='住院日清单'" :headerEmit="headerEmit" />
 		</view>
-		
-		<view class="img" v-if="!headerEmit.state || !signData">
+		<!-- 没有数据 -->
+		<view class="img scroll-Y" v-if="!signData || departmentList == undefined || departmentList.length == 0">
 			<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 		</view>
 		<foot :footState="footState"/>
 	</view>
 </template>
 <script>
-	import {mapState} from 'vuex'
+	import {mapState, mapMutations} from 'vuex'
 	import HeaderBar from '@/components/HeaderBar.vue';
 	import foot from '@/components/footer.vue'
 	import report from '../../sub_packages/convenientModule/components/report.vue'
@@ -33,6 +45,7 @@
 	import prepare from '../../sub_packages/convenientModule/components/beHospitalized/prepare.vue'
 	import doing from '../../sub_packages/convenientModule/components/beHospitalized/doing.vue'
 	import inventory from '../../sub_packages/convenientModule/components/beHospitalized/inventory.vue'
+	import hospitalizationApi from '@/api/hospitalizationApi.js';
 	import guideApi from '@/api/guideApi.js'
 	import bus from '@/utils/bus.js'
 	import moment from 'moment';
@@ -66,8 +79,18 @@
 				expand:false,
 				timer:null,
 				convenientState:true,
-				departmentList: [],
 				signData: uni.getStorageSync("loginData"),
+				departmentList: [],
+				hospitalRecord: [{
+					queueName: '',
+					orderCode: '',
+					isHospitalized: false,
+					doctorName: '住院'
+				}],
+				isRequest: false,
+				firstState: false,
+				effectState: false,
+				yuyue: [],
 			}
 		},
 		computed: {
@@ -75,13 +98,30 @@
 				footData: state => state.footData,
 				showState: state => state.showState,
 				visitNumber: state => state.department.visitNumber,
+				department: state => state.department,
 			}),
 		},
 		
 		async created() {
 			this.departmentList = this.getFirstVisit();
+			if(this.footState === 2 && uni.getStorageSync("loginData") != ''){
+				bus.$on('refreshGetFirstVisit',(data)=>{
+					if(data.callingInterface){
+						// 取消挂号或取消预约后马上调用接口更新数据
+						this.isRequest = true;
+						this.firstState = data.firstState;
+						this.effectState = data.effectState;
+						this.getFirstVisit(data)
+					}else{
+						this.refreshData(data)
+					}
+				})
+			}
 		},
 		methods: {
+			...mapMutations({
+				setDepartment:'SET_DEPARTMENT',
+			}),
 			expandBtn(state){
 				this.expand = state
 			},
@@ -124,6 +164,13 @@
 				}
 			},
 			
+			refreshData(data){
+				let msg = {
+					data:this.departmentList,
+					effectState:data.effectState,
+				}
+				bus.$emit('complex-data-passed',msg)
+			},
 			//获取是否有挂号
 			async getFirstVisit() {
 				try{
@@ -131,23 +178,60 @@
 					let patientID = this.footData.patientUniquelyIdentifies
 					
 					const res = await guideApi.getFirstVisit(patientID).then((res) => {
-						if(res.data.code===200){
-							registrationList = res.data.data.orders.order || []
+						if(res.data.code === 200){
+							registrationList = res.data.data.orders.order || [];
+							registrationList.map((v) => {
+								v.isHospitalized = false;
+								return v;
+							})
 						} else {
-							registrationList = []
+							registrationList = [];
 						}
 					})
-					console.log(JSON.stringify(registrationList),'registrationList');
-					this.getBookingRecord(registrationList)// 当日挂号+预约merge
+					//获取住院、预住院信息
+					let preHospitalization = await this.getAppointment();
+					this.hospitalRecord = preHospitalization;
+					this.getBookingRecord(registrationList, this.hospitalRecord)// 当日挂号+预约merge
 					
-				}catch(e){
-					console.log(e)
-					//TODO handle the exception
+				} catch(e){
+					console.log(e);
 				}
 			},
 			
+			//获取预住院信息
+			async getAppointment () {
+				let res = await hospitalizationApi.getHospitalization(this.footData.patientUniquelyIdentifies);
+				if (res.data.code === 200) {
+					this.hospitalRecord = [{
+						queueName: res.data.data && res.data.data.admInfo != undefined ? res.data.data.admInfo.admWardDesc : '',
+						orderCode: res.data.data.ipBook,
+						isHospitalized: true,
+						doctorName: '住院',
+					}];
+					return this.hospitalRecord;
+				} else {
+					this.getHospitalRecord();
+				}
+			},
+			//获取住院信息
+			async getHospitalRecord () {
+				let id = this.footData.patientUniquelyIdentifies; //'0002002208'
+				let res = await hospitalizationApi.getHospitalRecord(id);
+				
+				if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
+					this.hospitalRecord = [{
+						queueName: res.data.data.admInfoList.admInfo[0].admDept,
+						orderCode: res.data.data.admInfoList.admInfo[0].admID,
+						isHospitalized: true,
+						doctorName: '住院',
+					}];
+				}
+				
+				return this.hospitalRecord;
+			},
+			
 			//获取是否有预约数据
-			getBookingRecord (registrationList) {
+			getBookingRecord (registrationList, list) {
 				try{
 					let startDate = moment().format('YYYY-MM-DD');
 					let edcDate = moment().add('7', 'days').format('YYYY-MM-DD');
@@ -156,51 +240,76 @@
 					  startTime: startDate,
 					  endTime: edcDate
 					};
+					let subscribeList = [];
 					guideApi.getBookingRecord(msg).then((res) => {
-						if (res.data.code === 200) {
-							let subscribeList = res.data.data.orders && res.data.data.orders.order.map(item => {
-								return {
-									...item,
-									queueName:item.department,
-									doctorName:item.doctor,
-								}
-							})||[]
-							this.departmentList = [...registrationList,...subscribeList]
-		console.log(JSON.stringify(registrationList),'registrationList+++++');
-							if(this.departmentList.length){
-								let found = false
-								// 判断存下的visitNumber和数组中有没有匹配的如果没有重新赋值
-								this.departmentList.forEach(item=>{
-									if (item.visitNumber === this.headerEmit.visitNumber || item.orderCode === this.headerEmit.visitNumber) {
-									    found = true;
+							if (res.data.code === 200) {
+								subscribeList = res.data.data.orders && res.data.data.orders.order.map(item => {
+									return {
+										...item,
+										queueName:item.department,
+										doctorName:item.doctor,
+										isHospitalized: false,
 									}
-								})
-								if(!found || !this.headerEmit.visitNumber || this.departmentList.length===1){
-								    	if(this.departmentList[0].orderCode){
-								    		this.headerEmit.orderCode = this.departmentList[0].orderCode
-								    	}else {
+								}) || []
+							} 
+							this.departmentList = [];
+							this.departmentList = [...registrationList,...subscribeList];
+							
+							if (list != undefined && list.length > 0 && list[0].queueName != '') {
+								this.departmentList.push(list[0]);
+							}
+							if (this.isRequest && this.departmentList.length) {
+								if (this.departmentList.length) {
+									let found = false
+									// 判断存下的visitNumber和数组中有没有匹配的如果没有重新赋值
+									this.departmentList.forEach(item => {
+										if (item.visitNumber === this.headerEmit.visitNumber || item.orderCode === this.headerEmit.visitNumber) {
+										  found = true;
+										}
+									})
+									if(!found || !this.headerEmit.visitNumber || this.departmentList.length===1) {
+										if(this.departmentList[0].orderCode){
+											this.headerEmit.orderCode = this.departmentList[0].orderCode
+										} else {
 											this.headerEmit.orderCode = ''
 										}
 										this.$set(this.headerEmit,'visitNumber',this.departmentList[0].visitNumber || this.departmentList[0].orderCode)
+									}
+									
+									let number = '';
+									if (this.departmentList[0].visitNumber != undefined) {
+										number = this.departmentList[0].visitNumber
+									} else {
+										number = this.departmentList[0].orderCode
+									}
+									
+									let msg = {
+										length: this.departmentList.length,
+										data: this.departmentList[0],
+										visitNumber: number,
+									}
+									this.setDepartment(msg)
 								}
-							}else {
-								this.barList = []
+								
+								if(this.firstState){
+									// 当初诊卡片创建后传值
+									let msg = {
+										data:this.departmentList,
+										effectState:this.effectState,
+									}
+									bus.$emit('complex-data-passed',msg)
+								}
 							}
 							
-							
-						} 
-					});
-				}catch(e){
+					})
+				} catch(e) {
 					this.toastObj = {
 						state:true,
 						type:'fail',
 						message:e,
 					}
 				}
-			},
-		},
-		mounted(){
-			
+			}
 		},
 	}
 </script>

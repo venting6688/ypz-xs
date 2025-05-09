@@ -1,174 +1,69 @@
 <template>
 	<view class="inventory">
 		<view class="center">
-			<view class="top">
+			<view class="top" @click="showDetail(item.value)" v-for="(item, index) in dayList" :key="index">
 				<view class="title">
-					<view class="left">
-						2023年11月22日
-					</view>
+					<view class="left">{{item.date}}</view>
 					<view class="right">
 						<text>查看详情</text>
 						<image src="../../../static/image/Vector@2x.png" mode=""></image>
 					</view>
 				</view>
-				<view class="content">
-					本日消费金额：230元
-				</view>
+				<view class="content">本日消费金额：￥{{item.totalAmount}}元</view>
 			</view>
-			<view class="bottom">
-				<view class="title">
-					<view class="left">
-						2023年11月22日
-					</view>
-					<view class="right">
-						<text>查看详情</text>
-						<image src="../../../static/image/Vector@2x.png" mode=""></image>
-					</view>
-				</view>
-				<view class="content">
-					<view>您(2023-11-21)的住院清单已生成，消费总金额:¥3520.23元</view>
-					<view class="btn">
-						<button class="cu-btn" >查看发票</button>
-					</view>
-				</view>
+			<view v-if="dayList.length === 0" class="without">
+				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-	import guideApi from '@/api/guideApi.js'
+	import moment from 'moment';
+	import { mapState } from 'vuex';
 	import bus from "@/utils/bus.js";
+	import hospitalizationApi from '@/api/hospitalizationApi.js';
 	export default {
-		props: {
-		           headerEmit: Object,
-		        },
+		props: { headerEmit: Object, },
 		data() {
 			return {
-				firstContent:{},
-				register:false,
-				callObj:{
-					calling:'',
-					departmentName:'',
-					expectToWait:'',
-					medicalTreatmentNumber:''
-				},
+				dayList: [],
 			}
 		},
+		computed: {
+			...mapState(['footData','department']),
+		},
 		mounted() {
-			this.registrationCardAPI()
+			this.getHospitalizationDaysList()
 		},
 		
 		methods: {
-			
-			registerBtn(){
-				this.register = !this.register
-			},
-			navigation(){
-				let latitude = 36.183242794928994
-				let longitude = 117.07709640617486
-				wx.openLocation({
-				          latitude: latitude,//目的地的纬度
-				          longitude: longitude,//目的地的经度
-				          name: '山东第一医科大学第二附属医院', 
-				        })
-			},
-			navigateToPage() {
-			      uni.navigateTo({
-			        url: '/sub_packages/convenientModule/inquiry?params='+this.headerEmit.userId
-			      });
-			    },
-			btn(value) {
-			            switch (value) {
-			                case '未签到':
-			                    return '立即签到'
-			                case '已签到':
-			                    return '刷新信息'
-			                
-			                
-			            }
-			},
-			// 签到按钮
-			leftBtn(item){
-				if(item=='未签到'){
-					try{
-						// 签到
-						const res =  guideApi.signIn({
-							visitNumber:this.headerEmit.visitNumber,
-							signInType:'初诊',
-							queueId:this.firstContent.queueId
-					   }).then((res) => {
-					   this.registrationCardAPI()
-					           }) 
-					}catch(e){
-						console.log(e)
+			async getHospitalizationDaysList () {
+				let id = this.footData.patientUniquelyIdentifies; //'0002002208';
+				let res = await hospitalizationApi.getHospitalRecord(id);
+				if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
+					let admID = res.data.data.admInfoList.admInfo[0].admID;
+					let startDate =res.data.data.admInfoList.admInfo[0].admDate;
+					let endDate = moment().format('YYYY-MM-DD');
+					let str = {
+						startDate,
+						endDate,
+						admID
 					}
-					// this.firstContent.callState='已签到'
-					// console.log(this.firstContent)
-					// this.registrationCardAPI()
-					         
-					
-				}else{
-					this.getQueueingDTO()
-				}
-			},
-			
-			// 获取初诊数据
-			async registrationCardAPI() {
-				try{
-					const res= await guideApi.registrationCardAPI({
-						visitNumber:this.headerEmit.visitNumber,
-						tag:'1',
-			        }).then((res) => {
-					this.firstContent = res.data?res.data:{}
-					if(this.firstContent.callState=='已签到'){
-						this.getQueueingDTO()
+					let data = await hospitalizationApi.getHospitalizationDaysList(str);
+					if (data.data.code === 200) {
+						this.dayList = data.data.data;
+						this.dayList.sort((a, b) => new Date(b.date) - new Date(a.date))
 					}
-			                })
-				}catch(e){
-					console.log(e);
 				}
-				
-					// this.firstContent = {
-					// 	queuename:'呼吸内科',
-					// 	doctorName:'张海松',
-					// 	queueLocation:'门诊楼三楼西侧内科门诊',
-					// 	precautions:'就诊前请到分诊台检查血压',
-					// 	appointmentTime:'2024/8/8 09:35',
-					// 	callState:this.firstContent.callState=='已签到'?'已签到':'未签到',
-						
-					// }
-					// if(this.firstContent.callState=='已签到'){
-					// 	this.getQueueingDTO()
-					// }
-				
-			     
-			},
-			// 刷新信息
-			async getQueueingDTO() {
-				try{
-					 const res= await guideApi.getQueueingDTO({
-						visitNumber:this.headerEmit.visitNumber,
-						queueCode:this.firstContent.queueId,
-			        }).then((res) => {
-					this.callObj = res.data
-						
-			                })
-				}catch(e){
-					console.log(e);
-				}
-					// this.callObj = {
-					// 	calling:'8',
-					// 	expectToWait:'10分钟',
-					// 	medicalTreatmentNumber:'16',
-					// }
-				
-			    
 			},
 			
+			showDetail(data) {
+				uni.navigateTo({
+					url: `/sub_packages/convenientModule/detail?data=${encodeURIComponent(JSON.stringify(data))}`
+				})
+			}
 		},
-		
-		
 	}
 </script>
 
@@ -201,11 +96,8 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				padding: 10rpx 0;
+				padding: 10rpx 0 15rpx;
 				margin:0 20rpx;
-				.left {
-					
-				}
 				.right {
 					image {
 						width: 12rpx;
@@ -217,8 +109,9 @@
 				}
 			}
 			.top {
-				background: #f8f8f8;
-				margin:0 10rpx;
+				margin:15rpx 10rpx;
+				padding: 15rpx 10rpx;
+				border-bottom: 1px solid #eee;
 				.content {
 					margin:0 20rpx;
 					text-align: left;

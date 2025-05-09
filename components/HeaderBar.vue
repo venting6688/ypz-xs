@@ -8,20 +8,19 @@
 			</view>
 		</view>
 		<view class="dist">
-			<ul  v-if="footState===2 && departmentList.length">
-				<li v-for="(item,index) in departmentList" :key="index">
-					<view class="test" @click="departmentBtn(item,index)"  :class="{ barBackground: headerEmit.visitNumber==item.visitNumber ||headerEmit.visitNumber==item.orderCode }">
-				        <view>{{item.queueName?item.queueName.replace('门诊',''):''}}</view>
-				        <view>{{item.doctorName?item.doctorName:''}}</view>
-			        </view>
-					<view class="wire">
+			<ul  v-if="footState===2 && (departmentList.length || hospitalRecord.length)">
+				<li v-if="departmentList.length" v-for="(item,index) in departmentList" :key="index">
+					<view class="test" @click="departmentBtn(item,index)"  :class="{ barBackground: headerEmit.visitNumber==item.visitNumber || headerEmit.visitNumber == item.orderCode }">
+						<view>{{item.queueName?item.queueName.replace('门诊',''):''}}</view>
+						<view>{{item.doctorName?item.doctorName:''}}</view>
 					</view>
+					<view class="wire"></view>
 				</li>
 			</ul>
 		</view>
 		<view class="bar" v-if="footState===2">
-			<view v-for="(item,index) in barList" @click="throttle_btns(index,item.number)" class="barList" :key="index">
-				<view  class="bar-name"  :class="{ barColor:item.number==1 }">
+			<view v-for="(item,index) in barList" @click="throttle_btns(index, item.number, item.type)" class="barList" :key="index">
+				<view class="bar-name"  :class="{ barColor:item.number==1 }">
 					<view>
 						<text :class="{ barBackground: item.state==item.name }">{{ item.name }}</text>
 					</view>
@@ -37,6 +36,7 @@
 	import mixin from '@/mixins/mixin'
 	import bus from "@/utils/bus.js";
 	import {mapState,mapMutations} from 'vuex'
+	
 export default {
 	props:{
 		footState:Number,
@@ -61,6 +61,7 @@ export default {
 			interval: null,
 			nanbers: null,
 			departmentList:[],
+			hospitalRecord:[],
 			userId:'',
 			userIdList:[],
 			throttle_btns:null,
@@ -70,7 +71,7 @@ export default {
 	},
 	watch: {
 		"data": {
-			immediate: true, // 立即监听一次
+			immediate: true,
 			handler(newVal) {
 				if (newVal.length > 0) {
 					this.departmentList = newVal;
@@ -81,8 +82,8 @@ export default {
 		'headerEmit.visitNumber': {
 			handler: function (newVal, oldVal) {
 				let msg = {
-					length:this.departmentList.length,
-					data:this.departmentList[this.index],
+					length: this.departmentList.length,
+					data: this.departmentList[this.index],
 					visitNumber:newVal,
 				}
 				this.setDepartment(msg)
@@ -96,25 +97,39 @@ export default {
 		...mapState(['footData','department']),
 	},
 	async created() {
+			console.log('change4.....');
 		if(this.footState===2 && uni.getStorageSync("loginData") != ''){
-			bus.$on('refreshGetFirstVisit',(data)=>{
-				if(data.callingInterface){
-					// 取消挂号或取消预约后马上调用接口更新数据
-					this.getFirstVisit(data)
-				}else{
-					this.refreshData(data)
+			//接收到数据之后进行处理
+			if(this.departmentList.length) {
+				let found = false
+				// 判断存下的visitNumber和数组中有没有匹配的如果没有重新赋值
+				this.departmentList.forEach(item => {
+					if (item.visitNumber === this.headerEmit.visitNumber || item.orderCode === this.headerEmit.visitNumber) {
+					  found = true;
+					}
+				})
+				if(!found || !this.headerEmit.visitNumber || this.departmentList.length===1) {
+					if(this.departmentList[0].orderCode){
+						this.headerEmit.orderCode = this.departmentList[0].orderCode
+					} else {
+						this.headerEmit.orderCode = ''
+					}
+					this.$set(this.headerEmit,'visitNumber',this.departmentList[0].visitNumber || this.departmentList[0].orderCode)
 				}
-			})
-			// await this.getFirstVisit()
+				let msg = {
+					length: this.departmentList.length,
+					data: this.departmentList[this.index],
+					visitNumber: this.departmentList[this.index].visitNumber,
+				}
+				this.setDepartment(msg)
+			}
+			
 			this.getTreatmentStageNew(3)
-			// this.timer = setInterval(()=>{
-			// 	this.getFirstVisit({},3)
-			// 	this.getTreatmentStageNew(3)
-			// },20000)
 			this.animateText()
 		}
 	},
 	beforeDestroy() {
+			console.log('change5.....');
 		if(this.footState){
 			bus.$off('refreshGetFirstVisit')
 			clearInterval(this.interval)
@@ -124,8 +139,8 @@ export default {
 		
 	},
 	mounted() {
+			console.log('change6.....');
 		this.throttle_btns = this.throttle(this.btns, 1200)
-		console.log(JSON.stringify(this.departmentList),'props......');
 	},
 	methods: {
 		...mapMutations({
@@ -134,156 +149,105 @@ export default {
 		//获取就诊阶段(上方横条)
 		async getTreatmentStageNew(state) {
 			try{
-				if(!this.headerEmit.orderCode){
+				//住院服务横条
+				if (this.department.data && this.department.data.isHospitalized) {
 					let data = {
-						visitNumber:this.headerEmit.visitNumber,
-						patientID: this.footData.patientUniquelyIdentifies, //'0000111227',
-						departmentCode:(this.department.data && this.department.data.queueId)||'',
-					}
-					const res = await HeaderbarApi
-					.getTreatmentStageNew(data,state)
-					.then((data) => {
-						if(data.data.code===200){
-							if (this.barListData===null || JSON.stringify(data.data.data) !== JSON.stringify(this.barListData)) {
-							    this.barListData = data.data.data;
-								this.barList = []
-								for (let key in data.data.data) {
-								  this.barList.push({name: '》》', number: data.data.data[key],state:false},{name: key, number: data.data.data[key],state:false});
-								}
-								this.barList.shift()
-								let lastIndex = this.barList.findLastIndex(item => item.number === '1');
-								if(lastIndex>=0){
-									this.barList[lastIndex].state=this.barList[lastIndex].name
-									this.$set(this.headerEmit,'state',this.barList[lastIndex].name)
-								}
-								this.$emit('handle',this.headerEmit)
-							} 
+						data:{
+							'住院信息':'1',
+							'住院事项':'0',
+							'住院日清单':'0',
 						}
-					})
-				}else {
-					let data = [
-							{
-								name:'预约',
-								number:'1',
-								state:'预约'
-							}
-						]
-					if (this.barListData===null || JSON.stringify(data) !== JSON.stringify(this.barListData)) {
-						this.barListData = data
-						this.barList = data
-						this.$set(this.headerEmit,'state','初诊')
-						this.$emit('handle',this.headerEmit)
 					}
+					this.barList = [];
+					for (let key in data.data) {
+					  this.barList.push({name: ' ', number: data.data[key], state:false, type: 'hospitalization'},{name: key, number: data.data[key], state:false, type: 'hospitalization'});
+					}
+					this.barList.shift()
 					
-					
+					let lastIndex = this.barList.findLastIndex(item => item.number === '1');
+					if(lastIndex>=0){
+						this.barList[lastIndex].state=this.barList[lastIndex].name
+						this.$set(this.headerEmit,'state',this.barList[lastIndex].name)
+					}
+					bus.$emit("loadPatients");
+				} else {
+					if(!this.headerEmit.orderCode){
+						let data = {
+							visitNumber:this.headerEmit.visitNumber,
+							patientID: this.footData.patientUniquelyIdentifies, 
+							departmentCode:(this.department.data && this.department.data.queueId)||'',
+						}
+						const res = await HeaderbarApi.getTreatmentStageNew(data,state).then((res) => {
+							if(res.data.code === 200){
+								if (this.barListData===null || JSON.stringify(res.data.data) !== JSON.stringify(this.barListData)) {
+									this.barListData = res.data.data;
+									this.barList = []
+									for (let key in res.data.data) {
+									  this.barList.push({name: '》》', number: res.data.data[key],state:false, type: 'outpatient'},{name: key, number: res.data.data[key],state:false, type: 'outpatient'});
+									}
+									this.barList.shift()
+									let lastIndex = this.barList.findLastIndex(item => item.number === '1');
+									if(lastIndex>=0){
+										this.barList[lastIndex].state=this.barList[lastIndex].name
+										this.$set(this.headerEmit,'state',this.barList[lastIndex].name)
+									}
+									this.$emit('handle',this.headerEmit)
+								} 
+							}
+						})
+					} else {
+						let data = [
+								{
+									name:'预约',
+									number:'1',
+									state:'预约',
+									type: 'outpatient'
+								}
+							]
+						if (this.barListData===null || JSON.stringify(data) !== JSON.stringify(this.barListData)) {
+							this.barListData = data
+							this.barList = data
+							this.$set(this.headerEmit,'state','初诊')
+							this.$emit('handle',this.headerEmit)
+						}
+					}
 				}
+				
 			}catch(e){
 				console.log(e);
 			}
 		},
-		refreshData(data){
-			let msg = {
-				data:this.departmentList,
-				effectState:data.effectState,
-			}
-			bus.$emit('complex-data-passed',msg)
-		},
-		//获取今日挂号数据
-		async getFirstVisit(data,state) {
-			try{
-				let registrationList = []
-				let patientID = this.footData.patientUniquelyIdentifies //'0000111227'
-				
-				const res= await guideApi.getFirstVisit(patientID,state).then((res) => {
-					if(res.data.code===200){
-						registrationList = res.data.data.orders.order || []
-					}else {
-						registrationList = []
-					}
-				})
-
-				await this.getBookingRecord(data,registrationList)
-				
-			}catch(e){
-				console.log(e)
-				//TODO handle the exception
-			}
-		},
-		// 获取预约数据
-		async getBookingRecord (data,registrationList) {
-			try{
-				const time = await this.getWeek('下一周');
-				const msg = {
-				  patientID: this.footData.patientUniquelyIdentifies, //'0000111227',
-				  startTime: time.startDate,
-				  endTime: time.endDate
-				};
-				const res= await guideApi.getBookingRecord(msg).then((res) => {
-					if(res.data.code===200){
-						let subscribeList = res.data.data.orders&&res.data.data.orders.order
-						.map(item => {
-							return {
-								...item,
-								queueName:item.department,
-								doctorName:item.doctor,
-							}
-						})||[]
-						this.departmentList =[...registrationList,...subscribeList]
-						if(this.departmentList.length){
-							let found = false
-							// 判断存下的visitNumber和数组中有没有匹配的如果没有重新赋值
-							this.departmentList.forEach(item=>{
-								if (item.visitNumber === this.headerEmit.visitNumber || item.orderCode === this.headerEmit.visitNumber) {
-								    found = true;
-								}
-							})
-							if(!found || !this.headerEmit.visitNumber || this.departmentList.length===1){
-							    	if(this.departmentList[0].orderCode){
-							    		this.headerEmit.orderCode = this.departmentList[0].orderCode
-							    	}else {
-										this.headerEmit.orderCode = ''
-									}
-									this.$set(this.headerEmit,'visitNumber',this.departmentList[0].visitNumber || this.departmentList[0].orderCode)
+		btns(i, num, type) {
+			if (type == 'outpatient') {
+				if(i % 2 === 0 && num ==1){
+					this.barList.forEach((v,x)=>{
+						if(i==x){
+							v.state = v.name
+							if(v.name==='预约'){
+								this.headerEmit.state = '初诊'
+							}else{
+								this.headerEmit.state = v.name
 							}
 						}else {
-							this.barList = []
+							v.state = false
 						}
-						if(data && data.firstState){
-							// 当初诊卡片创建后传值
-							let msg = {
-								data:this.departmentList,
-								effectState:data.effectState,
-							}
-							bus.$emit('complex-data-passed',msg)
-						}
+					})
+					this.$emit('handle',this.headerEmit)
+				} else {
+					return
+				}
+			} else {
+				this.barList.forEach((v,x)=>{
+					if(i==x){
+						v.state = v.name
+						this.headerEmit.state = v.name
+					} else {
+						v.state = false
 					}
 				})
-			}catch(e){
-				this.toastObj = {
-					state:true,
-					type:'fail',
-					message:e,
-				}
+				this.$emit('handle',this.headerEmit)
 			}
-		},
-		btns(i,num) {
-			if(i % 2 === 0 && num ==1){
-				this.barList.forEach((v,x)=>{
-				if(i==x){
-					v.state = v.name
-					if(v.name==='预约'){
-						this.headerEmit.state = '初诊'
-					}else{
-						this.headerEmit.state = v.name
-					}
-				}else {
-					v.state = false
-				}
-			})
-			this.$emit('handle',this.headerEmit)
-			}else {
-				return
-			}
+			
 		},
 		//切换科室
 		departmentBtn(item,index){

@@ -1,106 +1,93 @@
 <template>
 	<view class="prepare">
 		<view class="center">
-			<view class="content" v-if="!register">
-				<!-- <view class="title">
-					<view class="left">
-						住院申请单
-					</view>
-					<view class="right">
-						<image src="../../../static/image/add.png" mode=""></image>
-						<text>添加陪护人员</text>
-					</view>
-				</view> -->
+			<view class="content" v-if="!register && preHospitalization.admInfo != undefined">
+				<view class="title"><view class="left">住院申请单</view></view>
 				<ul>
 					<li>
 						<view class="attribute">登记号:</view>
-						<view class="name">{{hospitalRecord.patientNo}}</view>
+						<view class="name">{{preHospitalization.patInfo.patientID}}</view>
 					</li>
-					<li v-if="firstContent.doctorName">
+					<li>
 						<view class="attribute">开单医生:</view>
-						<view class="name">{{firstContent.doctorName}}</view>
+						<view class="name">{{preHospitalization.admInfo.admDoc}}</view>
 					</li>
-					<li v-if="firstContent.appointmentTime">
+					<li>
 						<view class="attribute">开单时间:</view>
-						<view class="name">
-							{{firstContent.appointmentTime}}
-						</view>
+						<view class="name">{{preHospitalization.admInfo.admDate}}</view>
 					</li>
 					<li>
 						<view class="attribute">临床诊断:</view>
-						<view class="name">{{hospitalRecord.icddesc}}</view>
+						<view class="name">{{preHospitalization.admInfo.diagnosDesc}}</view>
 					</li>
-					<li v-if="hospitalRecord.bedInfo">
+					<li>
 						<view class="attribute">住院病区:</view>
-						<view class="name">{{hospitalRecord.bedInfo}}</view>
+						<view class="name">{{preHospitalization.admInfo.admWardDesc}}</view>
 					</li>
 					<li>
 						<view class="attribute">住院地点:</view>
-						<view class="name">{{hospitalRecord.dept}}</view>
-					</li>
-					<li>
-						<view class="attribute">住院充值:</view>
-						<view class="name">无</view>
-					</li>
-					<li>
-						<view class="attribute">陪护人员:</view>
-						<view class="name">无</view>
-					</li>
-					<li>
-						<view class="attribute">
-							注意事项:
-						</view>
-						<view class="name">
-							请遵守病房作息时间,保持病室内外环境整洁与安静,不随地吐痰,不在室内吸烟和喧哗,不使用大功率电器。
-						</view>
+						<view class="name">{{preHospitalization.admInfo.RoomDesc}}</view>
 					</li>
 				</ul>
-				<view class="btn" v-if="firstContent.queueName || firstContent.doctorName">
+				<form>
+					<view class="cu-form-group">
+						<view class="title">联系人：</view>
+						<input placeholder="请输入姓名" v-model="registion.foreignID" name="input" />
+					</view>
+					<view class="cu-form-group">
+						<view class="title">手机号：</view>
+						<input placeholder="请输入手机号" v-model="registion.fPhon" maxlength="11" type="number" name="input" />
+					</view>
+				</form>
+				<view class="message">
+					<view class="attribute">注意事项:</view>
+					<view class="name">请遵守病房作息时间,保持病室内外环境整洁与安静,不随地吐痰,不在室内吸烟和喧哗,不使用大功率电器。</view>
+				</view>
+				<view class="btn">
 					<view>
 						<!-- <button class="cu-btn" @click="leftBtn(firstContent.callState)">{{btn(firstContent.callState)}}</button> -->
-					    <button class="cu-btn">住院充值</button>
 					    <button class="cu-btn" @click="registerBtn">入院登记</button>
 					</view>
 				</view>
 			</view>
 			
-			<view class="container">
+			<view class="container" v-else>
 			  <view class="info-card">
 			    <view class="info-row">
 			      <view class="info-item">
 			        <text class="label">住院号：</text>
-			        <text class="value">{{hospitalRecord.patientNo}}</text>
+			        <text class="value">{{hospitalRecord.admID}}</text>
 			      </view>
 						<view class="info-item">
 						  <text class="label">住院时间：</text>
-						  <text class="value">{{hospitalRecord.admDays}}天</text>
+						  <text class="value">{{hospitalRecord.inDays ? hospitalRecord.inDays : 0}}天</text>
 						</view>
 			    </view>
 					<view class="info-row">
 					  <view class="info-item">
 					    <text class="label">预交金额：</text>
-					    <text class="value">5000元</text>
+					    <text class="value">￥{{hospitalRecord.depositAmount ? hospitalRecord.depositAmount : 0}}元</text>
 					  </view>
 					  <view class="info-item">
 					    <text class="label">余额：</text>
-					    <text class="value balance">￥{{hospitalRecord.depositSum}}元</text>
+					    <text class="value balance">￥{{hospitalRecord.depositBalance ? hospitalRecord.depositBalance : 0}}元</text>
 					  </view>
 					</view>
 			    <view class="info-row">
 			      <view class="info-item">
 			        <text class="label">住院病区：</text>
-			        <text class="value">{{hospitalRecord.bedInfo}}</text>
+			        <text class="value">{{hospitalRecord.currWard}}</text>
 			      </view>
-			      <!-- <view class="info-item">
-			        <text class="label">床号：</text>
-			        <text class="value">24床</text>
-			      </view> -->
+						<view class="info-item">
+						   <text class="label">费别：</text>
+						   <text class="value">{{hospitalRecord.admReason}}</text>
+						 </view> 
 			    </view>
 			    <!-- <view class="info-row">
 			      <view class="info-item">
-			         <text class="label">费别：</text>
-			         <text class="value">医保</text>
-			       </view> 
+			        <text class="label">床号：</text>
+			        <text class="value">24床</text>
+			      </view> 
 			      <view class="info-item">
 			        <text class="label">饮食方式：</text>
 			        <text class="value">全流饮食</text>
@@ -110,26 +97,26 @@
 				<view class="info">
 			    <!-- <view class="full-row">
 			      <text class="label">陪护人员：</text>
-			      <text class="value">{{hospitalRecord.userName ? hospitalRecord.userName : ''}}</text>
+			      <text class="value">{{hospitalRecord.userName ? hospitalRecord.userName}}</text>
 			    </view> -->
 			    <view class="full-row">
 			      <text class="label">入院原因：</text>
-			      <text class="value">{{hospitalRecord.icddesc}}</text>
+			      <text class="value">{{hospitalRecord.inReason}}</text>
 			    </view>
 			    <!-- <view class="full-row">
 			      <text class="label">责任医生：</text>
-			      <text class="value">{{hospitalRecord.doctorName ? hospitalRecord.doctorName : ''}}</text>
+			      <text class="value">{{hospitalRecord.doctorName ? hospitalRecord.doctorName}}</text>
 			    </view>
 			    <view class="full-row">
 			      <text class="label">责任护士：</text>
-			      <text class="value">{{hospitalRecord.nurseName ? hospitalRecord.nurseName : ''}}</text>
+			      <text class="value">{{hospitalRecord.nurseName ? hospitalRecord.nurseName}}</text>
 			    </view> -->
 					<view class="full-row">
 					  <text class="label">住院须知：</text>
 					  <text class="value">请遵守病房作息时间，保持病房内外环境整洁与安静，不随地吐痰，不在病房内吸烟和喧哗，不使用大功率电器。</text>
 					</view>
 			    <view class="button-row">
-			      <button class="cu-btn">住院充值</button>
+			      <!-- <button class="cu-btn">住院充值</button> -->
 			      <button class="cu-btn" @click="clickFoot">营养点餐</button>
 			    </view>
 			  </view>
@@ -146,15 +133,16 @@
 	import hospitalizationApi from '@/api/hospitalizationApi.js';
 	
 	export default {
-		props: {
-		 headerEmit: Object,
-		},
 		data() {
 			return {
-				firstContent:{},
 				register:false,
-				hospitalRecord:{},
+				hospitalRecord: null,
 				preHospitalization: {},
+				iPBook: '',
+				registion: {
+					foreignID: '',
+					fPhon: '',
+				}
 			}
 		},
 		computed: {
@@ -162,20 +150,36 @@
 		},
 		mounted() {
 			this.getHospitalRecord()
-			if (!this.hospitalRecord) {
-				this.getHospitalization()
-			}
+			this.getHospitalization()
 		},
 		methods: {
-			registerBtn(){
-				this.register = !this.register
+			async registerBtn(){
+				if (this.registion.foreignID == '' && this.registion.fPhon == '') {
+					uni.showToast({
+						title: '请先填写联系人信息',
+						icon: 'none',   
+						duration: 2000
+					}) 
+				} else {
+					let str = {
+						patientID: this.footData.patientUniquelyIdentifies,
+						cardType: this.footData.cardTypeCode,
+						iPBook: this.iPBook,
+						foreignID: this.registion.foreignID,
+						fPhon: this.registion.fPhon,
+					}
+					let res = await hospitalizationApi.registration(str);
+					if (res.data.code === 200) {
+						this.getHospitalRecord()
+					}
+				}
 			},
 			//获取住院记录
 			async getHospitalRecord () {
-				let res = await hospitalizationApi.getHospitalRecord(this.footData.patientUniquelyIdentifies);
-				if (res.data.code === 200) {
-					let detail = await hospitalizationApi.getHospitalRecordDetail(res.data.data.admInfoList.admInfo[0].admID);
-					this.hospitalRecord = detail.data.data;
+				let id = this.footData.patientUniquelyIdentifies; 
+				let res = await hospitalizationApi.getHospitalRecord(id);
+				if (res.data.code === 200 && res.data.data.admInfoList != null) {
+					this.hospitalRecord = res.data.data.admInfoList.admInfo[0];
 					this.register = true;
 				}
 			},
@@ -185,6 +189,7 @@
 				let res = await hospitalizationApi.getHospitalization(this.footData.patientUniquelyIdentifies);
 				if (res.data.code === 200) {
 					this.preHospitalization = res.data.data;
+					this.iPBook = res.data.data.ipBook;
 					this.register = false;
 				}
 			},
@@ -234,7 +239,24 @@
 			.content {
 				margin-top: 3%;
 				position: relative;
-				
+				.cu-form-group {
+					padding-top: 0;
+					min-height: 0;
+					border-bottom: 0;
+					.title {
+						margin: 0;
+						color: #888;
+					}
+					input {
+						text-align: left;
+					}
+				}
+				.message {
+					padding: 15rpx 30rpx;
+					text-align: left;
+					line-height: 45rpx;
+					border-top: 1px solid #eee;
+				}
 				.title {
 					padding: 24rpx 0;
 					margin:0 28rpx;
@@ -377,7 +399,7 @@
 			
 			.button-row {
 			  display: flex;
-			  justify-content: space-between;
+			  justify-content: center;
 			  margin-top: 40rpx;
 			  gap: 30rpx;
 				button {

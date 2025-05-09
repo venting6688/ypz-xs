@@ -19,17 +19,17 @@
 	  "path": "pages/convenient/index",
 	  "style": {
 	    "navigationBarTitleText": "便捷导引",
-		"disableScroll": true,
-		"componentPlaceholder": {
-			"first": "view",
-		    "check": "view",
-		    "answer": "view",
-		    "prescription": "view",
-		    "report": "view",
-		    "prepare": "view",
-		    "doing": "view",
-		    "inventory": "view"
-		}
+			"disableScroll": true,
+			"componentPlaceholder": {
+				"first": "view",
+				"check": "view",
+				"answer": "view",
+				"prescription": "view",
+				"report": "view",
+				"prepare": "view",
+				"doing": "view",
+				"inventory": "view"
+			}
 	  }
 	},
 	{
@@ -185,7 +185,7 @@
 					"style" : 
 					{
 						// "navigationStyle": "custom",
-					"navigationBarTitleText": "预约挂号",
+						"navigationBarTitleText": "预约挂号",
 						"disableScroll": true
 					}
 				},
@@ -301,6 +301,15 @@
 				"style" : 
 				{
 					"navigationBarTitleText": "预问诊",
+					"disableScroll": true
+				}
+			},
+			{
+				//住院清单
+				"path" : "convenientModule/detail",
+				"style" : 
+				{
+					"navigationBarTitleText": "住院日清单",
 					"disableScroll": true
 				}
 			}

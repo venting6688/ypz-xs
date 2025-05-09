@@ -10,13 +10,17 @@ const patient = {
 		return res
 	},
 	
-	// async getHospitalization(patientID) {
-	// 	const res = await cjRequest({
-	// 		url: "HospitalizationAppointment/admissionRegistration?patientID="+patientID,
-	// 		method: "get",
-	// 	})
-	// 	return res
-	// },
+	async registration(data) {
+		const queryParams = Object.keys(data)
+		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+		.join('&');
+		
+		const res = await cjRequest({
+			url: `HospitalizationAppointment/admissionRegistration?${queryParams}`,
+			method: "post",
+		})
+		return res
+	},
 
 	//获取患者获取住院记录
 	async getHospitalRecord(patientID) {
@@ -36,7 +40,7 @@ const patient = {
 		return res
 	},
 	
-	//获取住住院事项
+	//获取住院事项
 	async getMattersRecord(data) {
 		const queryParams = Object.keys(data)
 		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
@@ -48,7 +52,18 @@ const patient = {
 		})
 		return res
 	},
-	
+	//获取住院日清单
+	async getHospitalizationDaysList(data) {
+		const queryParams = Object.keys(data)
+		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+		.join('&');
+		
+		const res = await cjRequest({
+			url: `mobileHospitalizationDaysList/getHospitalizationDaysList?${queryParams}`,
+			method: "get",
+		})
+		return res
+	},
 	
 
 
