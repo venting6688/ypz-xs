@@ -111,7 +111,6 @@
 		},
 		onLoad(e) {
 			this.information = JSON.parse(decodeURIComponent(e.item))
-			this.footData.patientUniquelyIdentifies = '0000004548';
 			if(this.information.visitNumber){
 				this.getDocumentRetrieval('00')
 				this.getDocumentRetrieval('99')

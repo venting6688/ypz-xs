@@ -172,6 +172,7 @@
 							this.subscribeObj = e
 						}
 					})
+					// console.log(JSON.stringify(this.firstContent),'change......');
 				}else{
 					this.firstContent = {}
 					this.subscribeObj = {}

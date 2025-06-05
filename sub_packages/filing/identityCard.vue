@@ -86,12 +86,13 @@
 				}
 				if(this.fleg){
 					this.fleg = false
+						// let url = 'https://www.chinzsoft.com/api/mobile/getIdCardInformation';
+						let url = 'https://aiwz.sdtyfy.com:8099/prod-api/mobile/getIdCardInformation';
 				    uni.uploadFile({
-				        url: 'https://www.chinzsoft.com/api/mobile/getIdCardInformation', 
+				        url, 
 				        filePath: this.img,
 				        name: 'multipartFile',
 				        success: (uploadFileRes) => {
-							console.log('uploadFileRes',uploadFileRes)
 				            console.log(JSON.parse(uploadFileRes.data));
 				            let data = JSON.parse(uploadFileRes.data).data;
 				    		uni.navigateTo({

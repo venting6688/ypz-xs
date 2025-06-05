@@ -39,14 +39,14 @@
 		
 		methods: {
 			async getHospitalizationDaysList () {
-				let id = this.footData.patientUniquelyIdentifies; //'0002002208';
+				let id = this.footData.patientUniquelyIdentifies;
 				let res = await hospitalizationApi.getHospitalRecord(id);
 				if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
 					let admID = res.data.data.admInfoList.admInfo[0].admID;
 					let startDate =res.data.data.admInfoList.admInfo[0].admDate;
 					let endDate = moment().format('YYYY-MM-DD');
 					let str = {
-						startDate,
+						startDate:'2025-05-15',
 						endDate,
 						admID
 					}

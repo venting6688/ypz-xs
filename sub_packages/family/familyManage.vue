@@ -1,55 +1,95 @@
 <template>
 	<view class="manage">
+		<view class="headTitle" @click="linkHealthCard()">
+			<uni-icons type="personadd" color="#1B98FF" size="22"></uni-icons> 
+			已有健康卡，关联健康卡
+		</view>
 		<view class="information">
 			<ul v-if="patientList.length">
-				<li v-for="(item,index) in patientList.slice(0,5)" :key="item.patientCard">
+				<li v-for="(item,index) in patientList" :key="item.patientCard">
 					<view class="title">
 						<view class="name" @click="amend(index)">
-							<text class="big">{{item.patientName?pixelate(item.patientName):''}}</text>
+							<text class="big">{{item.patientName ? pixelate(item.patientName) : ''}}</text>
 							<text class="small">{{item.sex}}</text>
 							<text class="relation">{{item.relation}}</text>
-						    <image src="../static/image/icon-edit.png" mode=""></image>
 						</view>
 						<view class="ok" @click="updateDefaultArchives(item)">
-							<image v-if="footData.patientName==item.patientName" src="../static/image/icon-ok.png" mode=""></image>
+							<image v-if="item.defaultType == 1" src="../static/image/icon-ok.png" mode=""></image>
 							<image v-else src="../static/image/grayOk.png" mode=""></image>
 							<text>默认就诊人</text>
+						</view>
+						<view class="dele" @click="deletePatients(item.patientUniquelyIdentifies)">
+							<uni-icons type="trash" color="red"></uni-icons>
+							删除
 						</view>
 					</view>
 					<view class="center">
 						<view class="content">
 							<text>证件号：</text>
-							<text>{{item.patientCard?pixelateNumber(item.patientCard.toString()):''}}</text>
+							<text>{{item.idNum ? pixelateNumber(item.idNum.toString()):''}}</text>
+						</view>
+						<view class="bottomBtn" @click="showHealthCard(item.patientCard)" v-if="item.cardTypeCode == '04'">
+							<view>
+								<text>{{item.patientCard == cardNum && isShowHealthCard ? '收起详情':'展开详情'}}</text>
+								<image v-if="item.patientCard == cardNum && isShowHealthCard" src="../static/image/top.png" mode=""></image>
+								<image v-else src="../static/image/bottom.png" mode=""></image>
+							</view>
+						</view>
+						<view class="upHealthCard" @click="linkHealthCard()" v-else>
+							<uni-icons type="upload" color="#1B98FF" size="22" style="margin-right: 10rpx;"></uni-icons> 
+							升级电子健康卡
 						</view>
 						
-						<view class="content" v-if="item.unfold">
+						<!-- <view class="content" v-if="item.unfold">
 							<text>余额：</text>
 							<text class="money">￥{{item.accBalance}}</text>
-						</view>
-						<view class="img" v-if="item.unfold">
-							<health-card-users
-							  hospitalId="100001"
-							  :finish="onFinish"
-							/>
-							<!-- <health-card-create-card
-							   hospitalId="30369"
-							   :finish="onFinish"
-							 /> -->
-							<!-- <image src="../static/image/healthCard.png" mode=""></image> -->
+						</view> -->
+					</view>
+					
+					<!-- 健康卡 -->
+					<view class="wrap" v-if='item.cardTypeCode == "04" && item.patientCard == cardNum && isShowHealthCard'>
+						<view class="cardNum">就诊卡：{{item.idNum}}</view>
+						<view>
+							<view class="card-face-container" @click="showQRCode(item.patientCard)">
+								<img class="card-bg" src="../static/image/cardnewbg.png" alt="" />
+								<view class="card-top-info">
+										<view class="card-top-org">山东省卫生健康委员会</view>
+										<view class="card-top-title">
+												<img src="../static/image/icon2.png" alt="" />
+												<span>电子健康卡</span>
+										</view>
+								</view>
+								<view class="card-detail-info">
+										<view class="card-user-info">
+												<span class="card-user-name">{{item.patientName}}</span>
+												<span class="card-user-id">{{item.idNum}}</span>
+										</view>
+										<view class="card-qrcode">
+												<img class="card-qrcode-logo" src="../static/image/logo_.png" alt="" />
+												<img src="../static/image/qrcode.png" alt="" />
+										</view>
+								</view>
+								<view class="card-footer">中华人民共和国国家卫生健康委员会监制</view>
+							</view>
 						</view>
 					</view>
-					<!-- <view class="bottomBtn" @click="unfoldFun(index)">
-						<text>{{!item.unfold?'展开详情':'收起详情'}}</text>
-						<image v-if="!item.unfold" src="../static/image/bottom.png" mode=""></image>
-						<image v-else src="../static/image/top.png" mode=""></image>
-					</view> -->
 				</li>
 			</ul>
 		</view>
-		<view class="btn" @click="increase">
+		<view class="btn" @click="increase" v-if="5-this.patientList.length > 0">
 			<image src="../static/image/icon-add.png" mode=""></image>
-			<text>添加家庭成员（剩{{5-this.patientList.length}}人）</text>
+			<text>添加就诊人（剩{{5-this.patientList.length}}人）</text>
 		</view>
+		<view class="btn" @click="returnIndex" style="background-color: #EAAA52;">
+			<text>返回</text>
+		</view>
+		<auth-popup
+			ref="authPopup"
+			@success="authSuccess"
+			@fail="authFail"
+			@cancel="authCancel"
+		/>
+		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :url="toastObj.url" :tips="toastObj.tips" :message="toastObj.message" />
 	</view>
 </template>
 
@@ -57,11 +97,26 @@
 	import mixin from '@/mixins/mixin.js'
 	import {mapMutations , mapState} from 'vuex'
 	import HeaderbarApi from '@/api/HeaderbarApi.js'
+	import Toast from '../components/toast.vue'
+	import filingApi from '@/api/filingApi.js'
+	import healthCard from '@/api/healthCard.js'
+  import AuthPopup from '../components/auth-popup.vue'
+	
 	export default {
 		mixins: [mixin],
+		components: {
+			AuthPopup,
+			Toast
+		},
 		data(){
 			return {
 				patientList:[],
+				toastObj: {
+					state:false,
+				},
+				loginValue: {},
+				cardNum: '',
+				isShowHealthCard: false,
 			}
 		},
 		onShow() {
@@ -71,26 +126,43 @@
 				if(registerData && registerData.archivesList.length){
 					this.patientList = registerData.archivesList
 					this.patientList.forEach((item, i) => {
-					    item.defaul = false;
-					    this.$set(this.patientList, i, item);
+						item.defaul = false;
+						this.$set(this.patientList, i, item);
 					});
-					console.log('registerData',registerData)
 					const temp = this.patientList[0];
 					temp.default = true;
 					this.$set(this.patientList, 0, temp);
 				}
-				
 			}
 		},
 		computed: {
 			...mapState(['footData']),
 		},
+		onLoad(e) {
+			this.loginValue = JSON.parse(uni.getStorageSync("loginData"));
+			this.healthCode = e.healthCode ? e.healthCode : '';
+			this.regInfoCode = e.regInfoCode ? e.regInfoCode : '';
+			this.authCode = e.authCode ? e.authCode : '';
+			this.getHealthCardList();
+			if (this.healthCode != '') {
+				this.getHealthCard();
+			}
+		},
 		methods: {
 			...mapMutations({
 				setFootData:'SET_FOOT_DATA',
 			}),
+			
+			closeToast(state){
+				this.toastObj = {
+					state:state,
+				}
+			},
+			returnIndex() {
+				uni.switchTab({ url:"/pages/virtualNurse/index" })
+			},
+			
 			amend(index){
-				console.log('patientList',this.patientList)
 				uni.navigateTo({
 					url: `/sub_packages/family/familyAmend?informationObj=${encodeURIComponent(JSON.stringify(this.patientList[index]))}`
 				})
@@ -127,26 +199,160 @@
 						phone:value.phoneNum,
 						patientCard:item.patientCard,
 					}
-				const res = await HeaderbarApi
-					.updateDefaultArchives(data)
-					.then((result) => {
+					const res = await HeaderbarApi.updateDefaultArchives(data).then((result) => {
 						this.$emit('handle',item)
 						this.refreshUserInfo(value.phoneNum)
+						this.getHealthCardList();
 					})
 				}catch(e){
 					console.log(e);
 				}
 			},
-			unfoldFun(index){
-				const temp = this.patientList[index]
-				temp.unfold = !this.patientList[index].unfold
-				this.$set(this.patientList, index, temp)
-			},
+			
 			increase() {
 				uni.navigateTo({
 					url: `/sub_packages/family/familyInformation`
 				})
 			},
+			
+			showHealthCard(num) {
+				this.cardNum = num;
+				this.isShowHealthCard = !this.isShowHealthCard;
+			},
+			
+			//电子健康卡
+			linkHealthCard(type) {
+				var plugin = requirePlugin("healthCardPlugins");
+				plugin.login((isok, res) => {
+					if (!isok && res.result.toLogin) {
+						// 用户未授权，需要用户同意授权
+						this.$refs.authPopup.open();
+					} else {
+						// 用户在微信授权过，可直接获取登录信息，处理后续业务
+						this.todo(res);
+					}
+				}, {
+					wechatCode: true,
+				});
+			},
+			
+			async todo(val) {
+				const { wechatCode } = val.result;
+				let data = {
+					wechatCode,
+					patientType: 0,
+					successRedirectUrl: 'mini:/sub_packages/family/familyManage?healthCode=${healthCode}', //授权成功获取就诊人列表
+					failRedirectUrl: 'mini:/sub_packages/family/familyManage?regInfoCode=${regInfoCode}',
+					userFormPageUrl: 'mini:/sub_packages/family/registerHealth?authCode=${authCode}', //添加就诊人
+					faceUrl:`/sub_packages/family/faceVerify`,
+					verifyFailRedirectUrl:`mini:/sub_packages/family/familyManage`,
+					domainChannel: 3,
+					relateOpenId: this.loginValue.xcxOpenId,
+				}
+				await healthCard.registerHealthCardPreAuth(data).then((res) => {
+					if (res.data.code == 200) {
+						let url = res.data.data.rsp.bindCardUrl;
+						uni.redirectTo({ url: '/pages/webview/webview?url=' + encodeURIComponent(url) });
+					}
+				});
+			},
+			//获取健康卡信息
+			async getHealthCard() {
+				let str = {
+					healthCode: this.healthCode,
+					openid: this.loginValue.xcxOpenId,
+				}
+				let res = await healthCard.getHealthCardByHealthCode(str);
+				if (res.data.code == 200) {
+					let data = res.data.data.rsp.card;
+					//健康卡建档
+					data.cloudUser = this.loginValue;
+					healthCard.filingForHealthCard(data).then(result => {
+						if(result.data.code === 200){
+							this.getHealthCardList();
+						}
+					})
+				}
+			},
+			
+			//获取健康卡列表
+			async getHealthCardList() {
+				let data = {accountPhone: this.loginValue.phoneNum}
+				let res = await healthCard.queueFilingInfo(data);
+				if (res.data.code == 200) {
+					this.patientList = res.data.data.archivesList;
+				}
+			},
+			//展码
+			showQRCode(healthCardId) {
+				let hospitalId = '40237';
+				let webviewUrl = '/pages/webview/webview?url=$url';
+				let redirectUrl = '';
+				let fieldCode = '';
+				
+				wx.navigateTo({
+					url: `plugin://healthCardPlugins/healthcode?hospitalId=${hospitalId}&healthCardId=${healthCardId}&webviewUrl=${encodeURIComponent(webviewUrl)}&redirectUrl=${encodeURIComponent(redirectUrl)}`,
+				});	
+			},
+			
+			//删除就诊人
+			deletePatients(patientID) {
+				uni.showModal({
+					title: "提示",
+					content: "确定删除该就诊人吗？",
+					success: (res) => {
+						if (res.confirm) {
+							try {
+								let data = {
+									patientID,
+									accountPhone: this.loginValue.phoneNum,
+								}
+								healthCard.deleteThePatient(data).then(res => {
+									if(res.data.code === 200){
+										uni.showToast({
+											title: "删除成功",
+											icon: "none",
+										});
+									} else {
+										uni.showToast({
+											title: res.data.msg,
+											icon: "none",
+										});
+									}
+									this.getHealthCardList()
+									this.refreshUserInfo(this.loginValue.phoneNum);
+								})
+							} catch (error) {
+								console.log(error)
+								//TODO handle the exception
+							}
+						}
+					},
+				});
+			},
+			
+			onFinish(e) {
+				console.log('🐞 onFinish', e);
+			},
+			// 用户同意授权，授权成功回调
+			authSuccess(e) {
+				const res = e.detail; 
+				// 同 plugin.login，用户同意授权，获取登录信息，处理后续业务
+				this.todo(res);
+			},
+					
+			// 用户授权失败
+			authFail(e) {
+				console.log('授权失败：', e)
+			},
+					
+			// 用户取消授权，授权失败回调
+			authCancel(e) {
+				console.log('用户取消授权：', e)
+			},
+			
+			
+			
 		}
 	}
 </script>
@@ -158,6 +364,14 @@
 		background-color: #f5f5f5;
 		display: flex;
 		flex-direction: column;
+		
+		.headTitle {
+			line-height: 64rpx;
+			background: #F0F7FF;
+			color: #1B98FF;
+			font-size: 28rpx;
+			text-align: center;
+		}
 		
 		.information {
 			width: 100%;
@@ -173,12 +387,11 @@
 					padding-bottom: 15rpx;
 					
 					.title {
-						margin: 0 20rpx;
+						margin: 0 28rpx;
 						height: 88rpx;
 						display: flex;
 						justify-content: space-between;
 						align-items: center;
-						border-bottom: 2rpx solid #F5F5F5;
 						
 						image {
 							width: 30rpx;
@@ -226,12 +439,14 @@
 							color: #666666;
 							padding: 10rpx 0;
 						}
+						.dele {
+							color: #ff0000;
+						}
 					}
 					.center {
-						margin: 0 20rpx 25rpx 20rpx;
+						margin: 0 28rpx 25rpx;
 						display: flex;
-						flex-direction: column;
-						justify-content: space-evenly;
+						justify-content: space-between;
 						.content {
 							margin-top: 20rpx;
 							text {
@@ -267,11 +482,9 @@
 						}
 					}
 					.bottomBtn {
-						display: flex;
-						align-items: center;
-						justify-content: center;
 						color: #999999;
 						font-size: 26.72rpx;
+						margin-top: 20rpx;
 						
 						image {
 							width: 30rpx;
@@ -279,6 +492,138 @@
 							margin-left: 8rpx;
 						}
 					}
+					.upHealthCard {
+						color: #1B98FF;
+						font-size: 26.72rpx;
+						margin-top: 20rpx;
+					}
+				}
+			}
+			
+			//电子健康卡
+			.wrap {
+				border-top: 1px solid #eee;
+				background: #fff;
+				min-height: 99%;
+				padding-top: 1%;
+				width: 100%;
+				font-family: 'PINGFANG MEDIUM', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+				font-weight: 600;
+				.cardNum {
+					margin-left: 28rpx;
+					padding: 10rpx 0 0;
+				}
+				.card-face-container {
+					height: 351rpx;
+					width: 620rpx;
+					margin: 15rpx auto;
+					position: relative;
+					color: #000000;
+				}
+				.card-face-container .card-bg {
+				    height: 100%;
+				    width: 100%;
+				    position: absolute;
+				}
+				
+				.card-face-container .card-top-info {
+				    position: absolute;
+				    top: 15rpx;
+				    width: calc(100% - 15rpx - 20rpx);
+				    padding: 0 15rpx 0 20rpx;
+				    display: flex;
+				    justify-content: space-between;
+				    align-items: center;
+				}
+				
+				.card-face-container .card-top-info .card-top-org {
+				    font-size: 22rpx;
+				    line-height: 22rpx;
+				}
+				
+				.card-face-container .card-top-info .card-top-title {
+				    display: flex;
+				    align-items: center;
+				    font-size: 30rpx;
+				    line-height: 36rpx;
+				    color: #2B2B2B;
+				}
+				
+				.card-face-container .card-top-info .card-top-title img {
+				    height: 58rpx;
+				    width: 58rpx;
+				    margin-right: 10rpx;
+				}
+				
+				.card-face-container .card-detail-info {
+				    position: absolute;
+				    top: 100rpx;
+				    width: calc(100% - 30rpx - 15rpx);
+				    padding-left: 20rpx;
+				    display: flex;
+				    justify-content: space-between;
+				    align-items: flex-end;
+				}
+				
+				.card-face-container .card-detail-info .card-user-info {
+				    font-size: 30rpx;
+				    color: #2B2B2B;
+				}
+				
+				.card-face-container .card-detail-info .card-user-info .card-user-id {
+				    font-size: 28rpx;
+				    line-height: 28rpx;
+				    display: block;
+				    padding-top: 10rpx;
+				}
+				
+				.card-face-container .card-detail-info .card-qrcode {
+				    background: #FFFFFF;
+				    padding: 5rpx;
+				    position: relative;
+				}
+				
+				.card-face-container .card-detail-info .card-qrcode .card-qrcode-logo {
+				    height: 164rpx;
+				    width: 164rpx;
+				    position: absolute;
+				    top: 50%;
+				    left: 50%;
+				    transform: translate(-50%, -50%);
+				}
+				
+				.card-face-container .card-detail-info .card-qrcode img {
+				    height: 164rpx;
+				    width: 164rpx;
+				}
+				
+				.card-face-container .card-footer {
+				    position: absolute;
+				    font-size: 22rpx;
+				    bottom: 26rpx;
+				    left: 50%;
+				    transform: translateX(-50%);
+				    white-space: nowrap;
+				    letter-spacing: 0;
+				    line-height: 22rpx;
+				}	
+				.bottom {
+					display: flex;
+					align-items: center;
+					font-size: 26.72rpx;
+					line-height: 26.72rpx;
+					font-family: PingFang SC, PingFang SC-400;
+					font-weight: 400;
+					color: #666666;
+					padding: 10rpx 0;
+					margin: auto 65rpx;
+					justify-content: space-between;
+					.default image {
+						width: 32rpx;
+						height: 32rpx;
+						margin-right: 10rpx;
+					}
+					
 				}
 			}
 		}
@@ -287,12 +632,13 @@
 			width: 681.3rpx;
 			height: 87.79rpx;
 			background: #4286ff;
-			border-radius: 43.89rpx;
-			margin: 60rpx auto;
+			border-radius: 20rpx;
+			margin: 30rpx auto 0;
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			color: #ffffff;
+			padding: 15rpx 0;
 			
 			image {
 				width: 41.98rpx;

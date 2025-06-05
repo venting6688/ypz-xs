@@ -115,6 +115,7 @@ export default {
 					}
 					this.$set(this.headerEmit,'visitNumber',this.departmentList[0].visitNumber || this.departmentList[0].orderCode)
 				}
+				
 				let msg = {
 					length: this.departmentList.length,
 					data: this.departmentList[this.index],
@@ -162,11 +163,12 @@ export default {
 					this.barList.shift()
 					
 					let lastIndex = this.barList.findLastIndex(item => item.number === '1');
+					
 					if(lastIndex>=0){
 						this.barList[lastIndex].state=this.barList[lastIndex].name
 						this.$set(this.headerEmit,'state',this.barList[lastIndex].name)
 					}
-					bus.$emit("loadPatients");
+					this.$emit('handle',this.headerEmit)
 				} else {
 					if(!this.headerEmit.orderCode){
 						let data = {

@@ -1,12 +1,12 @@
 <template>
 	<view class="register">
 		<bar />
-		<view class="application" v-if="preHospitalization.length">
+		<view class="application" v-if="preHospitalization.admDate != undefined">
 			<view class="head">住院信息</view>
 			<view class="middle">
 				<view>
 					<text>登记号:</text>
-					<text>{{preHospitalization.admID}}</text>
+					<text>{{patientID}}</text>
 				</view>
 				<view v-if="register">
 					<text>预交金额:</text>
@@ -16,13 +16,13 @@
 					<text>余额:</text>
 					<text>￥{{preHospitalization.depositBalance ? preHospitalization.depositBalance : 0}}元</text>
 				</view>
-				<!-- <view>
-					<text>开单医生:</text>
-					<text>{{preHospitalization.admDoc}}</text>
-				</view> -->
+				<view>
+					<text>就诊日期:</text>
+					<text>{{preHospitalization.admDate}}</text>
+				</view>
 				<view>
 					<text>住院科室:</text>
-					<text>{{preHospitalization.admDept}}</text>
+					<text>{{preHospitalization.admDepDesc ? preHospitalization.admDepDesc : preHospitalization.admDept}}</text>
 				</view>
 				<view>
 					<text>住院病区:</text>
@@ -38,7 +38,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="content" v-if="preHospitalization.length">
+		<view class="content" v-if="preHospitalization.admDate != null && !register">
 			<view class="head">住院人信息</view>
 			<form>
 				<view class="cu-form-group">
@@ -68,7 +68,8 @@
 			</form>
 			<view class="btn" v-if="!register && iPBook !=''"><button class="cu-btn" @click="registerBtn">入院登记</button></view>
 		</view>
-		<view v-else class="application">
+		
+		<view v-if="preHospitalization.admDate == undefined || !preHospitalization.admDate" class="application">
 			<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 		</view>
 	</view>
@@ -86,12 +87,16 @@
 		data (){
 			return {
 				register: false,
-				preHospitalization: [],
+				preHospitalization: {},
 				iPBook: '',
+				patientID: '',
 				informationObj: {
 					foreignID: '',
 					fPhon: '',
-				}
+				},
+				toastObj:{
+					state:false,
+				},
 			}
 		},
 		computed: {
@@ -102,13 +107,18 @@
 			this.getHospitalization()
 		},
 		methods: {
+			closeToast(state){
+				this.toastObj = {
+					state:state,
+				}
+			},
 			async registerBtn(){
 				if (this.informationObj.foreignID == '' && this.informationObj.fPhon == '') {
 					uni.showToast({
 						title: '请先填写联系人信息',
 						icon: 'none',   
 						duration: 2000
-					}) 
+					})
 				} else {
 					let str = {
 						patientID: this.footData.patientUniquelyIdentifies,
@@ -129,6 +139,7 @@
 				let res = await hospitalizationApi.getHospitalRecord(id);
 				if (res.data.code === 200 && res.data.data.admInfoList != null) {
 					this.preHospitalization = res.data.data.admInfoList.admInfo[0];
+					this.patientID = res.data.data.patientID;
 					this.register = true;
 				}
 			},
@@ -137,8 +148,9 @@
 			async getHospitalization () {
 				let res = await hospitalizationApi.getHospitalization(this.footData.patientUniquelyIdentifies);
 				if (res.data.code === 200) {
-					this.preHospitalization = res.data.data;
+					this.preHospitalization = res.data.data.admInfo;
 					this.iPBook = res.data.data.ipBook;
+					this.patientID = res.data.data.patInfo.patientID;
 					this.register = false;
 				}
 			},

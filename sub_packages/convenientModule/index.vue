@@ -1,7 +1,6 @@
 <template>
 	<view class="inventory">
 		<bar />
-		<date @handle="show" />
 		<view class="center">
 			<view class="top" @click="showDetail(item.value)" v-for="(item, index) in dayList" :key="index">
 				<view class="title">
@@ -25,12 +24,10 @@
 	import { mapState } from 'vuex';
 	import bus from "@/utils/bus.js";
 	import bar from '../components/bar.vue'
-	import date from '../components/date.vue'
 	import hospitalizationApi from '@/api/hospitalizationApi.js';
 	export default {
 		components:{
 			bar,
-			date,
 		},
 		data() {
 			return {
@@ -46,13 +43,6 @@
 		},
 		
 		methods: {
-			show(time){
-				const datePattern = /^\d{4}-\d{2}-\d{2}$/.test(time.startTime);
-				if(datePattern){
-					this.date = time
-					this.getHospitalizationDaysList();
-				}
-			},
 			async getHospitalizationDaysList () {
 				let id = this.footData.patientUniquelyIdentifies; //'0002002208'; 
 				let res = await hospitalizationApi.getHospitalRecord(id);
@@ -61,8 +51,8 @@
 					let startDate =res.data.data.admInfoList.admInfo[0].admDate;
 					let endDate = moment().format('YYYY-MM-DD');
 					let str = {
-						startDate: this.date.startTime,
-						endDate: this.date.endTime,
+						startDate,
+						endDate,
 						admID
 					}
 					let data = await hospitalizationApi.getHospitalizationDaysList(str);

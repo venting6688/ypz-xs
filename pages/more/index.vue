@@ -161,7 +161,7 @@
 						    },
 						    {
 						    	img:'https://aiwz.sdtyfy.com:8099/img/synthesize1.png',
-						    	name:'家庭管理',
+						    	name:'就诊人管理',
 						    	num:23,
 						    },
 						    {

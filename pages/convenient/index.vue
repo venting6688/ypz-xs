@@ -90,7 +90,6 @@
 				isRequest: false,
 				firstState: false,
 				effectState: false,
-				isChange: false,
 			}
 		},
 		computed: {
@@ -109,7 +108,6 @@
 					this.isRequest = true;
 					this.firstState = true;
 					this.effectState = true;
-					// this.isChange = true;
 					this.departmentList = this.getFirstVisit();
 				}
 			);
@@ -209,7 +207,9 @@
 			
 			//获取预住院信息
 			async getAppointment () {
-				let res = await hospitalizationApi.getHospitalization(this.footData.patientUniquelyIdentifies);
+				let id = '0000000001'; //this.footData.patientUniquelyIdentifies
+				let res = await hospitalizationApi.getHospitalization(id);
+				console.log(JSON.stringify(res),'====yuzhuyuan---------');
 				if (res.data.code === 200) {
 					this.hospitalRecord = [{
 						queueName: res.data.data && res.data.data.admInfo != undefined ? res.data.data.admInfo.admWardDesc : '',
@@ -219,14 +219,14 @@
 					}];
 					return this.hospitalRecord;
 				} else {
-					this.getHospitalRecord();
+					return this.getHospitalRecord();
 				}
 			},
 			//获取住院信息
 			async getHospitalRecord () {
-				let id = this.footData.patientUniquelyIdentifies; //'0002002208'
+				let id = '0000000001'; //this.footData.patientUniquelyIdentifies
 				let res = await hospitalizationApi.getHospitalRecord(id);
-				
+				console.log(JSON.stringify(res),'====zhuyuan---------');
 				if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
 					this.hospitalRecord = [{
 						queueName: res.data.data.admInfoList.admInfo[0].admDept,
@@ -235,7 +235,6 @@
 						doctorName: '住院',
 					}];
 				}
-				
 				return this.hospitalRecord;
 			},
 			
@@ -267,7 +266,6 @@
 							if (list != undefined && list.length > 0 && list[0].queueName != '') {
 								this.departmentList.push(list[0]);
 							}
-							
 							if (this.isRequest && this.departmentList.length) {
  									let found = false
 									// 判断存下的visitNumber和数组中有没有匹配的如果没有重新赋值
@@ -298,13 +296,10 @@
 										visitNumber: number,
 									}
 									this.setDepartment(msg)
-								if(this.firstState){
-									let msg = {
-										data:this.departmentList,
-										effectState:this.effectState,
+									if(this.firstState){
+										let data = {effectState: this.effectState}
+										this.refreshData(data)
 									}
-									bus.$emit('complex-data-passed',msg)
-								}
 							}
 					})
 				} catch(e) {

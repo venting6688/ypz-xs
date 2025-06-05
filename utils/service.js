@@ -39,7 +39,7 @@ export const cjRequest =  (parmas, state) => {
 function request(parmas,state){
 	return new Promise((resolve, reject) => {
 		// 基础url
-		const baseUrl = "https://www.chinzsoft.com/api/mobile/"
+		const baseUrl = "https://www.chinzsoft.com/api/mobile/";
 		// const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
 		if(!state){
 			requestCount++;

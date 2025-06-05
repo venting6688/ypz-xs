@@ -199,7 +199,6 @@
 								paySign: obj.body.miniPayRequest.paySign, // 签名
 								success:(result)=> {
 									registrationApi.queryPayResult(registrationPrePayResponse).then(r => {
-										console.log('r',r)
 										this.toastObj = {
 											state:true,
 											message:'预约成功',
@@ -220,7 +219,6 @@
 										transactionId:res.data.data.lockNumResponse.transactionId,
 									}
 									registrationApi.unLockNum(unLockNumData).then(r => {
-										console.log('取消锁号',r)
 										this.toastObj = {
 											state:true,
 											type:'fail',
