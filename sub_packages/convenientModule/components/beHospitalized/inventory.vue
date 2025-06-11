@@ -19,7 +19,7 @@
 </template>
 
 <script>
-	import moment from 'moment';
+	import dayjs from 'dayjs';
 	import { mapState } from 'vuex';
 	import bus from "@/utils/bus.js";
 	import hospitalizationApi from '@/api/hospitalizationApi.js';
@@ -47,7 +47,7 @@
 				if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
 					let admID = res.data.data.admInfoList.admInfo[0].admID;
 					let startDate =res.data.data.admInfoList.admInfo[0].admDate;
-					let endDate = moment().format('YYYY-MM-DD');
+					let endDate = dayjs().format('YYYY-MM-DD');
 					let str = {
 						startDate,
 						endDate,

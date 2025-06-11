@@ -23,7 +23,7 @@
 </template>
 
 <script>
-	import moment from 'moment';
+	import dayjs from 'dayjs';
 	import { mapState } from 'vuex';
 	import bus from "@/utils/bus.js";
 	import bar from '../components/bar.vue'
@@ -39,7 +39,7 @@
 				admID: '',
 				range: [],
 				startDate: '',
-				endDate: moment().format('YYYY-MM-DD'),
+				endDate: dayjs().format('YYYY-MM-DD'),
 			}
 		},
 		computed: {

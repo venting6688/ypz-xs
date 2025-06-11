@@ -37,7 +37,6 @@
 	import {mapState, mapMutations} from 'vuex'
 	import HeaderBar from '@/components/HeaderBar.vue';
 	import foot from '@/components/footer.vue'
-	import report from '../../sub_packages/convenientModule/components/report.vue'
 	import first from '../../sub_packages/convenientModule/components/outpatient/first.vue'
 	import check from '../../sub_packages/convenientModule/components/outpatient/check.vue'
 	import answer from '../../sub_packages/convenientModule/components/outpatient/answer.vue'
@@ -48,13 +47,12 @@
 	import hospitalizationApi from '@/api/hospitalizationApi.js';
 	import guideApi from '@/api/guideApi.js'
 	import bus from '@/utils/bus.js'
-	import moment from 'moment';
+	import dayjs from 'dayjs';
 	
 	export default {
 		components:{
 			HeaderBar,
 			foot,
-			report,
 			first,
 			check,
 			answer,
@@ -74,7 +72,6 @@
 					userId:'',
 				},
 				footState:2,
-				message:'',
 				moveState:true,
 				expand:false,
 				timer:null,
@@ -243,8 +240,8 @@
 			//获取是否有预约数据
 			getBookingRecord (registrationList, list) {
 				try{
-					let startDate = moment().format('YYYY-MM-DD');
-					let edcDate = moment().add('7', 'days').format('YYYY-MM-DD');
+					let startDate = dayjs().format('YYYY-MM-DD');
+					let edcDate = dayjs().add('7', 'days').format('YYYY-MM-DD');
 					const msg = {
 					  patientID: this.footData.patientUniquelyIdentifies, //'0000111227',
 					  startTime: startDate,

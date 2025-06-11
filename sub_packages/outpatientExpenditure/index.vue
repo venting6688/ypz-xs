@@ -102,7 +102,7 @@
 </template>
 
 <script>
-	import moment from 'moment';
+	import dayjs from 'dayjs';
 	import mixin from '@/mixins/mixin'
 	import bar from '../components/bar.vue'
 	import date from '../components/date.vue'
@@ -179,7 +179,7 @@
 			async reportHISData() {
 				let data = {
 					qrCodeText: this.footData.qrCodeText,
-					time: moment().format('YYYY-MM-DD HH:mm:ss'),
+					time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
 					hospitalCode: '40237',
 					scene: '0101051',
 					department: '',

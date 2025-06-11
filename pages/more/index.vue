@@ -190,7 +190,7 @@
 					'/sub_packages/record/index',
 					'/sub_packages/report/index',
 					'空',
-					'/sub_packages/caseHistory/index',
+					'空',
 					'空', 
 					'pages/virtualNurse/index',//10
 					'pages/virtualNurse/index',

@@ -58,7 +58,7 @@
 </template>
 
 <script>
-	import moment from 'moment';
+	import dayjs from 'dayjs';
 	import { mapState } from 'vuex';
 	import bus from "@/utils/bus.js";
 	import hospitalizationApi from '@/api/hospitalizationApi.js';
@@ -103,9 +103,9 @@
 				let res = await hospitalizationApi.getHospitalRecord(data);
 				if (res.data.code === 200) {
 					let admId = res.data.data.admInfoList.admInfo[0].admID;
-					let nowDate = moment().format('YYYY-MM-DD');
-					let sendDate = moment().add(1, 'days').format('YYYY-MM-DD');
-					let nextDate = moment(sendDate).add(7, 'days').format('YYYY-MM-DD');
+					let nowDate = dayjs().format('YYYY-MM-DD');
+					let sendDate = dayjs().add(1, 'days').format('YYYY-MM-DD');
+					let nextDate = dayjs(sendDate).add(7, 'days').format('YYYY-MM-DD');
 					let str = {
 						admId,
 						startTime: type == 'today' ? nowDate : sendDate,

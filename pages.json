@@ -37,14 +37,6 @@
 				"inventory": "view"
 			}
 	  }
-	},
-	{
-	  "path": "pages/payAFee",
-	  "style": {
-	    "navigationBarTitleText": "处方缴费",
-	    "disableScroll": true,
-	    "enablePullDownRefresh": false
-	  }
 	}
   ],
   "subPackages": [{
@@ -56,24 +48,6 @@
 				"style" : 
 				{
 					"navigationBarTitleText": "入院申请",
-					"disableScroll": true
-				}
-			},
-			{
-				//服务评价-列表
-				"path" : "evaluate/index",
-				"style" : 
-				{
-					"navigationBarTitleText": "服务评价",
-					"disableScroll": true
-				}
-			},
-			{
-				//服务评价-详情
-				"path" : "evaluate/details",
-				"style" : 
-				{
-					"navigationBarTitleText": "服务评价",
 					"disableScroll": true
 				}
 			},
@@ -101,24 +75,6 @@
 				"style" : 
 				{
 					"navigationBarTitleText": "费用明细",
-					"disableScroll": true
-				}
-			},
-			{
-				//门诊病历-列表
-				"path" : "caseHistory/index",
-				"style" : 
-				{
-					"navigationBarTitleText": "门诊病历",
-					"disableScroll": true
-				}
-			},
-			{
-				//门诊病历-详情
-				"path" : "caseHistory/details",
-				"style" : 
-				{
-					"navigationBarTitleText": "门诊病历",
 					"disableScroll": true
 				}
 			},
@@ -168,15 +124,6 @@
 				}
 			},
 			{
-				//充值记录
-				"path" : "outpatientTopUp/topUpRecord",
-				"style" : 
-				{
-					"navigationBarTitleText": "充值记录",
-					"disableScroll": true
-				}
-			},
-			{
 					// 预约挂号-科室
 					"path" : "subscribe/departments",
 					"style" : 
@@ -204,15 +151,6 @@
 						"disableScroll": true
 					}
 				},
-				// {
-				// 	//在线建档-管理
-				// 	"path" : "filing/manage",
-				// 	"style" : 
-				// 	{
-				// 		"navigationBarTitleText": "在线建档",
-				// 		"disableScroll": true
-				// 	}
-				// },
 				{
 					//在线建档-上传身份证
 					"path" : "filing/identityCard",

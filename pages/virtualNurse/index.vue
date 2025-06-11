@@ -383,29 +383,6 @@
 				uni.navigateTo({
 					url: `/sub_packages/subscribe/doctors?title=${item.name}&CLGRPRowId=${item.id}`
 				})
-				// const appId = 'wx6334d37b051ec074';
-				// const data = {
-				//   checkedDep: {
-				//     departmentld:item.id,
-				//     departmentCode:item.id,
-				//     departmentName: item.name,
-				//     typeFlag: "cliGroup"
-				//   },
-				//   checkedFirDep: ""
-				// };
-				// const jsonString = JSON.stringify(data);
-				// const encodedData = encodeURIComponent(jsonString);
-				// const targetUrl = `/pages/outpatient-doctor-list/main?dep=${encodedData}`;
-				// wx.navigateToMiniProgram({
-				//   appId: appId,
-				//   path: targetUrl,
-				//   envVersion: 'release',
-				//   success: function(res) {
-				//   },
-				//   fail: function(err) {
-				//     console.log('跳转失败', err);
-				//   }
-				// });
 			},
 			// 保持消息体可见
 			msgGo(i){
@@ -417,57 +394,43 @@
 					   // 如果超过scorll高度就滚动scorll
 					   if(data.height-wh>-240){
 					   		this.go=data.height-wh+300  
-					   						this.$nextTick(function() {
-					   							this.scrollTop = this.go
-					   						});
+								this.$nextTick(function() {
+									this.scrollTop = this.go
+								});
 					   }
-					   // this.msg = 'wh:+'wh+'data.height:'+data.height+'wh'+wh
 					   // 保证键盘第一次拉起时消息体能保持可见
 					   var moveY=wh-data.height+600
 					   // 超出页面则缩回空盒子
 					   if(moveY-mgUpHeight<0){
 						   // 小于0则视为0
-						   if(moveY<0){
-							   this.msgMove(0,0)
-						   }else{
-							   // 否则缩回盒子对应的高度
-							  this.msgMove(moveY,0) 
-						   }					   
+							 moveY<0 ? this.msgMove(0,0) : this.msgMove(moveY,0) 				   
 					   }
-				
 					}).exec();
 				},i?0:100)
 			},
 			msgMove(x,t){
 				var animation = uni.createAnimation({
-				        duration: t,
-				          timingFunction: 'ease',
-				      })
-				      this.animation = animation
-				      animation.height(x).step()
-				      this.anData = animation.export()
+					duration: t,
+					timingFunction: 'ease',
+				})
+				this.animation = animation
+				animation.height(x).step()
+				this.anData = animation.export()
 			},
 			// 回答问题
 			answer(msg){
 				let loginValue = uni.getStorageSync("loginData");
-				if(loginValue){
-					let data = JSON.parse(loginValue)
-					if(data.defaultArchives){
-						this.msg = msg
-						this.sendMsg()
-					}else {
-						login.loginData().catch((error) => {});
-					}
-					
+				let data = JSON.parse(loginValue)
+				if(loginValue && data.defaultArchives){
+					this.msg = msg
+					this.sendMsg()
 				}else {
-					login.loginData().catch((error) => {
-					});
+					login.loginData().catch((error) => {});
 				}
-				
 			},
 			sendMsg(){
 				// 消息为空不做任何操作
-					if(this.msg==""){
+				if(this.msg==""){
 					return 0;
 				}
 				// 显示消息 msg消息文本,my鉴别是谁发的消息(不能用俩个消息数组循环,否则消息不会穿插)
@@ -478,7 +441,6 @@
 				this.msgKf(this.msg)
 				// 清除消息
 				this.msg=""
-
 			},
 			msgKf(msg){
 				// 必须建档
@@ -489,16 +451,15 @@
 				  method: 'POST',
 				  data: {
 				    query: msg,
-				   inputs: {
+						inputs: {
 				     sex: this.patient.sex?this.patient.sex:'男',
 				     age: this.patient.age?this.patient.age:24,
-				   },
+						},
 				    response_mode: "streaming",
 				    conversation_id: this.conversation_id,
 				    user: "abc-123"
 				  },
 				  enableChunked: true,
-				  // enableHttp2:true,
 				  header: {
 				    'Authorization': `Bearer ${this.pattern===1 ? this.patternList[0] : this.patternList[1]}`,
 				    'content-type': 'application/json',
@@ -520,7 +481,6 @@
 					  }else {
 						  this.test1 = ''
 					  }
-					  
 					  this.msgGo()
 					  this.inputState = true
 				  },
@@ -602,7 +562,6 @@
 					}
 					this.answer(reply)
 				}else if(index==2) {
-					
 					this.Focus = true
 				}
 				this.$refs.popup.close()
@@ -617,36 +576,32 @@
 					temp.bOn = !this.DataList.main[index].bOn
 					this.$set(this.DataList.main, index, temp)
 					if (this.reply.indexOf(temp.value) !== -1) {
-					    this.reply.splice(this.reply.indexOf(temp.value), 1)
+						this.reply.splice(this.reply.indexOf(temp.value), 1)
 					} else {
-					    this.$set(this.reply, this.reply.length, temp.value)
+						this.$set(this.reply, this.reply.length, temp.value)
 					}
 				}else {
 					// 单选
 					this.DataList.main.forEach((item, i) => {
-					    item.bOn = false;
-					    this.$set(this.DataList.main, i, item);
+						item.bOn = false;
+						this.$set(this.DataList.main, i, item);
 					});
 					const temp = this.DataList.main[index];
 					temp.bOn = true;
 					this.$set(this.DataList.main, index, temp);
 					this.reply = [temp.value];
-
 				}
-			    
 			  },
 			  // 监听语音
 			  setManagerLisener(){
 			  	this.manager.onRecognize = (res) =>{
 			  		this.msg += res.result
 			  	}
-			  	
 			  	this.manager.onStop = (res) =>{
 			  		if(this.needCancelState == true){
 			  			this.needCancelState = false
 			  			return
 			  		}
-			  		
 			  		 if(res.result == ''){
 			  			uni.showToast({
 			  				title:'未检测到声音，请重试',
@@ -657,22 +612,11 @@
 			  			this.voiceState = false
 			  		}
 			  	}
-			  	this.manager.onStart = (res) =>{
-			  		
-			  		// uni.hideLoading()
-			  		// uni.showLoading({
-			  		// 	title:"语音识别中...",
-			  		// })
-			  	    // console.log("成功开始录音识别", res)
-			  	}
 			  	this.manager.onError = (res) =>{
-			  	    console.error("error msg", res.retcode,res.msg)
+						console.error("error msg", res.retcode,res.msg)
 			  	}
 			  },
 			  startMic(e){
-			  	// uni.showLoading({
-			  	// 	title:"准备语音中",
-			  	// })
 			  	this.manager.start({
 			  		duration:30*1000,
 			  		lang: "zh_CN",
@@ -684,8 +628,6 @@
 			  },
 			  stopMic(){
 			  	this.msgGo(true)
-			  	// uni.hideLoading()
-			  	
 			  	if(this.needCancel == true){               //取消语音发送 因为取消时微信和动画有延迟  所以 在这里直接关闭动画   新增加一个变量去关闭语音
 			  		this.needCancel =false               
 			  		this.needCancelState = true
@@ -703,26 +645,18 @@
 			  	}
 			  },
 		},
-		
 		 mounted() {
-			// 监听键盘拉起
-			// 因为无法控制键盘拉起的速度,所以这里尽量以慢速处理
 			uni.onKeyboardHeightChange(res => {
 				const query = uni.createSelectorQuery().in(this);
 				query.select('#okk').boundingClientRect(data => {
-					// 若消息体没有超过2倍的键盘则向下移动差值,防止遮住消息体
 					var up=res.height*2-data.height-l*200     //110
 				  if(up>0){
-					  // 动态改变空盒子高度
 					 this.msgMove(up,100)
-					 // 记录改变的值,若不收回键盘且发送了消息用来防止消息过多被遮盖
-					 // mgUpHeight=up
 				  }
 				  // 收回
 				  if(res.height==0){
 					   this.msgMove(0,0)	
 				  }
-				  // this.goPag(res.height)
 				}).exec();
 			 })
 			var query=uni.getSystemInfoSync()
@@ -735,7 +669,6 @@
 			this.manager = plugin.getRecordRecognitionManager()
 			this.setManagerLisener()
 			this.msgGo()
-			// this.$refs.agePopup.open('bottom')  
 		},
 	}
 </script>

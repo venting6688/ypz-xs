@@ -67,22 +67,10 @@
 			return {
 				webUrl:'https://m.yzhcloud.com/pf/SYYEFY/?f=wechatpid&amp;sd=xC4I5c6TqaKcIvtd++dhpA==&amp;fp=5pyx6Zuo54aZ',
 				modulesList:[
-					// {
-					//     img:require('../../static/image/caseHistory5.png'),
-					//     name:'查看报告',
-					// },
-					// {
-					//     img:require('../../static/image/caseHistory3.png'),
-					//     name:'下载',
-					// },
 					{
 					    img:require('../../static/image/caseHistory1.png'),
 					    name:'智能解读',
 					},
-					// {
-					//     img:require('../../static/image/caseHistory4.png'),
-					//     name:'云胶片',
-					// },
 				],
 			}
 		},
@@ -91,15 +79,6 @@
 		},
 		methods: {
 			navigator(index){
-				// if(index!==2){
-				// 	return
-				// }
-				if(this.report.title==='检查'){
-					
-				}else{
-					
-				}
-				console.log(JSON.stringify(this.report));
 				wx.reLaunch({ url: `/pages/virtualNurse/index?pattern=2&&manifestation=${this.report.manifestation}` })
 			},
 		},

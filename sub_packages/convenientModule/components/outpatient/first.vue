@@ -42,14 +42,6 @@
 						<view class="attribute">挂号医生:</view>
 						<view class="name">{{firstContent.doctorName}}</view>
 					</li>
-					<!-- <li v-if="firstContent.callState=='已签到' && callObj.medicalTreatmentNumber">
-						<view class="attribute">
-							就诊序号:
-						</view>
-						<view class="name">
-							{{callObj.medicalTreatmentNumber}}号
-						</view>
-					</li> -->
 					<li v-if="firstContent.appointmentTime">
 						<view class="attribute">预约时间:</view>
 						<view class="name">{{firstContent.appointmentTime}}</view>
@@ -67,16 +59,8 @@
 					<view>
 						<button class="cu-btn" @click="getQueueingMessage">刷新信息</button>
 						<button class="cu-btn" @click="cancelRegistration">退号</button>
-					    <!-- <button class="cu-btn" >更改预约</button>
-					    <button class="cu-btn" >预约车位</button>
-					    <button class="cu-btn" @click="navigation">导航到院</button> -->
 					</view>
 				</view>
-				<!-- <view class="footer" v-else>
-					<view>
-						<text>初诊已经结束，请您移步至检查检验科室继续就诊</text>
-					</view>
-				</view> -->
 				<view class="inquiry" v-if="firstContent.queueName">
 					<view>
 						<view class="inquiry-box">

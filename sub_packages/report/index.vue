@@ -23,10 +23,6 @@
 				<li @click="information(item)" v-for="(item,index) in List" :key="index">
 					<view class="content">
 						<view class="title">
-							<view class="name">
-								<!-- <text>{{item.departmentName}}</text>
-							    <image src="../static/image/icon-edit.png" mode=""></image> -->
-							</view>
 							<view class="delete">
 								<text>查看报告</text>
 								<image src="../static/image/Vector@2x.png" mode=""></image>

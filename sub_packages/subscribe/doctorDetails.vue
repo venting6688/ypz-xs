@@ -83,7 +83,7 @@
 </template>
 
 <script>
-	import moment from 'moment';
+	import dayjs from 'dayjs';
 	import { mapState } from 'vuex'
 	import login from '@/utils/login.js'
 	import Toast from '../components/toast.vue'
@@ -178,7 +178,7 @@
 					
 					let healthCardData = {
 						qrCodeText: this.footData.qrCodeText,
-						time: moment().format('YYYY-MM-DD HH:mm:ss'),
+						time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
 						hospitalCode: '40237',
 						scene: '0101011',
 						department,

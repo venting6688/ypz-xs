@@ -8,7 +8,6 @@
 					<view class="title">
 						<view class="name">
 							<text>{{item.appointmentTime?item.appointmentTime.split(' ')[0]:''}}</text>
-						    <!-- <image src="../static/image/icon-edit.png" mode=""></image> -->
 						</view>
 						<view class="delete">
 							<text>查看详情</text>
