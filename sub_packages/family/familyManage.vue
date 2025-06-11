@@ -1,9 +1,5 @@
 <template>
 	<view class="manage">
-		<view class="headTitle" @click="linkHealthCard()">
-			<uni-icons type="personadd" color="#1B98FF" size="22"></uni-icons> 
-			已有健康卡，关联健康卡
-		</view>
 		<view class="information">
 			<ul v-if="patientList.length">
 				<li v-for="(item,index) in patientList" :key="item.patientCard">
@@ -62,7 +58,7 @@
 								<view class="card-detail-info">
 										<view class="card-user-info">
 												<span class="card-user-name">{{item.patientName}}</span>
-												<span class="card-user-id">{{item.idNum}}</span>
+												<span class="card-user-id">{{pixelateNumber(item.idNum)}}</span>
 										</view>
 										<view class="card-qrcode">
 												<img class="card-qrcode-logo" src="../static/image/logo_.png" alt="" />
@@ -76,7 +72,7 @@
 				</li>
 			</ul>
 		</view>
-		<view class="btn" @click="increase" v-if="5-this.patientList.length > 0">
+		<view class="btn" @click="linkHealthCard" v-if="5-this.patientList.length > 0">
 			<image src="../static/image/icon-add.png" mode=""></image>
 			<text>添加就诊人（剩{{5-this.patientList.length}}人）</text>
 		</view>
@@ -94,6 +90,7 @@
 </template>
 
 <script>
+	import login from '@/utils/login.js'
 	import mixin from '@/mixins/mixin.js'
 	import {mapMutations , mapState} from 'vuex'
 	import HeaderbarApi from '@/api/HeaderbarApi.js'
@@ -139,13 +136,18 @@
 			...mapState(['footData']),
 		},
 		onLoad(e) {
-			this.loginValue = JSON.parse(uni.getStorageSync("loginData"));
-			this.healthCode = e.healthCode ? e.healthCode : '';
-			this.regInfoCode = e.regInfoCode ? e.regInfoCode : '';
-			this.authCode = e.authCode ? e.authCode : '';
-			this.getHealthCardList();
-			if (this.healthCode != '') {
-				this.getHealthCard();
+			let loginData = uni.getStorageSync("loginData");
+			if (!loginData) {
+				uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
+			} else {
+				this.loginValue = JSON.parse(loginData);
+				this.healthCode = e.healthCode ? e.healthCode : '';
+				this.regInfoCode = e.regInfoCode ? e.regInfoCode : '';
+				this.authCode = e.authCode ? e.authCode : '';
+				this.getHealthCardList();
+				if (this.healthCode != '') {
+					this.getHealthCard();
+				}
 			}
 		},
 		methods: {
@@ -208,13 +210,7 @@
 					console.log(e);
 				}
 			},
-			
-			increase() {
-				uni.navigateTo({
-					url: `/sub_packages/family/familyInformation`
-				})
-			},
-			
+		
 			showHealthCard(num) {
 				this.cardNum = num;
 				this.isShowHealthCard = !this.isShowHealthCard;
@@ -350,9 +346,6 @@
 			authCancel(e) {
 				console.log('用户取消授权：', e)
 			},
-			
-			
-			
 		}
 	}
 </script>

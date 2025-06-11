@@ -53,37 +53,77 @@
 				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
+		<auth-popup
+			ref="authPopup"
+			@success="authSuccess"
+			@fail="authFail"
+			@cancel="authCancel"
+		/>
+		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :url="toastObj.url" :tips="toastObj.tips" :message="toastObj.message" />
 	</view>
 </template>
 
 <script>
+	import { mapState } from 'vuex'
 	import bar from '../components/bar.vue'
 	import date from '../components/date.vue'
+	import Toast from '../components/toast.vue'
 	import elseApi from '@/api/elseApi.js'
-	import { mapState } from 'vuex'
+	import healthCard from '@/api/healthCard.js'
+  import AuthPopup from '../components/auth-popup.vue'
 	export default {
 		components:{
 			bar,
 			date,
+			AuthPopup,
+			Toast,
 		},
 		data(){
 			return {
 				headIndex:1,
 				date:{},
 				List:[],
+				loginData: {},
+				siginData: {},
+				isVerify: false,
+				toastObj:{
+					state:false,
+				},
 			}
 		},
 		computed: {
 			...mapState(['footData']),
 		},
-		
+		onLoad(e) {
+			let loginValue = uni.getStorageSync("loginData");
+			if (!loginValue) {
+				uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
+			} else {
+				this.loginData = JSON.parse(uni.getStorageSync('loginData'));
+				this.siginData = this.loginData.defaultArchives ? this.loginData.defaultArchives : {};
+				this.registerOrderId = e.registerOrderId ? e.registerOrderId : '';
+				if (this.registerOrderId == '' && this.siginData.cardTypeCode == '04') {
+					this.healthcardVerify();
+				}
+				if (this.registerOrderId != '') {
+					this.checkUniformVerifyResult();
+				}
+			}
+		},
 		methods: {
+			closeToast(state){
+				this.toastObj = {
+					state:state,
+				}
+			},
 			show(time){
 				const datePattern = /^\d{4}-\d{2}-\d{2}$/.test(time.startTime);
 				if(datePattern){
 					this.date = time
-					let type = this.headIndex === 1 ? '00' : '99';
-					this.getVisitRecord(type)
+					if (this.isVerify) {
+						let type = this.headIndex === 1 ? '00' : '99';
+						this.getVisitRecord(type)
+					}
 				}
 			},
 			headBtn(num){
@@ -91,10 +131,91 @@
 				let type = num === 1 ? '00' : '99';
 				this.getVisitRecord(type)
 			},
+			
+			//实人验证
+			healthcardVerify() {
+				var plugin = requirePlugin("healthCardPlugins");
+				plugin.login((isok, res) => {
+					if (!isok && res.result.toLogin) {
+						this.$refs.authPopup.open();
+					} else {
+						this.verifyOrder(res);
+					}
+				}, {
+					wechatCode: true,
+				});
+			},
+			
+			//实人验证生成orderid
+			verifyOrder(val) {
+				const { wechatCode } = val.result;
+				
+				let data = {
+					cardType: '01',
+					idCard: this.siginData.idNum,
+					name: this.siginData.patientName,
+					wechatCode,
+					ecardNo: '',
+					scene: '0101081',
+					department: '',
+					useCardType: '01',
+					cardCostTypes: '',
+					verifySuccessRedirectUrl: 'mini:/sub_packages/report/index?registerOrderId=${registerOrderId}',
+					verifyFailRedirectUrl: 'mini:/sub_packages/report/index?registerOrderId=${registerOrderId}',
+					faceUrl:`/sub_packages/family/faceVerify`,
+					domainChannel: 3,
+					openid: this.loginData.xcxOpenId,
+				}
+				
+				healthCard.registerUniformVerifyOrder(data).then((res) => {
+					let msg = res.data.data.commonOut.errMsg
+					if (res.data.code == 200 && msg == '成功') {
+						let url = res.data.data.rsp.verifyUrl;
+						uni.setStorageSync('verifyOrderId', res.data.data.rsp.verifyOrderId)
+						uni.redirectTo({ url: '/pages/webview/webview?url=' + encodeURIComponent(url) });
+					} else {
+						uni.showToast({
+							title: '验证失败，请联系管理员',
+							icon: 'none',
+							url: '/pages/more/index',
+							duration: 2000 
+						}) 
+					}
+				});
+			},
+			
+			//实人验证结果查询
+			checkUniformVerifyResult() {
+				let verifyOrderId = uni.getStorageSync('verifyOrderId');
+				let data = {
+					verifyOrderId,
+					verifyResult: this.registerOrderId,
+					openid: this.loginData.xcxOpenId,
+				}
+				
+				healthCard.checkUniformVerifyResult(data).then((res) => {
+					if (res.data.code == 200) {
+						this.headBtn(1);
+						this.isVerify = true;
+					}
+				});
+			},
+			
+			authSuccess(e) {
+				const res = e.detail; 
+				this.verifyOrder(res);
+			},
+			authFail(e) {
+				console.log('授权失败：', e)
+			},
+			authCancel(e) {
+				console.log('用户取消授权：', e)
+			},
+			
 			getVisitRecord(type){
 				try {
 					let data = {
-						patientID: this.footData.patientUniquelyIdentifies, //'0000795059' 0000004548,
+						patientID: this.footData.patientUniquelyIdentifies,
 						visitNumber: '',
 						documentType: type,
 						startDate: this.date.startTime,

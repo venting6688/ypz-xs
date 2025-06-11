@@ -25,6 +25,7 @@
 				</picker>
 			</view>
 			<view class="cu-form-group">
+				<view class="x">*</view>
 				<view class="title">民族</view>
 				<picker mode="selector" :value="informationObj.nation" :range="nations" @change="onNationChange">
 					<text class="picker birth">{{selectedNation}}</text>
@@ -37,6 +38,7 @@
 				</picker>
 			</view>
 			<view class="cu-form-group">
+				<view class="x">*</view>
 				<view class="title">家庭关系</view>
 				<picker mode="selector" :value="informationObj.relation" :range="relation" @change="onRelationChange">
 					<text class="picker birth">{{selectedRelation}}</text>
@@ -65,7 +67,7 @@
 				<view class="title">手机号</view>
 				<input v-model="informationObj.phone1" placeholder="请输入院内预留手机号" type="number" maxlength="11" name="input" />
 			</view>
-			<view class="cu-form-group">
+			<!-- <view class="cu-form-group">
 				<view class="x">*</view>
 				<view class="title">验证码</view>
 				<input v-model="informationObj.verificationCode" placeholder="请输入短信验证码" name="input" />
@@ -75,7 +77,7 @@
 				<view class="answer" v-else>
 					{{time}}
 				</view>
-			</view>
+			</view> -->
 		</form>
 		<view class="tips">
 			<view class="tips-title">
@@ -89,7 +91,7 @@
 		<view 
 			class="confirm" 
 			@click="saveInfo" 
-			:class="{unclickable:!informationObj.name || !informationObj.idNumber || !informationObj.phone1 || !informationObj.verificationCode}"
+			:class="{unclickable:!informationObj.name || !informationObj.idNumber || !informationObj.phone1}"
 		>
 			提交绑卡信息
 		</view>
@@ -173,10 +175,10 @@
 					{index: '90', value: '其他'},
 				],
 				siginData: {},
-				selectedSex: ['男'],
+				selectedSex: '',
 				selectedIdType: '',
 				selectedNation: '',
-				selectedRelation: ['本人'],
+				selectedRelation: '',
 				selectedCareer: '',
 				verificationCodeState:false,
 				time:60,
@@ -223,7 +225,7 @@
 			onRelationChange(e) {
 				const index = e.detail.value
 				this.selectedRelation = this.relation[index]
-				this.informationObj.relation = this.selectedRelation;
+				this.informationObj.relation = index;
 			},
 			//职业
 			onCareerChange(e) {
@@ -290,7 +292,7 @@
 			},
 			
 			async saveInfo() {
-				if (!this.informationObj.name ||!this.informationObj.idNumber ||!this.informationObj.phone1) {
+				if (!this.informationObj.name ||!this.informationObj.idNumber ||!this.informationObj.phone1 ||!this.informationObj.relation) {
 					uni.showToast({
 						title: '请完善您的信息',
 						icon: 'none',   
@@ -310,13 +312,7 @@
 						verifyFailRedirectUrl: `mini:/sub_packages/family/registerHealth`,
 						faceUrl: `/sub_packages/family/faceVerify`,
 					}
-					
-					console.log(JSON.stringify(this.informationObj),'save healthcard.....');
-					
 					await healthCard.registerHealthCardPreFill(this.informationObj, query).then((res) => {
-						
-						console.log(JSON.stringify(res),'注册健康卡.....');
-						
 						if (res.data.code == 200) {
 							let url = res.data.data.rsp.verifyUrl;
 							if (url == '') {
@@ -329,7 +325,6 @@
 									url: '/pages/webview/webview?url=' + encodeURIComponent(url)
 								});
 							}
-						  
 						}
 					});
 				}

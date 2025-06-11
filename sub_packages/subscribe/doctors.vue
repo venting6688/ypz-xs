@@ -130,6 +130,7 @@
 			return {
 				checked: true,
 				CLGRPRowId:'',
+				departmentName:'',
 				timeList:[],
 				title:'',
 				timeObj:{
@@ -206,7 +207,7 @@
 						scheduleItemCode:half.ScheduleItemCode,
 					}
 					registrationApi.getNumSource({
-						patientID:'0001762004',//this.footData.patientUniquelyIdentifies,
+						patientID: this.footData.patientUniquelyIdentifies,
 						dateStr:half.ServiceDate,
 						scheduleItemCode:half.ScheduleItemCode
 					}).then(res => {
@@ -233,7 +234,7 @@
 				this.doctor.StartTime = item.StartTime
 				this.doctor.EndTime = item.EndTime
 				uni.navigateTo({
-					url: `/sub_packages/subscribe/doctorDetails?title=${this.title}&doctor=${encodeURIComponent(JSON.stringify(this.doctor))}`
+					url: `/sub_packages/subscribe/doctorDetails?title=${this.title}&doctor=${encodeURIComponent(JSON.stringify(this.doctor))}&department=${this.departmentName}`
 				})
 			},
 			close(){
@@ -247,8 +248,7 @@
 			      title: e.title
 			})
 			this.CLGRPRowId = e.CLGRPRowId
-			
-			
+			this.departmentName = e.departmentName;
 		},
 		mounted() {
 			this.getScheduleDates()

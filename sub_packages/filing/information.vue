@@ -33,7 +33,12 @@
 			</view>
 			<view class="cu-form-group">
 				<view class="title">患者类型</view>
-				<text class="answer">自费</text>
+				<picker @change="patientTypePickerChange" :value="patientTypePickerIndex" range-key="name" :range="patientTypePicker">
+					<view class="picker">
+						{{patientTypePickerIndex>-1 ? patientTypePicker[patientTypePickerIndex].name : '请选择'}}
+					</view>
+				</picker>
+				<!-- <text class="answer">自费</text> -->
 			</view>
 			<view class="cu-form-group">
 				<view class="x">
@@ -42,7 +47,7 @@
 				<view class="title">职业</view>
 				<picker @change="occupationPickerChange" :value="occupationPickerIndex" range-key="name" :range="occupationPicker">
 					<view class="picker">
-						{{occupationPickerIndex>-1?occupationPicker[occupationPickerIndex].name:'请选择'}}
+						{{occupationPickerIndex>-1 ? occupationPicker[occupationPickerIndex].name:'请选择'}}
 					</view>
 				</picker>
 			</view>
@@ -144,10 +149,11 @@
 			}
 		},
 		onLoad(e) {
-			console.log('e',e)
 			this.informationObj = JSON.parse(decodeURIComponent(e.getIdCardInformation))
 			this.$set(this.informationObj,'relation','本人')
-			this.informationObj.patientType = '01'   //自费
+			
+			console.log(JSON.stringify(this.informationObj))
+			
 			if(this.informationObj.name){
 				this.informationObj.birth = [this.informationObj.birth.slice(0,4),this.informationObj.birth.slice(4,6),this.informationObj.birth.slice(6)].join('-')
 			}
@@ -167,16 +173,18 @@
 				setFootData:'SET_FOOT_DATA',
 			}),
 			occupationPickerChange(e) {
-			    this.occupationPickerIndex = e.detail.value
+				this.occupationPickerIndex = e.detail.value
 				this.informationObj.occupation = this.occupationPicker[e.detail.value].type;
-				console.log(this.informationObj.occupation)
+			},
+			patientTypePickerChange(e) {
+				this.patientTypePickerIndex = e.detail.value
+				this.informationObj.patientType = this.patientTypePicker[e.detail.value].type;
 			},
 			relationBtn(i){
 				this.informationObj.relation = i
 			},
 			// 获取验证码
 			verificationCodeBtn(){
-				console.log(this.informationObj)
 				this.verificationCodeState = true
 				this.count(60)
 				filingApi.sendVerificationCode(this.informationObj.phone).then(res => {

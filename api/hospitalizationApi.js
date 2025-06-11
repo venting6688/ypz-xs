@@ -23,9 +23,13 @@ const patient = {
 	},
 
 	//获取患者获取住院记录
-	async getHospitalRecord(patientID) {
+	async getHospitalRecord(data) {
+		const queryParams = Object.keys(data)
+		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+		.join('&');
+		
 		const res = await cjRequest({
-			url: "hospitalizedInformation/getHospitalRecord?patientID="+patientID,
+			url: `hospitalizedInformation/getHospitalRecord?${queryParams}`,
 			method: "get",
 		})
 		return res

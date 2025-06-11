@@ -168,15 +168,6 @@
 				}
 			},
 			{
-				//门诊充值
-				"path" : "outpatientTopUp/index",
-				"style" : 
-				{
-					"navigationBarTitleText": "门诊充值",
-					"disableScroll": true
-				}
-			},
-			{
 				//充值记录
 				"path" : "outpatientTopUp/topUpRecord",
 				"style" : 
@@ -311,12 +302,21 @@
 				}
 			},
 			{
-				//住院清单
+				//住院记录
 				"path" : "convenientModule/index",
 				"style" : 
 				{
-					"navigationBarTitleText": "住院日清单",
-					"disableScroll": true
+					"navigationBarTitleText": "住院记录"
+					// "disableScroll": true
+				}
+			},
+			{
+				//住院清单
+				"path" : "convenientModule/list",
+				"style" : 
+				{
+					"navigationBarTitleText": "住院清单"
+					// "disableScroll": true
 				}
 			},
 			{

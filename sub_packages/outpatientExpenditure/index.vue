@@ -102,12 +102,14 @@
 </template>
 
 <script>
+	import moment from 'moment';
 	import mixin from '@/mixins/mixin'
 	import bar from '../components/bar.vue'
 	import date from '../components/date.vue'
 	import Toast from '../components/toast.vue'
 	import { mapState } from 'vuex'
 	import bus from '@/utils/bus.js'
+	import healthCard from '@/api/healthCard.js'
 	import outpatientExpenditureApi from '@/api/outpatientExpenditureApi.js'
 	export default {
 		mixins: [mixin],
@@ -134,18 +136,23 @@
 				},
 				checkState:false,
 				date: {},
+				loginValue: {},
 			}
 		},
 		computed: {
 			...mapState(['footData','showState']),
 		},
-		// mounted(){
-		// 	this.queryMedicalRecords()
-		// },
 		onLoad(option) {
-			this.loading.loadingState = false
-			if(option.checkState){
-				this.checkState = option.checkState
+			let loginData = uni.getStorageSync("loginData");
+			if (!loginData) {
+				uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
+			} else {
+				this.loading.loadingState = false
+				this.loginValue = JSON.parse(loginData);
+				if(option.checkState){
+					this.checkState = option.checkState
+				}
+				this.reportHISData();
 			}
 		},
 		methods: {
@@ -168,6 +175,20 @@
 				this.headIndex = num
 				num === 1 ? this.queryMedicalRecords() : this.getPaymentRecord();
 			},
+			//检测用卡数据
+			async reportHISData() {
+				let data = {
+					qrCodeText: this.footData.qrCodeText,
+					time: moment().format('YYYY-MM-DD HH:mm:ss'),
+					hospitalCode: '40237',
+					scene: '0101051',
+					department: '',
+					cardType: '11',
+					cardChannel: '0402',
+					cardCostTypes: '0100',
+				}
+				let res = await healthCard.reportHISData(this.loginValue.xcxOpenId, data);
+			},
 			//未交费
 			async queryMedicalRecords() {
 				if (this.footData.patientUniquelyIdentifies) {
@@ -182,13 +203,6 @@
 							let data = res.data.data.payOrdList.payOrder;
 							this.billList = data;
 						} 
-						// else {
-						// 	this.toastObj = {
-						// 		state: true,
-						// 		type:'fail',
-						// 		message: res.data.data.resultMsg,
-						// 	};
-						// }
 					}).catch(err => {
 						console.log('error：', err);
 					});

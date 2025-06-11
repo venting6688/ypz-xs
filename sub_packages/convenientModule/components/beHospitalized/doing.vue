@@ -95,8 +95,12 @@
 			},
 			// 获取事项
 			async getMattersList(type) {
-				let id = this.footData.patientUniquelyIdentifies; //'0002002208';
-				let res = await hospitalizationApi.getHospitalRecord(id);
+				let id = this.footData.patientUniquelyIdentifies;
+				let data = {
+					patientID: this.footData.patientUniquelyIdentifies,
+					AimFlag: 'Dep'
+				}
+				let res = await hospitalizationApi.getHospitalRecord(data);
 				if (res.data.code === 200) {
 					let admId = res.data.data.admInfoList.admInfo[0].admID;
 					let nowDate = moment().format('YYYY-MM-DD');

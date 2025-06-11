@@ -1,7 +1,7 @@
 <template>
 	<view class="register">
 		<bar />
-		<view class="application" v-if="preHospitalization.admDate != undefined">
+		<view class="application" v-if="preHospitalization.admDepDesc != ''">
 			<view class="head">住院信息</view>
 			<view class="middle">
 				<view>
@@ -16,10 +16,10 @@
 					<text>余额:</text>
 					<text>￥{{preHospitalization.depositBalance ? preHospitalization.depositBalance : 0}}元</text>
 				</view>
-				<view>
+				<!-- <view>
 					<text>就诊日期:</text>
 					<text>{{preHospitalization.admDate}}</text>
-				</view>
+				</view> -->
 				<view>
 					<text>住院科室:</text>
 					<text>{{preHospitalization.admDepDesc ? preHospitalization.admDepDesc : preHospitalization.admDept}}</text>
@@ -38,7 +38,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="content" v-if="preHospitalization.admDate != null && !register">
+		<view class="content" v-if="preHospitalization.admDepDesc != undefined && !register">
 			<view class="head">住院人信息</view>
 			<form>
 				<view class="cu-form-group">
@@ -69,7 +69,7 @@
 			<view class="btn" v-if="!register && iPBook !=''"><button class="cu-btn" @click="registerBtn">入院登记</button></view>
 		</view>
 		
-		<view v-if="preHospitalization.admDate == undefined || !preHospitalization.admDate" class="application">
+		<view v-if="(preHospitalization.admDepDesc == '' || preHospitalization.admDept == '')" class="application">
 			<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 		</view>
 	</view>
@@ -135,8 +135,11 @@
 			},
 			//获取住院记录
 			async getHospitalRecord () {
-				let id = this.footData.patientUniquelyIdentifies; 
-				let res = await hospitalizationApi.getHospitalRecord(id);
+				let data = {
+					AimFlag: 'dep',
+					patientID: this.footData.patientUniquelyIdentifies
+				}
+				let res = await hospitalizationApi.getHospitalRecord(data);
 				if (res.data.code === 200 && res.data.data.admInfoList != null) {
 					this.preHospitalization = res.data.data.admInfoList.admInfo[0];
 					this.patientID = res.data.data.patientID;

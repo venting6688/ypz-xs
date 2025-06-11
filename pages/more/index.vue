@@ -144,16 +144,6 @@
 					{
 						title:'综合服务',
 						list:[
-						    // {
-						    // 	img:'https://aiwz.sdtyfy.com:8099/img/synthesize.png',
-						    // 	name:'健康宣教',
-						    // 	num:20,
-						    // },
-						    // {
-						    // 	img:'https://aiwz.sdtyfy.com:8099/img/synthesize2.png',
-						    // 	name:'服务评价',
-						    // 	num:21,
-						    // },
 						    {
 						    	img:'https://aiwz.sdtyfy.com:8099/img/synthesize3.png',
 						    	name:'健康随访',
@@ -174,31 +164,11 @@
 								name:'互联网+护理',
 								num:25,
 							},
-						    // {
-						    // 	img:'https://aiwz.sdtyfy.com:8099/img/synthesize6.png',
-						    // 	name:'我的',
-						    // 	num:26,
-						    // },
-						 //    {
-						 //    	img:'https://aiwz.sdtyfy.com:8099/img/synthesize5.png',
-						 //    	name:'住院模式',
-						 //    	num:27,
-						 //    },
-							// {
-							// 	img:'https://aiwz.sdtyfy.com:8099/img/synthesize7.png',
-							// 	name:'体检模式',
-							// 	num:28,
-							// },
 					    ]
 					},
 					{
 						title:'住院服务',
 						list:[
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized7.png',
-					// 	    	name:'住院充值',
-					// 	    	num:29,
-					// 	    },
 						    {
 						    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
 						    	name:'入院登记',
@@ -209,62 +179,14 @@
 						    	name:'住院费用',
 						    	num:31,
 						    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized6.png',
-					// 	    	name:'床旁结算',
-					// 	    	num:32,
-					// 	    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized1.png',
-					// 	    	name:'住院报告',
-					// 	    	num:33,
-					// 	    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized2.png',
-					// 	    	name:'住院病历',
-					// 	    	num:34,
-					// 	    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized3.png',
-					// 	    	name:'出院带药',
-					// 	    	num:35,
-					// 	    },
-					
 					    ]
 					},
-					// {
-					// 	title:'体检服务',
-					// 	list:[
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/examination1.png',
-					// 	    	name:'个人预约',
-					// 	    	num:36,
-					// 	    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/examination3.png',
-					// 	    	name:'团体预约',
-					// 	    	num:37,
-					// 	    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/examination2.png',
-					// 	    	name:'预约记录',
-					// 	    	num:38,
-					// 	    },
-					// 	    {
-					// 	    	img:'https://aiwz.sdtyfy.com:8099/img/examination.png',
-					// 	    	name:'报告查询',
-					// 	    	num:39,
-					// 	    },
-						    
-					//     ]
-					// },
-					
 				],
 				urlList:[
 					'pages/virtualNurse/index',
 					'/sub_packages/subscribe/departments',
 					'/sub_packages/outpatientExpenditure/index',
-					'/sub_packages/outpatientTopUp/index',
+					'空',
 					'/sub_packages/record/index',
 					'/sub_packages/report/index',
 					'空',
@@ -281,7 +203,7 @@
 					'空',
 					'空',
 					'空',                      //20
-					'/sub_packages/evaluate/index',
+					'空', ///sub_packages/evaluate/index
 					'空',
 					'/sub_packages/family/familyManage',
 					'/sub_packages/filing/identityCard',

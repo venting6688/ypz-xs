@@ -33,7 +33,7 @@
 			}
 		},
 		methods: {
-			userAgreement(){ 
+			userAgreement(){
 				uni.navigateTo({
 					url:`/sub_packages/agreement/userAgreement`
 				})
@@ -44,7 +44,7 @@
 				})
 			},
 			back(){
-				uni.navigateBack();
+				wx.reLaunch({url:`/pages/more/index`})
 			},
 			btn(){
 				if(!this.agreementState){
@@ -67,19 +67,21 @@
 					})
 				})
 			},
+			
 			// 微信登录
 			loginFn() {
-			  	return new Promise((resolve, reject) => {
-			  		uni.login({
-			  			success: (res) => {	
-			  				resolve(res)
-			  			},
-			  			fail: (err) => {
-			  				console.log('login fail:', err);
-			  			}
-			  		})
-			  	})
+				return new Promise((resolve, reject) => {
+					uni.login({
+						success: (res) => {	
+							resolve(res)
+						},
+						fail: (err) => {
+							console.log('login fail:', err);
+						}
+					})
+				})
 			},
+			
 			// 获取手机号
 			getPhoneNumberFn(phoneCode, openidCode) {
 				return new Promise(resolve => {
@@ -106,6 +108,7 @@
 						})
 				})
 			},
+			
 		},
 		onLoad(e){  
 			wx.setNavigationBarTitle({

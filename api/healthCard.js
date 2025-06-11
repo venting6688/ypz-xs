@@ -100,7 +100,37 @@ const healthCard = {
 			method: "get",
 		})
 		return res
-	}
+	},
+	
+	//实人验证获取orderid
+	async registerUniformVerifyOrder (data) {
+		const queryParams = Object.keys(data).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`).join('&');
+		const res = await cjRequest({
+			url: `healthCardOpenPlatform/registerUniformVerifyOrder?${queryParams}`,
+			method: "get",
+		})
+		return res
+	},
+	
+	//实人验证结果
+	async checkUniformVerifyResult (data) {
+		const queryParams = Object.keys(data).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`).join('&');
+		const res = await cjRequest({
+			url: `healthCardOpenPlatform/checkUniformVerifyResult?${queryParams}`,
+			method: "get",
+		})
+		return res
+	},
+	
+	//用卡数据检测
+	async reportHISData (id, data) {
+		const res = await cjRequest({
+			url: `healthCardOpenPlatform/reportHISData?openid=${id}`,
+			method: "post",
+			data
+		})
+		return res
+	},
 	
 }
 

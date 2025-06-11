@@ -83,10 +83,12 @@
 </template>
 
 <script>
+	import moment from 'moment';
 	import { mapState } from 'vuex'
 	import login from '@/utils/login.js'
 	import Toast from '../components/toast.vue'
 	import registrationApi from '@/api/registrationApi.js'
+	import healthCard from '@/api/healthCard.js'
 	export default {
 		components:{
 			Toast,
@@ -107,12 +109,27 @@
 					state:false,
 				},
 				agreementState:false,
+				departmentName: '',
 				tipsList:[
 					'请使用患者本人身份证和医保卡(或医保电子凭证)进行预约挂号，儿童请用儿童身份证或身份信息。',
 					'如需取消预约，请在就诊前一日取消。',
 					'请按照候诊时间提示到医院等待就诊，请勿迟到根据国家医保政策规定，医保患者住院期间一律不得使用医保账户支付门诊费用，否则将影响住院费用的医保报销结算。',
 					'同一身份证号码，30天内总计爽约5次，进入黑名单14天，14天内不能预约就诊，可以现场挂号，14天后黑名单自动解除。黑名单触发三次以上拉黑90天。'
-				]
+				],
+				parentName: [
+					{name: '内科', index: '0300'},
+					{name: '外科', index: '0400'},
+					{name: '妇产科', index: '0500'},
+					{name: '儿科', index: '0700'},
+					{name: '眼科', index: '1000'},
+					{name: '皮肤科', index: '1301'},
+					{name: '耳鼻咽喉科', index: '1100'},
+					{name: '口腔科', index: '1200'},
+					{name: '心理科', index: '1506'},
+					{name: '全科医学科', index: '0200'},
+					{name: '美容整形门诊', index: '1400'},
+					{name: '地方病科', index: '1800'},
+				],
 			}
 		},
 		computed: { 
@@ -150,6 +167,28 @@
 						// 其他时间预约
 						this.otherTime(data)
 					}
+					//用卡检测数据接口（电子健康卡）
+					let department = '';
+					let filterRes = this.parentName.filter(x => x.name == this.departmentName);
+					if (filterRes.length > 0) {
+						department = filterRes[0].index;
+					} else {
+						department = '1800'
+					}
+					
+					let healthCardData = {
+						qrCodeText: this.footData.qrCodeText,
+						time: moment().format('YYYY-MM-DD HH:mm:ss'),
+						hospitalCode: '40237',
+						scene: '0101011',
+						department,
+						cardType: '11',
+						cardChannel: '0402',
+						cardCostTypes: '0100',
+					}
+					healthCard.reportHISData(data.xcxOpenId, healthCardData).then(healthRes => {
+					});
+					
 				}
 			},
 			today(data){
@@ -211,7 +250,6 @@
 									})
 								},
 								fail:(err)=> {
-									console.log('支付失败',err);
 									let unLockNumData = {
 										patientID:res.data.data.patientID,
 										scheduleItemCode:res.data.data.lockNumResponse.scheduleItemCode,
@@ -284,6 +322,7 @@
 			  title: e.title
 			})
 			this.doctor = JSON.parse(decodeURIComponent(e.doctor))
+			this.departmentName = e.department;
 		},
 	}
 </script>

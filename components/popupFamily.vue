@@ -106,16 +106,9 @@
 			},
 			recharge(num){
 				this.$emit('handle','')
-				if(num===1){
-					uni.navigateTo({
-						url: `/sub_packages/outpatientTopUp/index`
-					})
-				}else {
-					uni.navigateTo({
-						url: `/sub_packages/family/familyInformation`
-					})
-				}
-				
+				uni.navigateTo({
+					url: `/sub_packages/family/familyInformation`
+				})
 			},
 		}
 	}

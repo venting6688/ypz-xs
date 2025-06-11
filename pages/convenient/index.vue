@@ -207,9 +207,8 @@
 			
 			//获取预住院信息
 			async getAppointment () {
-				let id = '0000000001'; //this.footData.patientUniquelyIdentifies
+				let id = this.footData.patientUniquelyIdentifies
 				let res = await hospitalizationApi.getHospitalization(id);
-				console.log(JSON.stringify(res),'====yuzhuyuan---------');
 				if (res.data.code === 200) {
 					this.hospitalRecord = [{
 						queueName: res.data.data && res.data.data.admInfo != undefined ? res.data.data.admInfo.admWardDesc : '',
@@ -224,9 +223,12 @@
 			},
 			//获取住院信息
 			async getHospitalRecord () {
-				let id = '0000000001'; //this.footData.patientUniquelyIdentifies
-				let res = await hospitalizationApi.getHospitalRecord(id);
-				console.log(JSON.stringify(res),'====zhuyuan---------');
+				let data = {
+					AimFlag: 'dep',
+					patientID: this.footData.patientUniquelyIdentifies
+				}
+				
+				let res = await hospitalizationApi.getHospitalRecord(data);
 				if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
 					this.hospitalRecord = [{
 						queueName: res.data.data.admInfoList.admInfo[0].admDept,

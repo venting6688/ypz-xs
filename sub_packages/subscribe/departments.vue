@@ -18,123 +18,130 @@
 </template>
 
 <script>
+	import login from '@/utils/login.js'
 	import HeaderBar from '@/components/HeaderBar.vue';
 	import registrationApi from '@/api/registrationApi.js'
 	export default {
 		components:{
 			HeaderBar
 		},
-	    data() {
-				return {
-					HeaderBar:{
-						title:'预约挂号',
-						state:true,
-					},
-					searchQuery: '',
-					items:[],
-					filteredItems: [],
-					stairDepartment:[],     //一级科室
-					secondDepartment:[],     //二级科室
-					activeId: null,
-					mainActiveIndex: 0
-				};
-	    },
-		onShow() {
-			this.getServiceGroup()
+		data() {
+			return {
+				HeaderBar:{
+					title:'预约挂号',
+					state:true,
+				},
+				searchQuery: '',
+				items:[],
+				filteredItems: [],
+				stairDepartment:[],     //一级科室
+				secondDepartment:[],     //二级科室
+				activeId: null,
+				mainActiveIndex: 0,
+				department: '',
+			};
 		},
-	    methods: {
-		    onSearchChange(value) {
-					this.searchQuery = value.detail
-					this.filterItemsFun();
-				},
-				// 获取大科室
-				getServiceGroup() {
-					registrationApi.getServiceGroup().then(res => {
-						if(res.data.code===200) {
-							this.stairDepartment = res.data.data.ClinicServiceGroup.map(item =>({text:item.CliSerGroupName,...item}));
-							if(this.stairDepartment.length){
-								let CliSerGroupID = this.stairDepartment[this.mainActiveIndex].CliSerGroupID
-								this.getSpecialtyGroup(CliSerGroupID)
-							}
-						}
-					}).catch(err => {
-						console.log('errrrrr：', err);
-					})
-				},
-			  // 获取小科室
-				getSpecialtyGroup(CliSerGroupID) {
-					registrationApi.getSpecialtyGroup(CliSerGroupID).then(res => {
-						if(Array.isArray(res.data.data.ClinicGroup)){
-							this.secondDepartment = res.data.data.ClinicGroup.map(item =>({text:item.CLGRPDesc,...item}));
-						}else {
-							this.secondDepartment = [res.data.data.ClinicGroup].map(item =>({text:item.CLGRPDesc,...item}));
-						}
-						this.integration()
-				}).catch(err => {
-					console.log('2：', err);
-				})
-			},
-			integration(){
-				if(!this.items.length){
-					this.items = this.stairDepartment.map((i,x)=> {
-						if(x===this.mainActiveIndex){
-							i.children = this.secondDepartment
-						}
-						return i
-					})
-						this.filteredItems = this.items
-				}else if(!this.filteredItems.length && !this.searchQuery){
-					this.filteredItems = this.items
-				}else {
-					this.filteredItems.forEach((i,x)=> {
-						if(x===this.mainActiveIndex){
-							i.children = this.secondDepartment
-						}
-					})
-				}
-			},
-			filterItemsFun() {
-				if (this.searchQuery) {
-				    this.filteredItems = this.items.map((category,index) => {
-				    // 检查父类的 text 属性是否包含 searchQuery
-				    const parentMatches = category.text.includes(this.searchQuery);
-				    if(parentMatches){
-						// this.mainActiveIndex = index
-						return {
-						    ...category,
-						};	
-				    }
-				    return null;
-				    }).filter(category => category !== null);
-					
-				} else {
-				  this.filteredItems = this.items;
-				}
-				this.mainActiveIndex = 0
-				let CliSerGroupID = this.filteredItems[this.mainActiveIndex].CliSerGroupID
-				this.getSpecialtyGroup(CliSerGroupID)
-			},
-			onNavClick(index) {
-				this.mainActiveIndex = index.target.index;
-				let CliSerGroupID = this.filteredItems[this.mainActiveIndex].CliSerGroupID
-				this.getSpecialtyGroup(CliSerGroupID)
-			},
-			onItemClick(item) {
-				this.activeId = item.target.text;
-				this.searchQuery = ''
-				this.filteredItems = []
-				this.items = []
-				// 处理点击事件
-				uni.navigateTo({
-					url: `/sub_packages/subscribe/doctors?title=${item.target.text}&CLGRPRowId=${item.target.CLGRPRowId}`
-				})
-				// uni.navigateTo({
-				// 	url: '../hpvOrder-detail/hpvOrder-detail?key=' + encodeURIComponent(JSON.stringify(item))
-				// })
-				
+		onLoad() {
+			let loginValue = uni.getStorageSync("loginData");
+			if (!loginValue) {
+				login.loginData().catch((error) => {});
+			} else {
+				this.getServiceGroup()
 			}
 		},
-	};
+		methods: {
+			onSearchChange(value) {
+				this.searchQuery = value.detail
+				this.filterItemsFun();
+			},
+			// 获取大科室
+			getServiceGroup() {
+				registrationApi.getServiceGroup().then(res => {
+					if(res.data.code===200) {
+						this.stairDepartment = res.data.data.ClinicServiceGroup.map(item =>({text:item.CliSerGroupName,...item}));
+						if(this.stairDepartment.length){
+							let CliSerGroupID = this.stairDepartment[this.mainActiveIndex].CliSerGroupID
+							this.getSpecialtyGroup(CliSerGroupID)
+						}
+					}
+				}).catch(err => {
+					console.log('errrrrr：', err);
+				})
+			},
+			// 获取小科室
+			getSpecialtyGroup(CliSerGroupID) {
+				registrationApi.getSpecialtyGroup(CliSerGroupID).then(res => {
+					if(Array.isArray(res.data.data.ClinicGroup)){
+						this.secondDepartment = res.data.data.ClinicGroup.map(item =>({text:item.CLGRPDesc,...item}));
+					}else {
+						this.secondDepartment = [res.data.data.ClinicGroup].map(item =>({text:item.CLGRPDesc,...item}));
+					}
+					this.integration()
+			}).catch(err => {
+				console.log('2：', err);
+			})
+		},
+		integration(){
+			if(!this.items.length){
+				this.items = this.stairDepartment.map((i,x)=> {
+					if(x===this.mainActiveIndex){
+						i.children = this.secondDepartment
+					}
+					return i
+				})
+					this.filteredItems = this.items
+			}else if(!this.filteredItems.length && !this.searchQuery){
+				this.filteredItems = this.items
+			}else {
+				this.filteredItems.forEach((i,x)=> {
+					if(x===this.mainActiveIndex){
+						i.children = this.secondDepartment
+					}
+				})
+			}
+		},
+		filterItemsFun() {
+			if (this.searchQuery) {
+				this.filteredItems = this.items.map((category,index) => {
+					// 检查父类的 text 属性是否包含 searchQuery
+					const parentMatches = category.text.includes(this.searchQuery);
+					if(parentMatches){
+					// this.mainActiveIndex = index
+					return {
+							...category,
+					};
+					}
+					return null;
+				}).filter(category => category !== null);
+			} else {
+				this.filteredItems = this.items;
+			}
+			this.mainActiveIndex = 0
+			let CliSerGroupID = this.filteredItems[this.mainActiveIndex].CliSerGroupID
+			this.getSpecialtyGroup(CliSerGroupID)
+		},
+		onNavClick(index) {
+			this.mainActiveIndex = index.target.index;
+			let CliSerGroupID = this.filteredItems[this.mainActiveIndex].CliSerGroupID
+			this.getSpecialtyGroup(CliSerGroupID)
+			this.department = this.filteredItems[this.mainActiveIndex].text
+		},
+		onItemClick(item) {
+			this.activeId = item.target.text;
+			this.searchQuery = ''
+			this.filteredItems = []
+			this.items = []
+			// 处理点击事件
+			uni.navigateTo({
+				url: `/sub_packages/subscribe/doctors?title=${item.target.text}&CLGRPRowId=${item.target.CLGRPRowId}&departmentName=${this.department}`
+			})
+			// uni.navigateTo({
+			// 	url: '../hpvOrder-detail/hpvOrder-detail?key=' + encodeURIComponent(JSON.stringify(item))
+			// })
+			
+		}
+	},
+};
 </script>
 
 <style  lang="less" scoped>

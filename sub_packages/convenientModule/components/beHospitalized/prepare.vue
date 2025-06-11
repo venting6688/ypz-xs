@@ -176,8 +176,11 @@
 			},
 			//获取住院记录
 			async getHospitalRecord () {
-				let id = this.footData.patientUniquelyIdentifies; 
-				let res = await hospitalizationApi.getHospitalRecord(id);
+				let data = {
+					patientID: this.footData.patientUniquelyIdentifies,
+					AimFlag: 'Dep'
+				}
+				let res = await hospitalizationApi.getHospitalRecord(data);
 				if (res.data.code === 200 && res.data.data.admInfoList != null) {
 					this.hospitalRecord = res.data.data.admInfoList.admInfo[0];
 					this.register = true;

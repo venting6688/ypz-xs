@@ -57,6 +57,7 @@
 		computed: {
 			...mapState(['footData']),
 		},
+		
 		methods: {
 			getVisitRecord(){
 				try {
@@ -91,8 +92,6 @@
 			}
 			
 		},
-		mounted(){
-		}
 	}
 </script>
 
