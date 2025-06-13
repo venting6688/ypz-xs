@@ -66,13 +66,11 @@
 					admID: this.admID,
 				}
 				let data = await hospitalizationApi.getHospitalizationDaysList(str);
+				this.dayList = [];
 				if (data.data.code === 200) {
 					this.dayList = data.data.data;
 					this.dayList.sort((a, b) => new Date(b.date) - new Date(a.date))
-					// this.range = [this.dayList[this.dayList.length-1].date, this.dayList[0].date]
-				} else {
-					this.dayList = [];
-				}
+				} 
 			},
 			showDetail(data) {
 				uni.navigateTo({

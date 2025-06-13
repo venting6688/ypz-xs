@@ -44,13 +44,13 @@ const patient = {
 		/**
 		  * 刷新用户信息
 		*/
-		    async refreshUserInfo(phoneNum) {
-		    	const res = await cjRequest({
-		    		url: `refreshUserInfo?phoneNum=${phoneNum}`,
-		    		method: "get",
-		    	})
-		    	return res
-		    },
+		async refreshUserInfo(phoneNum) {
+			const res = await cjRequest({
+				url: `refreshUserInfo?phoneNum=${phoneNum}`,
+				method: "get",
+			}, 2)
+			return res
+		},
 }
  
 export default patient

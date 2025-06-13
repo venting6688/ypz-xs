@@ -79,15 +79,16 @@
 						endDate: this.endDate
 					}
 					const res = await await hospitalizationApi.getHospitalRecord(data);
+					this.recordList = []; this.visibleData = [];
 					if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
 						let resData = res.data.data.admInfoList.admInfo
 						resData.sort((a, b) => new Date(b.admDate) - new Date(a.admDate))
-						// this.range = [resData[resData.length-1].date, resData[0].date]
 						this.recordList = resData;
-						this.visibleData = this.recordList.slice(0, this.pageSize); // 首次展示10条
+						this.visibleData = this.recordList.slice(0, this.pageSize); 
 					} else {
 						this.loading = false;
 						this.recordList = [];
+						this.visibleData = [];
 					}
 				} catch (error) {
 					console.error("数据加载失败:", error);

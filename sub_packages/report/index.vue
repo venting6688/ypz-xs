@@ -98,7 +98,7 @@
 				this.loginData = JSON.parse(uni.getStorageSync('loginData'));
 				this.siginData = this.loginData.defaultArchives ? this.loginData.defaultArchives : {};
 				this.registerOrderId = e.registerOrderId ? e.registerOrderId : '';
-				if (this.registerOrderId == '' && this.siginData.cardTypeCode == '04') {
+				if (this.registerOrderId == '') {
 					this.healthcardVerify();
 				}
 				if (this.registerOrderId != '') {

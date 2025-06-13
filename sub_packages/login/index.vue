@@ -61,8 +61,12 @@
 						if (data.code === 200) {
 							let items = JSON.stringify(data.data)
 							uni.setStorageSync('loginData', items)
-							uni.showToast({ title: '登录成功' })
-							wx.reLaunch({ url: `/pages/virtualNurse/index?pattern=2&shouldUpdate=true` })
+							if (!data.data.defaultArchives) {
+								uni.navigateTo({ url:"/sub_packages/family/familyManage" })
+							} else {
+								uni.showToast({ title: '登录成功' })
+								wx.reLaunch({ url: `/pages/virtualNurse/index?pattern=2&shouldUpdate=true` })
+							}
 						}
 					})
 				})
@@ -112,7 +116,7 @@
 		},
 		onLoad(e){  
 			wx.setNavigationBarTitle({
-			      title: e.title
+				title: e.title
 			})
 		}
 	}

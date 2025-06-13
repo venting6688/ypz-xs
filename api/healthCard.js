@@ -7,7 +7,7 @@ const healthCard = {
 			url: "healthCardOpenPlatform/registerHealthCardPreAuth",
 			method: "post",
 			data
-		})
+		}, 2)
 		return res
 	},
 	
@@ -18,7 +18,7 @@ const healthCard = {
 			url: `healthCardOpenPlatform/registerHealthCardPreFill?${queryParams}`,
 			method: "post",
 			data
-		})
+		}, 2)
 		return res
 	},
 	
@@ -28,7 +28,7 @@ const healthCard = {
 		const res = await cjRequest({
 			url: `healthCardOpenPlatform/getHealthCardByHealthCode?${queryParams}`,
 			method: "get",
-		})
+		}, 2)
 		return res
 	},
 	
@@ -38,7 +38,7 @@ const healthCard = {
 			url: "healthCardOpenPlatform/filingForHealthCard",
 			method: "post",
 			data
-		})
+		}, 2)
 		return res
 	},
 	
@@ -48,7 +48,7 @@ const healthCard = {
 			url: "healthCardOpenPlatform/addHealthCard",
 			method: "post",
 			data
-		})
+		}, 2)
 		return res
 	},
 	
@@ -58,7 +58,7 @@ const healthCard = {
 		const res = await cjRequest({
 			url: `healthCardOpenPlatform/queryTheListOfArchives?${queryParams}`,
 			method: "get",
-		})
+		}, 2)
 		return res
 	},
 	
@@ -68,7 +68,7 @@ const healthCard = {
 		const res = await cjRequest({
 			url: `deleteThePatient?${queryParams}`,
 			method: "delete",
-		})
+		}, 2)
 		return res
 	},
 	
@@ -78,7 +78,7 @@ const healthCard = {
 			url: "healthCardOpenPlatform/updateDefaultArchives",
 			method: "post",
 			data
-		})
+		}, 2)
 		return res
 	},
 	
@@ -88,7 +88,7 @@ const healthCard = {
 		const res = await cjRequest({
 			url: `healthCardOpenPlatform/getOrderInfoByOrderId?${queryParams}`,
 			method: "get",
-		})
+		}, 2)
 		return res
 	},
 	
@@ -98,7 +98,7 @@ const healthCard = {
 		const res = await cjRequest({
 			url: `healthCardOpenPlatform/registerRealPersonAuthOrder?${queryParams}`,
 			method: "get",
-		})
+		}, 2)
 		return res
 	},
 	
@@ -108,7 +108,7 @@ const healthCard = {
 		const res = await cjRequest({
 			url: `healthCardOpenPlatform/registerUniformVerifyOrder?${queryParams}`,
 			method: "get",
-		})
+		}, 2)
 		return res
 	},
 	
@@ -118,7 +118,7 @@ const healthCard = {
 		const res = await cjRequest({
 			url: `healthCardOpenPlatform/checkUniformVerifyResult?${queryParams}`,
 			method: "get",
-		})
+		}, 2)
 		return res
 	},
 	
@@ -128,7 +128,7 @@ const healthCard = {
 			url: `healthCardOpenPlatform/reportHISData?openid=${id}`,
 			method: "post",
 			data
-		})
+		}, 2)
 		return res
 	},
 	

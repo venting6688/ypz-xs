@@ -173,21 +173,15 @@
 			    console.log('🐞 onFinish', e);
 			},
 			// 刷新用户信息
-			async refreshUserInfo(phoneNum){
-				try{
-				    const res = await HeaderbarApi
-					.refreshUserInfo(phoneNum)
-					.then((result) => {
-						if(result.data.code === 200){
-							let data = result.data.data
-							this.setFootData(data.defaultArchives)
-							let items = JSON.stringify(data)
-							uni.setStorageSync('loginData', items)
-						}
-					})
-				}catch(e){
-					console.log(e);
-				}
+			refreshUserInfo(phoneNum){
+				HeaderbarApi.refreshUserInfo(phoneNum).then(result => {
+					if(result.data.code === 200){
+						let data = result.data.data
+						this.setFootData(data.defaultArchives)
+						let items = JSON.stringify(data)
+						uni.setStorageSync('loginData', items)
+					}
+				})
 			},
 			// 切换家庭成员
 			async updateDefaultArchives(item){
@@ -232,7 +226,7 @@
 				});
 			},
 			
-			async todo(val) {
+			todo(val) {
 				const { wechatCode } = val.result;
 				let data = {
 					wechatCode,
@@ -245,7 +239,7 @@
 					domainChannel: 3,
 					relateOpenId: this.loginValue.xcxOpenId,
 				}
-				await healthCard.registerHealthCardPreAuth(data).then((res) => {
+				healthCard.registerHealthCardPreAuth(data).then((res) => {
 					if (res.data.code == 200) {
 						let url = res.data.data.rsp.bindCardUrl;
 						uni.redirectTo({ url: '/pages/webview/webview?url=' + encodeURIComponent(url) });
@@ -265,6 +259,7 @@
 					data.cloudUser = this.loginValue;
 					healthCard.filingForHealthCard(data).then(result => {
 						if(result.data.code === 200){
+							this.refreshUserInfo(this.loginValue.phoneNum)
 							this.getHealthCardList();
 						}
 					})
