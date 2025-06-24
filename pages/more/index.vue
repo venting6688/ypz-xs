@@ -2,12 +2,18 @@
 	<view class="box" :animation="animationData">
 		<HeaderBar @handle="show" :footState="footState" />
 		<view class="scroll-Y">
-			
 			<van-grid column-num="4" :border="false" v-for="(i,x) in moduleList" :key="x">
 				<view class="title">
 					{{i.title}}
 				</view>
-			  <van-grid-item use-slot @click="toast(item.num,urlList[item.num-1])" link-type="navigateTo" :url="urlList[item.num-1]" v-for="(item,index) in i.list" :key="index">
+			  <van-grid-item 
+				use-slot 
+				@click="toast(item.num,urlList[item.num-1])" 
+				link-type="navigateTo" 
+				:url="urlList[item.num-1]" 
+				v-for="(item,index) in i.list" :key="index"
+				v-if="item.active"
+				>
 			    <view class="img" >
 			    	<image :src="item.img" mode=""></image>
 			    </view>
@@ -21,167 +27,161 @@
 		</view>
 </template>
 <script>
-	import foot from '@/components/footer.vue'
 	import bus from "@/utils/bus";
+	import foot from '@/components/footer.vue'
+	import {mapState,mapMutations} from 'vuex'
 	import HeaderBar from '@/components/HeaderBar.vue';
 	export default {
 		components:{
 			foot,
 			HeaderBar
 		},
-		data() {
-			return {
-				animationData: {},
-				footState:3,
-				moduleList:[
+		computed: {
+			...mapState(['loginStatus']),
+			
+			moduleList() {
+				return [
 					{
 						title:'门诊服务',
-						list: uni.getStorageSync("loginData") ? [
+						list: [
 							{
 								img:'https://aiwz.sdtyfy.com:8099/img/outpatient.png',
+								active: this.loginStatus === 'login',
 								name:'智能导诊',
 								num:1,
 							},
 							{
 								img:'https://aiwz.sdtyfy.com:8099/img/outpatient1.png',
 								name:'预约挂号',
+								active: true,
 								num:2,
 							},
 							{
-							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient3.png',
-							    name:'门诊缴费',
-									num:3,
-							},
-							{
-							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient7.png',
-							    name:'就诊记录',
-									num:5,
-							},
-							{
-							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient4.png',
-							    name:'门诊报告',
-									num:6,
-							},
-						] : [
-							{
-								img:'https://aiwz.sdtyfy.com:8099/img/outpatient1.png',
-								name:'预约挂号',
-								num:2,
-							},
-							{
-							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient3.png',
-							    name:'门诊缴费',
+								img:'https://aiwz.sdtyfy.com:8099/img/outpatient3.png',
+								active: this.loginStatus === 'login',
+								name:'门诊缴费',
 								num:3,
 							},
 							{
-							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient7.png',
-							    name:'就诊记录',
-									num:5,
+								img:'https://aiwz.sdtyfy.com:8099/img/outpatient7.png',
+								name:'就诊记录',
+								active: true,
+								num:5,
 							},
 							{
-							    img:'https://aiwz.sdtyfy.com:8099/img/outpatient4.png',
-							    name:'门诊报告',
-									num:6,
+								img:'https://aiwz.sdtyfy.com:8099/img/outpatient4.png',
+								active: this.loginStatus === 'login',
+								name:'门诊报告',
+								num:6,
 							},
-						],
+						]
 					},
 					{
 						title:'便民服务',
-						list: uni.getStorageSync("loginData") ?  [
+						list: [
 							{
 								img:'https://aiwz.sdtyfy.com:8099/img/person3.png',
 								name:'疾病百科',
+								active: true,
 								num:10,
 							},
-						   {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/person2.png',
-						    	name:'药品查询',
-						    	num:11,
-						    },
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/electronicBills.png',
-						    	name:'电子票据',
-						    	num:12,
-						    },
+							 {
+							img:'https://aiwz.sdtyfy.com:8099/img/person2.png',
+							name:'药品查询',
+							active: true,
+							num:11,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/electronicBills.png',
+									name:'电子票据',
+									active: true,
+									num:12,
+								},
 								{
 									img:'https://aiwz.sdtyfy.com:8099/img/health.png',
 									name:'医保凭证',
+									active: true,
 									num:13,
 								},
 								{
 									img:'https://aiwz.sdtyfy.com:8099/img/medicalRecord.png',
 									name:'病案通',
+									active: true,
 									num:14,
 								},
 								{
 									img:'https://aiwz.sdtyfy.com:8099/img/hospitalized4.png',
 									name:'营养点餐',
+									active: true,
 									num:15,
 								},
-					    ] : [
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/electronicBills.png',
-						    	name:'电子票据',
-						    	num:12,
-						    },
-								{
-									img:'https://aiwz.sdtyfy.com:8099/img/health.png',
-									name:'医保凭证',
-									num:13,
-								},
-								{
-									img:'https://aiwz.sdtyfy.com:8099/img/medicalRecord.png',
-									name:'病案通',
-									num:14,
-								},
-								{
-									img:'https://aiwz.sdtyfy.com:8099/img/hospitalized4.png',
-									name:'营养点餐',
-									num:15,
-								},
-					    ]
+							]
 					},
 					{
 						title:'综合服务',
-						list:[
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/synthesize3.png',
-						    	name:'健康随访',
-						    	num:22,
-						    },
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/synthesize1.png',
-						    	name:'就诊人管理',
-						    	num:23,
-						    },
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/synthesize4.png',
-						    	name:'在线建档',
-						    	num:24,
-						    },
-							{
-								img:'https://aiwz.sdtyfy.com:8099/img/synthesize4.png',
-								name:'互联网+护理',
-								num:25,
-							},
-					    ]
+						list: [
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/synthesize3.png',
+									name:'健康随访',
+									active: true,
+									num:22,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/synthesize1.png',
+									active: true,
+									name:'就诊人管理',
+									num:23,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/synthesize4.png',
+									active: false,
+									name:'在线建档',
+									num:24,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/synthesize4.png',
+									name:'互联网+护理',
+									active: true,
+									num:25,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/synthesize6.png',
+									name:'我的体检',
+									active: true,
+									num:26,
+								},
+							]
 					},
 					{
 						title:'住院服务',
-						list:[
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
-						    	name:'入院登记',
-						    	num:30,
-						    },
-						    {
-						    	img:'https://aiwz.sdtyfy.com:8099/img/hospitalized5.png',
-						    	name:'住院费用',
-						    	num:31,
-						    },
-					    ]
+						list: [
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/hospitalized.png',
+									active: this.loginStatus === 'login',
+									name:'入院登记',
+									num:30,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/hospitalized5.png',
+									name:'住院费用',
+									active: true,
+									num:31,
+								},
+								{
+									img:'https://aiwz.sdtyfy.com:8099/img/hospitalized7.png',
+									name:'住院预交金',
+									active: true,
+									num:32,
+								},
+							]
 					},
-				],
+				]
+			}
+		},
+		data() {
+			return {
+				animationData: {},
+				footState:3,
 				urlList:[
 					'pages/virtualNurse/index',
 					'/sub_packages/subscribe/departments',
@@ -208,13 +208,13 @@
 					'/sub_packages/family/familyManage',
 					'/sub_packages/filing/identityCard',
 					'空',
-					'/sub_packages/mine/index',
+					'空', ///sub_packages/mine/index
 					'空',
 					'空',
 					'空',
 					'/sub_packages/beHospitalizedRegister/index', //30
 					'/sub_packages/convenientModule/index', //31
-					'空',
+					'/sub_packages/deposit/index',
 					'空',
 					'空',
 					'空',
@@ -223,6 +223,7 @@
 					'空',
 					'空',
 				],
+				jumpLinkNum: [12,13,14,15,22,25,26],
 			}
 		},
 		
@@ -248,6 +249,9 @@
 				}else if(num===25){
 					appId = 'wx54bf421b03978b4b';
 					targetUrl = `pages/homePage/homePage?stationId=717`;
+				}else if(num===26){
+					appId = 'wx508ee121a3163f4d';
+					targetUrl = `pages/index/index?site=sydefy01`;
 				}
 				wx.navigateToMiniProgram({
 				  appId: appId,
@@ -271,7 +275,7 @@
 						    url: `/pages/virtualNurse/index?pattern=2`,
 						})
 					}
-				}else if(num===12 || num===13 || num===14 || num===15 || num===22 || num===25){
+				}else if(this.jumpLinkNum.includes(num)){
 					this.skip(num)
 				}else if(url==='空'){
 					uni.showToast({
@@ -310,10 +314,6 @@
 					
 				}
 			},
-			
-		},
-		mounted(){
-			// this.toggle()
 			
 		},
 	}

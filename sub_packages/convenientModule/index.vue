@@ -1,6 +1,6 @@
 <template>
 	<view class="inventory">
-		<bar />
+		<bar v-if="footData.patientUniquelyIdentifies"/>
 		<view class="date">
 			<uni-datetime-picker v-model="range" type="daterange" style="border: none !important; border-radius: 15rpx !important;" />
 		</view>

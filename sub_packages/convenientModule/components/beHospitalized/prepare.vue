@@ -70,7 +70,7 @@
 					  </view>
 					  <view class="info-item">
 					    <text class="label">余额：</text>
-					    <text class="value balance">￥{{hospitalRecord.depositBalance ? hospitalRecord.depositBalance : 0}}元</text>
+					    <text class="value balance">￥{{hospitalRecord.depositBalance ? parseFloat(hospitalRecord.depositBalance).toFixed(2) : 0}}元</text>
 					  </view>
 					</view>
 			    <view class="info-row">
@@ -116,7 +116,7 @@
 					  <text class="value">请遵守病房作息时间，保持病房内外环境整洁与安静，不随地吐痰，不在病房内吸烟和喧哗，不使用大功率电器。</text>
 					</view>
 			    <view class="button-row">
-			      <!-- <button class="cu-btn">住院充值</button> -->
+			      <button class="cu-btn" @click="deposit">住院充值</button>
 			      <button class="cu-btn" @click="clickFoot">营养点餐</button>
 			    </view>
 			  </view>
@@ -196,7 +196,11 @@
 					this.register = false;
 				}
 			},
-			
+			deposit() {
+				uni.navigateTo({
+					url: "/sub_packages/deposit/index"
+				})
+			},
 			clickFoot() {
 				let appId = 'wx63c30833d698895a';
 				let targetUrl = `pages/hospital/hospital?hoSpitAl_id=dffc9e5a317c&webtype=2`;

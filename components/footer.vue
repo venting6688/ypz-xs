@@ -18,7 +18,13 @@
 				</view>
 				<view class="wire"  v-if="footData.patientName"></view>
 				<view class="foot-bar" :class="{'bar-w':!footData.patientName}">
-					<view class="piece" :style="{ width: siginData ? '33.333%' : '100%' }" v-for="item in footList" :key="item.name" @click="footBtn(item)">
+					<view class="piece" 
+					:style="{ width: siginData ? '33.333%' : '100%' }" 
+					v-for="item in footList" 
+					:key="item.name" 
+					@click="footBtn(item)"
+					v-if="item.active"
+					>
 						<view class="title">
 							<image v-if="item.type==footState" :src="item.selectedIconPath" mode="widthFix"></image>
 							<image v-else :src="item.iconPath" mode="widthFix"></image>
@@ -54,15 +60,18 @@
 		  footState: Number,
 		},
 		components:{
-			popupFamily
+			popupFamily,
 		},
-		data() {
-			return {
-				footList: uni.getStorageSync("loginData") ? [
+		computed: {
+			...mapState(['loginStatus', 'footData']),
+			
+			footList() {
+				return [
 					{
 						pagePath: "/pages/virtualNurse/index",
 						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation+.png',
 						selectedIconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation.png',
+						active: this.loginStatus === 'login',
 						name:'虚拟护士',
 						type:1,
 					},
@@ -70,6 +79,7 @@
 						pagePath: "/pages/convenient/index",
 						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation1+.png',
 						selectedIconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation1.png',
+						active: this.loginStatus === 'login',
 						name:'便捷导引',
 						type:2,
 					},
@@ -77,18 +87,15 @@
 						pagePath: "/pages/more/index",
 						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation2+.png',
 						selectedIconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation2.png',
+						active: true,
 						name:'更多服务',
 						type:3,
 					},
-				] : [
-					{
-						pagePath: "/pages/more/index",
-						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation2+.png',
-						selectedIconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation2.png',
-						name:'更多服务',
-						type:3,
-					},
-				],
+				]
+			}
+		},
+		data() {
+			return {
 				registerData:{
 					archivesList:[]
 				},
@@ -104,9 +111,7 @@
 				siginData: uni.getStorageSync('loginData')
 			}
 		},
-        computed: { 
-			...mapState(['footData']),
-		},
+		
 	    async created() {
 			uni.hideTabBar()
 			switch (uni.getSystemInfoSync().platform) {

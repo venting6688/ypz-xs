@@ -1,6 +1,6 @@
 <template>
 	<view class="box">
-		<bar />
+		<bar v-if="loginData.defaultArchives" />
 		<date @handle="show" />
 		<view class="head">
 			<view>
@@ -92,10 +92,10 @@
 		},
 		onLoad(e) {
 			let loginValue = uni.getStorageSync("loginData");
-			if (!loginValue) {
-				uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
-			} else {
-				this.loginData = JSON.parse(uni.getStorageSync('loginData'));
+			// if (!loginValue) {
+			// 	uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
+			// } else {
+				this.loginData = loginValue ? JSON.parse(loginValue) : {};
 				this.siginData = this.loginData.defaultArchives ? this.loginData.defaultArchives : {};
 				this.registerOrderId = e.registerOrderId ? e.registerOrderId : '';
 				if (this.registerOrderId == '') {
@@ -104,7 +104,7 @@
 				if (this.registerOrderId != '') {
 					this.checkUniformVerifyResult();
 				}
-			}
+			// }
 		},
 		methods: {
 			closeToast(state){

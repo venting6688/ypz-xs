@@ -43,7 +43,12 @@
 								});
 							}),
 							fail: (err => {
-								uni.showToast({ title: '验证失败，请重试', icon: 'none' });
+								let jump = decodeURIComponent(this.redirectUrl)+"&verify_order_id=-1";
+								console.log(jump);
+								uni.navigateTo({
+									url: '/pages/webview/webview?url=' + encodeURIComponent(jump)
+								});
+								console.log(jump);
 							})
 						});
 					}
@@ -73,7 +78,6 @@
 					} else {
 						url = redirectUrl+"&verify_order_id=-1";
 					}
-					
 					uni.navigateTo({
 						url: '/pages/webview/webview?url=' + encodeURIComponent(url)
 					});

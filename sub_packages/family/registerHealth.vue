@@ -189,10 +189,6 @@
 			this.weChatCode = e.weChatCode ? e.weChatCode : '';
 		},
 		methods: {
-			...mapMutations({
-				setFootData:'SET_FOOT_DATA',
-			}),
-			
 			//选择日期
 			bindDateChange(e) { 
 				this.informationObj.birthday = e.detail.value

@@ -1,43 +1,42 @@
 {
   "pages": [
-	{
-		"path": "pages/virtualNurse/index",
-		"style": {
-		    "navigationBarTitleText": "虚拟护士",
-			"disableScroll": true
-		}
-	},
-	{
-	    "path": "pages/more/index",
-	    "style": {
-	  	"navigationBarTitleText": "更多服务",
-	  		"disableScroll": true
-	    }
-	},
-	{
-		"path": "pages/webview/webview",
-		   "style": {
-		       "navigationBarTitleText": "加载中..."
-		   }
-	},
-	
-	{
-	  "path": "pages/convenient/index",
-	  "style": {
-	    "navigationBarTitleText": "便捷导引",
-			"disableScroll": true,
-			"componentPlaceholder": {
-				"first": "view",
-				"check": "view",
-				"answer": "view",
-				"prescription": "view",
-				"report": "view",
-				"prepare": "view",
-				"doing": "view",
-				"inventory": "view"
+		{
+				"path": "pages/more/index",
+				"style": {
+				"navigationBarTitleText": "更多服务",
+					"disableScroll": true
+				}
+		},
+		{
+			"path": "pages/virtualNurse/index",
+			"style": {
+					"navigationBarTitleText": "虚拟护士",
+				"disableScroll": true
 			}
-	  }
-	}
+		},
+		{
+			"path": "pages/convenient/index",
+			"style": {
+				"navigationBarTitleText": "便捷导引",
+				"disableScroll": true,
+				"componentPlaceholder": {
+					"first": "view",
+					"check": "view",
+					"answer": "view",
+					"prescription": "view",
+					"report": "view",
+					"prepare": "view",
+					"doing": "view",
+					"inventory": "view"
+				}
+			}
+		},
+		{
+			"path": "pages/webview/webview",
+				 "style": {
+						 "navigationBarTitleText": "加载中..."
+				 }
+		}
   ],
   "subPackages": [{
   	"root": "sub_packages",
@@ -254,7 +253,6 @@
 				"style" : 
 				{
 					"navigationBarTitleText": "住院清单"
-					// "disableScroll": true
 				}
 			},
 			{
@@ -263,6 +261,24 @@
 				"style" : 
 				{
 					"navigationBarTitleText": "清单明细",
+					"disableScroll": true
+				}
+			},
+			{
+				//住院充值
+				"path" : "deposit/index",
+				"style" : 
+				{
+					"navigationBarTitleText": "住院充值",
+					"disableScroll": true
+				}
+			},
+			{
+				//住院充值记录
+				"path" : "deposit/topUpRecord",
+				"style" : 
+				{
+					"navigationBarTitleText": "充值记录",
 					"disableScroll": true
 				}
 			},

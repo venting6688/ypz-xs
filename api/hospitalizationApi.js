@@ -31,7 +31,7 @@ const patient = {
 		const res = await cjRequest({
 			url: `hospitalizedInformation/getHospitalRecord?${queryParams}`,
 			method: "get",
-		})
+		}, 2)
 		return res
 	},
 	
@@ -69,8 +69,42 @@ const patient = {
 		return res
 	},
 	
-
-
+	//住院押金
+	async hospitalDepositPrePay(data) {
+		const queryParams = Object.keys(data)
+		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+		.join('&');
+		
+		const res = await cjRequest({
+			url: `hospitalizedInformation/hospitalDepositPrePay?${queryParams}`,
+			method: "get",
+		}, 2)
+		return res
+	},
+	
+	//查询住院押金支付状态
+	async queryHospitalDepositPrePayResult(data) {
+		const res = await cjRequest({
+			url: `hospitalizedInformation/queryHospitalDepositPrePayResult`,
+			method: "POST",
+			data,
+		})
+		return res
+	},
+	
+	//获取充值记录
+	async getPayRecord(data) {
+		const queryParams = Object.keys(data)
+		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+		.join('&');
+		
+		const res = await cjRequest({
+			url: `hospitalizedInformation/getDepositRecord?${queryParams}`,
+			method: "get",
+		}, 2)
+		return res
+	},
+	
 }
  
 export default patient

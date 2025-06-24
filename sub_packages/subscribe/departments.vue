@@ -18,7 +18,6 @@
 </template>
 
 <script>
-	import login from '@/utils/login.js'
 	import HeaderBar from '@/components/HeaderBar.vue';
 	import registrationApi from '@/api/registrationApi.js'
 	export default {
@@ -42,12 +41,7 @@
 			};
 		},
 		onLoad() {
-			let loginValue = uni.getStorageSync("loginData");
-			if (!loginValue) {
-				login.loginData().catch((error) => {});
-			} else {
-				this.getServiceGroup()
-			}
+			this.getServiceGroup()
 		},
 		methods: {
 			onSearchChange(value) {
@@ -135,10 +129,6 @@
 			uni.navigateTo({
 				url: `/sub_packages/subscribe/doctors?title=${item.target.text}&CLGRPRowId=${item.target.CLGRPRowId}&departmentName=${this.department}`
 			})
-			// uni.navigateTo({
-			// 	url: '../hpvOrder-detail/hpvOrder-detail?key=' + encodeURIComponent(JSON.stringify(item))
-			// })
-			
 		}
 	},
 };

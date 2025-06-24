@@ -171,6 +171,7 @@
 		methods: {
 			...mapMutations({
 				setFootData:'SET_FOOT_DATA',
+				setLoginStatus: 'SET_LOGINSTATUS',
 			}),
 			occupationPickerChange(e) {
 				this.occupationPickerIndex = e.detail.value
@@ -213,6 +214,7 @@
 								duration: 2000
 							});
 							this.setFootData(res.data.data.defaultArchives)
+							this.setLoginStatus('login');
 							uni.setStorageSync('loginData', JSON.stringify(res.data.data))
 							setTimeout(()=>{
 								wx.reLaunch({

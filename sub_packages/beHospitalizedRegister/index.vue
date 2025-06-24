@@ -1,7 +1,7 @@
 <template>
 	<view class="register">
-		<bar />
-		<view class="application" v-if="preHospitalization.admDepDesc != ''">
+		<bar v-if="footData.patientUniquelyIdentifies" />
+		<view class="application" v-if="isHospitalization">
 			<view class="head">住院信息</view>
 			<view class="middle">
 				<view>
@@ -10,11 +10,11 @@
 				</view>
 				<view v-if="register">
 					<text>预交金额:</text>
-					<text>￥{{preHospitalization.depositAmount ? preHospitalization.depositAmount : 0}}元</text>
+					<text>￥{{preHospitalization.depositAmount ? parseFloat(preHospitalization.depositAmount).toFixed(2) : 0}}元</text>
 				</view>
 				<view v-if="register">
 					<text>余额:</text>
-					<text>￥{{preHospitalization.depositBalance ? preHospitalization.depositBalance : 0}}元</text>
+					<text>￥{{preHospitalization.depositBalance ? parseFloat(preHospitalization.depositBalance).toFixed(2) : 0}}元</text>
 				</view>
 				<!-- <view>
 					<text>就诊日期:</text>
@@ -38,38 +38,55 @@
 				</view>
 			</view>
 		</view>
-		<view class="content" v-if="preHospitalization.admDepDesc != undefined && !register">
+		<view class="content" v-if="isHospitalization && !register">
 			<view class="head">住院人信息</view>
 			<form>
-				<view class="cu-form-group">
-					<view class="title">姓名</view>
-					<span>{{footData.patientName}}</span>
+				<view class="info">
+					<view class="cu-form-group">
+						姓名：{{footData.patientName}}
+					</view>
+					<view class="cu-form-group">
+						性别：{{footData.sex}}
+					</view>
 				</view>
-				<view class="cu-form-group">
-					<view class="title">性别</view>
-					<span>{{footData.sex}}</span>
+				<view class="info">
+					<view class="cu-form-group">
+						出生日期：{{footData.dob}}
+					</view>
+					<view class="cu-form-group">
+						手机号：{{footData.phoneNum}}
+					</view>
 				</view>
-				<view class="cu-form-group">
-					<view class="title">出生日期</view>
-					<span>{{footData.dob}}</span>
-				</view>
-				<view class="cu-form-group">
-					<view class="title">手机号</view>
-					<span>{{footData.phoneNum}}</span>
+				
+				<view class="cu-form-group" v-if="!register">
+					<view class="title">姓名：</view>
+					<input placeholder="请输入陪护人姓名" v-model="informationObj.foreignID" name="input" />
 				</view>
 				<view class="cu-form-group" v-if="!register">
-					<view class="title">陪护人姓名</view>
-					<input placeholder="请输入姓名" v-model="informationObj.foreignID" name="input" />
-				</view>
-				<view class="cu-form-group" v-if="!register">
-					<view class="title">陪护人手机号</view>
-					<input placeholder="请输入手机号" v-model="informationObj.fPhon" maxlength="11" type="number" name="input" />
+					<view class="title">手机号：</view>
+					<input placeholder="请输入陪护人手机号" v-model="informationObj.fPhon" maxlength="11" type="number" name="input" />
 				</view>
 			</form>
 			<view class="btn" v-if="!register && iPBook !=''"><button class="cu-btn" @click="registerBtn">入院登记</button></view>
 		</view>
+		<!-- 住院充值 -->
+		<view class="deposit" v-if="register || isHospitalization">
+			<view class="center">
+				<view class="head">住院预交金</view>
+				<ul>
+					<li v-for="item in priceList" :key="item" @click="priceClick(item)" :class="{borderBlue:price===item}">
+						{{item}}
+					</li>
+				</ul>
+				<view class="input">
+					<view class="test">￥</view>
+					<input v-model="price" @input="onInput" type="number" placeholder="输入金额" />
+				</view>
+			</view>
+			<view class="btn" v-if="register"><button class="cu-btn" @click="recharge">立即充值</button></view>
+		</view>
 		
-		<view v-if="(preHospitalization.admDepDesc == '' || preHospitalization.admDept == '')" class="application">
+		<view v-if="!isHospitalization" class="application">
 			<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
 		</view>
 	</view>
@@ -87,6 +104,7 @@
 		data (){
 			return {
 				register: false,
+				isHospitalization: false,
 				preHospitalization: {},
 				iPBook: '',
 				patientID: '',
@@ -97,6 +115,9 @@
 				toastObj:{
 					state:false,
 				},
+				priceList:[300,500,1000],
+				price: 300,
+				adminID: '',
 			}
 		},
 		computed: {
@@ -112,6 +133,90 @@
 					state:state,
 				}
 			},
+			priceClick(item){
+				this.price = item
+			},
+			onInput(e) {
+				this.price = e.detail.value
+			},
+			recharge() {
+				let loginValue = JSON.parse(uni.getStorageSync("loginData"));
+				let data = {
+					patientID: this.footData.patientUniquelyIdentifies,
+					patientName: this.footData.patientName,
+					amount: this.price,
+					patientOpenid: loginValue.xcxOpenId,
+					admID: this.adminID,
+				}
+				
+				hospitalizationApi.hospitalDepositPrePay(data).then(res => {
+					if(res.data.code == 200) {
+						let resData = res.data.data
+						let obj = resData.prePayResponse;
+						uni.requestPayment({
+							provider: 'wxpay', // 服务提提供商
+							timeStamp: obj.body.miniPayRequest.timeStamp, // 时间戳
+							nonceStr: obj.body.miniPayRequest.nonceStr, // 随机字符串
+							package: obj.body.miniPayRequest.pkg,
+							signType: obj.body.miniPayRequest.signType, // 签名算法
+							paySign: obj.body.miniPayRequest.paySign, // 签名
+							success:(result)=> {
+								let str = {
+									prePayResponse: obj,
+									amount: resData.amount,
+									payDate: resData.payDate,
+									payTime: resData.payTime,
+									patientID: this.footData.patientUniquelyIdentifies,
+									admID: this.adminID,
+								}
+								this.callApiWithRetry(str).then((r) => {
+									this.getHospitalRecord();
+									this.toastObj = {
+										state:true,
+										message:'支付成功',
+									}
+								})
+							},
+							fail:(err)=> {
+								this.toastObj = {
+									state:true,
+									type:'fail',
+									message:'支付失败'
+								}
+							}
+						});
+					}
+				})
+			},
+			
+			async callApiWithRetry(data, maxRetry = 5) {
+			  let retryCount = 0;
+			  
+			  while (retryCount < maxRetry) {
+			    try {
+			      const res = await hospitalizationApi.queryHospitalDepositPrePayResult(data);
+			      if (res.data.code !== 999) {
+			        return res.data;
+			      }
+			      // 如果是999状态码，增加重试计数
+			      retryCount++;
+			      // 等待1秒后继续下一次循环
+			      await new Promise(resolve => setTimeout(resolve, 1000));
+			    } catch (e) {
+			      this.toastObj = {
+			        state: true,
+			        type: 'fail',
+			        message: e.toString(),
+			      };
+			      // 异常直接抛出
+			      throw e;
+			    }
+			  }
+			  
+			  // 达到最大重试次数仍返回999
+			  throw new Error('达到最大重试次数');
+			},
+			
 			async registerBtn(){
 				if (this.informationObj.foreignID == '' && this.informationObj.fPhon == '') {
 					uni.showToast({
@@ -136,14 +241,18 @@
 			//获取住院记录
 			async getHospitalRecord () {
 				let data = {
-					AimFlag: 'dep',
-					patientID: this.footData.patientUniquelyIdentifies
+					AimFlag: 'Dep',
+					patientID: this.footData.patientUniquelyIdentifies,
+					startDate: '',
+					endDate: '',
 				}
 				let res = await hospitalizationApi.getHospitalRecord(data);
 				if (res.data.code === 200 && res.data.data.admInfoList != null) {
 					this.preHospitalization = res.data.data.admInfoList.admInfo[0];
 					this.patientID = res.data.data.patientID;
+					this.adminID = res.data.data.admInfoList.admInfo[0].admID;
 					this.register = true;
+					this.isHospitalization = true;
 				}
 			},
 			
@@ -155,6 +264,7 @@
 					this.iPBook = res.data.data.ipBook;
 					this.patientID = res.data.data.patInfo.patientID;
 					this.register = false;
+					this.isHospitalization = true;
 				}
 			},
 		},
@@ -169,21 +279,23 @@
 		display: flex;
 		flex-direction: column;
 		
+		.head {
+			padding: 15rpx 0;
+			margin: 0 20rpx;
+			display: flex;
+			justify-content: center;
+			border-bottom: 2rpx solid #d1d9e3;
+			font-weight: 600;
+			font-size: 32rpx;
+		}
+		
 		.application {
 			width: 726rpx;
 			background: #ffffff;
 			border-radius: 16rpx;
 			margin: 20rpx auto;
 			
-			.head {
-				padding: 15rpx 0;
-				margin: 0 20rpx;
-				display: flex;
-				justify-content: center;
-				border-bottom: 2rpx solid #d1d9e3;
-				font-weight: 600;
-				font-size: 32rpx;
-			}
+			
 			.middle {
 				padding: 20rpx 0;
 				margin: 0 20rpx;
@@ -199,6 +311,79 @@
 				}
 			}
 		}
+		
+		.deposit {
+			width: 722rpx;
+			background: #ffffff;
+			border-radius:0 0 12rpx 12rpx;
+			margin:  0 auto;
+			padding-bottom: 40rpx;
+			overflow: auto;
+			.center {
+				.tips {
+					color: #222222;
+					margin: 30rpx 0;
+				}
+				>ul {
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: space-between;
+					align-content: space-between;
+					margin: 30rpx 20rpx 0;
+					li {
+						width: 180rpx;
+						height: 100rpx;
+						border: 2rpx solid #d9d9d9;
+						border-radius: 8rpx;
+						color: #777777;
+						font-size: 32rpx;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+					}
+					.borderBlue {
+						border: 2rpx solid #4286FF;
+						color: #4286FF;
+					}
+				}
+				.input {
+					margin: 30rpx 20rpx 0;
+					height: 90rpx;
+					background: #f5f5f5;
+					border-radius: 8rpx;
+					display: flex;
+					// justify-content: center;
+					align-items: center;
+					
+					.test {
+						margin: 0 15rpx;
+						font-size: 36rpx;
+						color: #4286FF;
+					}
+					input {
+						width: 550rpx;
+					}
+				}
+			}
+			.btn {
+				display: flex;
+				justify-content: space-evenly;
+				margin-top: 20rpx;
+				button {
+					width: 240rpx;
+					min-height: 76rpx;
+					background: linear-gradient(353deg,#479cff 0%, rgba(71,216,251,0.80) 100%);
+					border-radius: 70rpx;
+					color: #fff;
+					font-size: 32rpx;
+				}
+				.gray {
+					background: #96B2D3;
+				}
+			}
+			
+		}
+		
 		.content {
 			width: 726rpx;
 			background: #ffffff;
@@ -206,8 +391,8 @@
 			margin: 0 auto;
 			display: flex;
 			flex-direction: column;
-			overflow: auto;
-			flex: auto;
+			// overflow: auto;
+			// flex: auto;
 			border-radius: 16rpx 16rpx 0rpx 0rpx;
 			.head {
 				padding: 15rpx 0;
@@ -253,9 +438,15 @@
 			}
 			form {
 				margin:30rpx 0;
-				height: 800rpx;
 				overflow: auto;
-				
+				.info {
+					display: flex;
+					border-bottom: 1px solid #eee;
+					.cu-form-group {
+						width: 50%;
+						border-top: 0;
+					}
+				}
 				.cu-form-group {
 					min-height: 86rpx;
 					display: flex;
@@ -327,18 +518,11 @@
 						}
 					}
 				}
-				.patient {
-					.middle {
-						view {
-							// margin-right: 160rpx;
-						}
-					}
-				}
 			}
 			.btn {
 				display: flex;
 				justify-content: space-evenly;
-				margin-bottom: 120rpx;
+				// margin-bottom: 120rpx;
 				button {
 					width: 240rpx;
 					min-height: 76rpx;

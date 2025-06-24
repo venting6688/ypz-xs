@@ -65,6 +65,7 @@
 			...mapMutations({
 				setFootData:'SET_FOOT_DATA',
 				setShowState:'SET_SHOW_STATE',
+				setLoginStatus: 'SET_LOGINSTATUS',
 			}),
 			// 切换家庭成员
 			async updateDefaultArchives(item){
@@ -96,6 +97,7 @@
 						if(result.data.code === 200){
 							let data = result.data.data
 							this.setFootData(data.defaultArchives)
+							this.setLoginStatus('login');
 							let items = JSON.stringify(data)
 							uni.setStorageSync('loginData', items)
 						}

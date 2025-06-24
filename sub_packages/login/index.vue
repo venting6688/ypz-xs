@@ -26,6 +26,7 @@
 
 <script>
 	import loginApi from '@/api/loginApi.js'
+	import { mapMutations } from 'vuex'
 	export default {
 		data (){
 			return {
@@ -33,6 +34,9 @@
 			}
 		},
 		methods: {
+			...mapMutations({
+				setLoginStatus: 'SET_LOGINSTATUS',
+			}),
 			userAgreement(){
 				uni.navigateTo({
 					url:`/sub_packages/agreement/userAgreement`
@@ -61,6 +65,7 @@
 						if (data.code === 200) {
 							let items = JSON.stringify(data.data)
 							uni.setStorageSync('loginData', items)
+							this.setLoginStatus('login');
 							if (!data.data.defaultArchives) {
 								uni.navigateTo({ url:"/sub_packages/family/familyManage" })
 							} else {

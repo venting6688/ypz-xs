@@ -4,10 +4,10 @@
 			<view class="name">
 				{{footData.patientName?pixelate(footData.patientName):''}}<text>{{footData.relation?footData.relation:''}}</text>
 			</view>
-			<view class="cut"  @click="cutPatient">
+			<!-- <view class="cut" @click="cutPatient">
 				<image src="@/static/image/cut.png" mode=""></image>
 				<text>切换家庭成员</text>
-			</view>
+			</view> -->
 		</view>
 		<uni-popup class="cutPatientDialog" @maskClick="cutPatientPopupClick" :safe-area="false"  ref="cutPatientPopup" type="bottom">
 		   <popupFamily v-if="cutPatientPopupState" :personageObj="personageObj" @handle="show" />

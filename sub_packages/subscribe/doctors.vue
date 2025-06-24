@@ -220,22 +220,27 @@
 				}
 			},
 			doctorDetails(item){
-				let filterDoctor = {};
-				this.doctorList.map(val => {
-					val.map(v => {
-						if (v.ScheduleItemCode == item.ScheduleItemCode) {
-							filterDoctor = v
-						}
+				let loginValue = uni.getStorageSync("loginData");
+				if (!loginValue) {
+					login.loginData().catch((error) => {});
+				} else {
+					let filterDoctor = {};
+					this.doctorList.map(val => {
+						val.map(v => {
+							if (v.ScheduleItemCode == item.ScheduleItemCode) {
+								filterDoctor = v
+							}
+						})
 					})
-				})
-				this.$refs.popup.close()
-				this.doctor.DoctorSpec = filterDoctor && filterDoctor.DoctorSpec != undefined ? filterDoctor.DoctorSpec : '';
-				this.doctor.DoctorImg = filterDoctor && filterDoctor.DoctorImg != undefined ? filterDoctor.DoctorImg : '';
-				this.doctor.StartTime = item.StartTime
-				this.doctor.EndTime = item.EndTime
-				uni.navigateTo({
-					url: `/sub_packages/subscribe/doctorDetails?title=${this.title}&doctor=${encodeURIComponent(JSON.stringify(this.doctor))}&department=${this.departmentName}`
-				})
+					this.$refs.popup.close()
+					this.doctor.DoctorSpec = filterDoctor && filterDoctor.DoctorSpec != undefined ? filterDoctor.DoctorSpec : '';
+					this.doctor.DoctorImg = filterDoctor && filterDoctor.DoctorImg != undefined ? filterDoctor.DoctorImg : '';
+					this.doctor.StartTime = item.StartTime
+					this.doctor.EndTime = item.EndTime
+					uni.navigateTo({
+						url: `/sub_packages/subscribe/doctorDetails?title=${this.title}&doctor=${encodeURIComponent(JSON.stringify(this.doctor))}&department=${this.departmentName}`
+					})
+				}
 			},
 			close(){
 				this.$refs.popup.close()

@@ -1,6 +1,6 @@
 <template>
 	<view class="box" v-if="showState">
-		<bar />
+		<bar v-if="loginValue.xcxOpenId" />
 		<date @handle="show" />
 		<view class="head">
 			<view>
@@ -143,17 +143,13 @@
 			...mapState(['footData','showState']),
 		},
 		onLoad(option) {
+			this.loading.loadingState = false
 			let loginData = uni.getStorageSync("loginData");
-			if (!loginData) {
-				uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
-			} else {
-				this.loading.loadingState = false
-				this.loginValue = JSON.parse(loginData);
-				if(option.checkState){
-					this.checkState = option.checkState
-				}
-				this.reportHISData();
+			this.loginValue = loginData ? JSON.parse(loginData) : {};
+			if(option.checkState){
+				this.checkState = option.checkState
 			}
+			this.reportHISData();
 		},
 		methods: {
 			closeToast(state){

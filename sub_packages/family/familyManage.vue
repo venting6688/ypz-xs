@@ -137,22 +137,19 @@
 		},
 		onLoad(e) {
 			let loginData = uni.getStorageSync("loginData");
-			if (!loginData) {
-				uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
-			} else {
-				this.loginValue = JSON.parse(loginData);
-				this.healthCode = e.healthCode ? e.healthCode : '';
-				this.regInfoCode = e.regInfoCode ? e.regInfoCode : '';
-				this.authCode = e.authCode ? e.authCode : '';
-				this.getHealthCardList();
-				if (this.healthCode != '') {
-					this.getHealthCard();
-				}
+			this.loginValue = loginData ? JSON.parse(loginData) : {};
+			this.healthCode = e.healthCode ? e.healthCode : '';
+			this.regInfoCode = e.regInfoCode ? e.regInfoCode : '';
+			this.authCode = e.authCode ? e.authCode : '';
+			this.getHealthCardList();
+			if (this.healthCode != '') {
+				this.getHealthCard();
 			}
 		},
 		methods: {
 			...mapMutations({
 				setFootData:'SET_FOOT_DATA',
+				setLoginStatus: 'SET_LOGINSTATUS',
 			}),
 			
 			closeToast(state){
@@ -161,7 +158,7 @@
 				}
 			},
 			returnIndex() {
-				uni.switchTab({ url:"/pages/virtualNurse/index" })
+				uni.switchTab({ url:"/pages/more/index" })
 			},
 			
 			amend(index){
@@ -170,7 +167,7 @@
 				})
 			},
 			onFinish(e) {
-			    console.log('🐞 onFinish', e);
+				console.log('🐞 onFinish', e);
 			},
 			// 刷新用户信息
 			refreshUserInfo(phoneNum){
@@ -178,6 +175,7 @@
 					if(result.data.code === 200){
 						let data = result.data.data
 						this.setFootData(data.defaultArchives)
+						this.setLoginStatus('login');
 						let items = JSON.stringify(data)
 						uni.setStorageSync('loginData', items)
 					}
@@ -212,18 +210,23 @@
 			
 			//电子健康卡
 			linkHealthCard(type) {
-				var plugin = requirePlugin("healthCardPlugins");
-				plugin.login((isok, res) => {
-					if (!isok && res.result.toLogin) {
-						// 用户未授权，需要用户同意授权
-						this.$refs.authPopup.open();
-					} else {
-						// 用户在微信授权过，可直接获取登录信息，处理后续业务
-						this.todo(res);
-					}
-				}, {
-					wechatCode: true,
-				});
+				let loginData = uni.getStorageSync("loginData");
+				if (!loginData) {
+					uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
+				} else {
+					var plugin = requirePlugin("healthCardPlugins");
+					plugin.login((isok, res) => {
+						if (!isok && res.result.toLogin) {
+							// 用户未授权，需要用户同意授权
+							this.$refs.authPopup.open();
+						} else {
+							// 用户在微信授权过，可直接获取登录信息，处理后续业务
+							this.todo(res);
+						}
+					}, {
+						wechatCode: true,
+					});
+				}
 			},
 			
 			todo(val) {
@@ -270,7 +273,7 @@
 			async getHealthCardList() {
 				let data = {accountPhone: this.loginValue.phoneNum}
 				let res = await healthCard.queueFilingInfo(data);
-				if (res.data.code == 200) {
+				if (res.data.code == 200 && res.data.data) {
 					this.patientList = res.data.data.archivesList;
 				}
 			},

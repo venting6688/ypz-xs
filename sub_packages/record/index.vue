@@ -1,6 +1,6 @@
 <template>
 	<view class="box">
-		<bar />
+		<bar v-if="loginData.defaultArchives" />
 		<date @handle="show" />
 		<view class="information">
 			<ul v-if="list.length">
@@ -51,7 +51,12 @@
 			return {
 				list:[],
 				date:{},
+				loginData: {},
 			}
+		},
+		onLoad() {
+			let data = uni.getStorageSync('loginData');
+			this.loginData = data ? JSON.parse(data) : {};
 		},
 		computed: {
 			...mapState(['footData']),
