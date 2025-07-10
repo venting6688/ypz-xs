@@ -70,7 +70,7 @@
 					  </view>
 					  <view class="info-item">
 					    <text class="label">余额：</text>
-					    <text class="value balance">￥{{hospitalRecord.depositBalance ? parseFloat(hospitalRecord.depositBalance).toFixed(2) : 0}}元</text>
+					    <text class="value balance">￥{{hospitalRecord.depositBalance != null ? parseFloat(hospitalRecord.depositBalance).toFixed(2) : 0}}元</text>
 					  </view>
 					</view>
 			    <view class="info-row">
@@ -116,8 +116,8 @@
 					  <text class="value">请遵守病房作息时间，保持病房内外环境整洁与安静，不随地吐痰，不在病房内吸烟和喧哗，不使用大功率电器。</text>
 					</view>
 			    <view class="button-row">
-			      <button class="cu-btn" @click="deposit">住院充值</button>
-			      <button class="cu-btn" @click="clickFoot">营养点餐</button>
+			      <button class="btnStyle smallBtn" @click="deposit">住院预交金</button>
+			      <button class="btnStyle smallBtn" @click="clickFoot">营养点餐</button>
 			    </view>
 			  </view>
 			</view>
@@ -331,12 +331,12 @@
 						display: flex;
 						justify-content: center;
 						button {
-							width: 270rpx;
+							width: 80%;
 							margin: 30rpx 20rpx 24rpx 20rpx;
-							height: 56rpx;
-							line-height: 56rpx;
-							background: linear-gradient(350deg,#479cff 0%, rgba(71,216,251,0.80) 100%);
-							border-radius: 70rpx;
+							min-height: 76rpx;
+							line-height: 76rpx;
+							background: #4286FF;
+							border-radius: 35rpx;
 							font-size: 32rpx;
 							color: #ffffff;
 							font-family: Source Han Sans CN, Source Han Sans CN-500;
@@ -409,18 +409,18 @@
 			  justify-content: center;
 			  margin-top: 40rpx;
 			  gap: 30rpx;
-				button {
-					width: 270rpx;
-					margin: 30rpx 20rpx 24rpx 20rpx;
-					height: 56rpx;
-					line-height: 56rpx;
-					background: linear-gradient(350deg,#479cff 0%, rgba(71,216,251,0.80) 100%);
-					border-radius: 70rpx;
-					font-size: 32rpx;
-					color: #ffffff;
-					font-family: Source Han Sans CN, Source Han Sans CN-500;
-					font-weight: 500;
-				}
+				// button {
+				// 	width: 45%;
+				// 	margin: 30rpx 20rpx 24rpx 20rpx;
+				// 	min-height: 76rpx;
+				// 	line-height: 76rpx;
+				// 	background: #4286FF;
+				// 	border-radius: 35rpx;
+				// 	font-size: 32rpx;
+				// 	color: #ffffff;
+				// 	font-family: Source Han Sans CN, Source Han Sans CN-500;
+				// 	font-weight: 500;
+				// }
 			}
 			
 			.action-btn {

@@ -48,7 +48,7 @@
 				})
 			},
 			back(){
-				wx.reLaunch({url:`/pages/more/index`})
+				uni.switchTab({url:`/pages/home/index`})
 			},
 			btn(){
 				if(!this.agreementState){
@@ -128,7 +128,7 @@
 	
 </script>
 
-<style lang="less">
+<style lang="scss">
 	.login {
 		width: 100vw;
 		height: 100%;
@@ -190,8 +190,8 @@
 			button {
 				width: 552rpx;
 				height: 80rpx;
-				background: linear-gradient(84deg,#4facfe 0%, #57bcfd 100%);
-				border-radius: 70rpx;
+				background: $global-color;
+				border-radius: 40rpx;
 				color: #ffffff;
 				font-size: 38rpx;
 				line-height: 32rpx;

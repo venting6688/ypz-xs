@@ -1,24 +1,22 @@
 <template>
 	<view class="center" >
-			  <view class="title">
-			  	切换家庭成员
-			  </view>                                                                                                                                                                   
-			<view class="scroll" >
-			 <view class="middle">
-				<view class="li" v-for="(item,index) in personageObj.list" :key="index" @click="updateDefaultArchives(item)" :class="{blue:personageObj.sole.patientName==item.patientName}">
-					<view class="name">
-						<text>{{item.patientName}}</text>
-					</view>
-					<view class="img" >
-						<image v-if="personageObj.sole.patientName==item.patientName" src="@/static/image/right.png" mode="widthFix"></image>
-					</view>
+		<view class="top">
+			<view class="title">切换就诊人</view>
+			<view class="title" @click="recharge(2)" style="color: #0386FF;">添加就诊人</view>
+		</view>
+		<view class="scroll" >
+		 <view class="middle">
+			<view class="li" v-for="(item,index) in personageObj.list" :key="index" @click="updateDefaultArchives(item)" :class="{blue:personageObj.sole.patientName==item.patientName}">
+				<view class="name">
+					<text>{{item.patientName}}</text>
+				</view>
+				<view class="img" >
+					<image v-if="personageObj.sole.patientName==item.patientName" src="@/static/image/right.png" mode="widthFix"></image>
 				</view>
 			</view>
-			</view>
-			<view class="btn">
-				<!-- <button class="cu-btn" @click="recharge(1)">门诊充值</button> -->
-				<button class="cu-btn" @click="recharge(2)">添加家庭成员</button>
-			</view>
+		</view>
+		</view>
+		<!-- <button class="cu-btn" @click="recharge(1)">门诊充值</button>-->
 	</view>
 </template>
 
@@ -44,15 +42,15 @@
 			...mapState(['footData']),
 		},
 		watch: {
-			// 切换就诊人后重新渲染页面
-		    footData(newVal, oldVal) {
+			//切换就诊人后重新渲染页面
+			footData(newVal, oldVal) {
 			  if(oldVal && oldVal.patientUniquelyIdentifies && (newVal.patientUniquelyIdentifies!==oldVal.patientUniquelyIdentifies)){
-				this.setShowState(false)
-				this.$nextTick(() => {
-				    this.setShowState(true)
-				});
+					this.setShowState(false)
+					this.$nextTick(() => {
+						this.setShowState(true)
+					});
 			  }
-		    }
+			}
 		},
 		mounted() {
 			let loginValue = uni.getStorageSync("loginData");
@@ -109,7 +107,7 @@
 			recharge(num){
 				this.$emit('handle','')
 				uni.navigateTo({
-					url: `/sub_packages/family/familyInformation`
+					url: `/sub_packages/family/familyManage`
 				})
 			},
 		}
@@ -127,69 +125,75 @@
 		border-radius: 30rpx 30rpx 0 0;
 		// height: 570rpx;
 		overflow: hidden;
-		.title {
+		.top {
 			display: flex;
+			justify-content: space-between;
 			align-items: center;
-			height: 50rpx;
-			margin: 20rpx;
-			font-size: 38rpx;
+			margin: 30rpx 25rpx 0;
+			.title {
+				display: flex;
+				align-items: center;
+				font-size: 30rpx;
+			}
 		}
-	    .scroll {
-	    	height: 55%;
-	    	.middle {
-	    		    margin: 0 20rpx 0 20rpx;
-	    			padding-top: 20rpx;
-	    			.li {
-	    				width: 96%;
-	    				min-height: 80rpx;
-	    				display: flex;
-	    				justify-content: space-between;
-	    				align-items: center;
-	    				margin: 20rpx 5rpx;
-	    				color: #92a1bb;
-	    				padding:0 20rpx 0 40rpx;
-	    				background: #f9fbfe;
-	    				border-radius: 20rpx;
-	    				
-	    				&:first-child{
-	    					margin-top: 10rpx;
-	    				}
-	    				.name {
-	    					width: 20%;
-	    					font-size: 32rpx;
-	    					line-height: 32rpx;
-	    				}
-	    				.no {
-	    					width: 36%;
-	    					margin-left: 3%;
-	    					font-size: 32rpx;
-	    					line-height: 32rpx;
-	    				}
-	    				.price{
-	    					width: 29%;
-	    					font-size: 32rpx;
-	    					line-height: 32rpx;
-	    				}
-	    				.img {
-	    					width: 11%;
-	    					height: 48rpx;
-	    					line-height: 48rpx;
-	    					text-align: center;
-	    					// margin-left:80rpx;
-	    					image {
-	    						width: 46rpx;
-	    						height: 48rpx;
-	    					}
-	    				}
-	    			}
-	    			
-	    			.colour {
-	    				border: 2rpx dashed #797979;
-	    				// background: #479cff !important;
-	    				// color: #ffffff;
-	    			}
-	    		}
-	    }
+		.scroll {
+			height: 55%;
+			margin-left: 20rpx;
+			padding-bottom: 30rpx;
+			.middle {
+					padding-top: 20rpx;
+					.li {
+						width: 96%;
+						min-height: 80rpx;
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						margin: 20rpx 5rpx;
+						color: #92a1bb;
+						padding:0 20rpx 0 40rpx;
+						background: #f0f7ff;
+						border-radius: 20rpx;
+						
+						&:first-child{
+							margin-top: 10rpx;
+						}
+						.name {
+							width: 20%;
+							font-size: 32rpx;
+							line-height: 32rpx;
+						}
+						.no {
+							width: 36%;
+							margin-left: 3%;
+							font-size: 32rpx;
+							line-height: 32rpx;
+						}
+						.price{
+							width: 29%;
+							font-size: 32rpx;
+							line-height: 32rpx;
+						}
+						.img {
+							width: 11%;
+							height: 48rpx;
+							line-height: 48rpx;
+							text-align: center;
+							// margin-left:80rpx;
+							image {
+								width: 46rpx;
+								height: 48rpx;
+							}
+						}
+					}
+					
+					.colour {
+						border: 2rpx dashed #797979;
+						// background: #479cff !important;
+						// color: #ffffff;
+					}
+				}
+		}
+			
 		.btn{
 			margin-bottom: 20rpx;
 			height: 130rpx;
@@ -203,7 +207,7 @@
 				width: 300rpx;
 				height: 80rpx;
 				background: linear-gradient(351deg,#479cff 0%, rgba(71,216,251,0.80) 100%);
-				border-radius: 70rpx;
+				border-radius: 15rpx;
 				color: #ffffff;
 			}
 		}

@@ -22,7 +22,7 @@
 			<view v-if="noMoreData" class="no-more-text">没有更多数据了</view>
 			
 			<view v-if="recordList.length === 0" class="without">
-				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
+				<image src="../static/image/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
 	</view>
@@ -73,7 +73,7 @@
 				this.loading = true;
 				try {
 					let data = {
-						AimFlag: 'all',
+						AimFlag: 'All',
 						patientID: this.footData.patientUniquelyIdentifies,
 						startDate: this.startDate,
 						endDate: this.endDate
@@ -158,6 +158,21 @@
 			
 			&:last-of-type{
 				margin:28rpx 33rpx 28rpx 33rpx;
+			}
+			
+			.without {
+				font-size: 40rpx;
+				width: 681.3rpx;
+				height: 500rpx;
+				background: #ffffff;
+				margin: 0 auto;
+				border-radius: 15.27rpx;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				image {
+					width: 75%;
+				}
 			}
 			
 			.title {

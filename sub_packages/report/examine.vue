@@ -54,6 +54,10 @@
 		methods: {
 			documentReview(item){
 				try {
+					uni.showLoading({
+					  title: '加载中...',
+					  mask: true 
+					})
 					let data = {
 						patientID: this.footData.patientUniquelyIdentifies,
 						visitNumber:this.report.visitNumber,
@@ -80,6 +84,8 @@
 				} catch (error) {
 					console.log(error)
 					//TODO handle the exception
+				} finally {
+					uni.hideLoading();
 				}
 			},
 		}

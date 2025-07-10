@@ -1,7 +1,7 @@
 <template>
 	<view class="register">
-		<bar v-if="footData.patientUniquelyIdentifies" />
-		<view class="application" v-if="isHospitalization">
+		<!-- <bar v-if="footData.patientUniquelyIdentifies" /> -->
+		<view class="application" v-if="isHospitalization || register">
 			<view class="head">住院信息</view>
 			<view class="middle">
 				<view>
@@ -38,7 +38,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="content" v-if="isHospitalization && !register">
+		<view class="content" v-if="isHospitalization || register">
 			<view class="head">住院人信息</view>
 			<form>
 				<view class="info">
@@ -58,19 +58,21 @@
 					</view>
 				</view>
 				
-				<view class="cu-form-group" v-if="!register">
+				<view class="cu-form-group" v-if="register">
 					<view class="title">姓名：</view>
 					<input placeholder="请输入陪护人姓名" v-model="informationObj.foreignID" name="input" />
 				</view>
-				<view class="cu-form-group" v-if="!register">
+				<view class="cu-form-group" v-if="register">
 					<view class="title">手机号：</view>
 					<input placeholder="请输入陪护人手机号" v-model="informationObj.fPhon" maxlength="11" type="number" name="input" />
 				</view>
 			</form>
-			<view class="btn" v-if="!register && iPBook !=''"><button class="cu-btn" @click="registerBtn">入院登记</button></view>
+			<view class="btn" v-if="register && iPBook !=''">
+				<button class="btnStyle bigBtn" @click="registerBtn">入院登记</button>
+			</view>
 		</view>
 		<!-- 住院充值 -->
-		<view class="deposit" v-if="register || isHospitalization">
+		<view class="deposit" v-if="isHospitalization">
 			<view class="center">
 				<view class="head">住院预交金</view>
 				<ul>
@@ -83,11 +85,13 @@
 					<input v-model="price" @input="onInput" type="number" placeholder="输入金额" />
 				</view>
 			</view>
-			<view class="btn" v-if="register"><button class="cu-btn" @click="recharge">立即充值</button></view>
+			<view class="btn" v-if="isHospitalization">
+				<button class="btnStyle bigBtn" @click="recharge">立即充值</button>
+			</view>
 		</view>
 		
-		<view v-if="!isHospitalization" class="application">
-			<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
+		<view v-if="!isHospitalization && !register" class="widthout">
+			<image src="../static/image/wu.png" mode="widthFix"></image>
 		</view>
 	</view>
 	
@@ -115,8 +119,8 @@
 				toastObj:{
 					state:false,
 				},
-				priceList:[300,500,1000],
-				price: 300,
+				priceList:[1000, 2000, 3000],
+				price: 1000,
 				adminID: '',
 			}
 		},
@@ -170,19 +174,18 @@
 									admID: this.adminID,
 								}
 								this.callApiWithRetry(str).then((r) => {
+									uni.showToast({
+										title: '支付成功',
+										icon: 'success'
+									})
 									this.getHospitalRecord();
-									this.toastObj = {
-										state:true,
-										message:'支付成功',
-									}
 								})
 							},
 							fail:(err)=> {
-								this.toastObj = {
-									state:true,
-									type:'fail',
-									message:'支付失败'
-								}
+								uni.showToast({
+									title: '支付失败',
+									icon: 'fail'
+								})
 							}
 						});
 					}
@@ -251,7 +254,7 @@
 					this.preHospitalization = res.data.data.admInfoList.admInfo[0];
 					this.patientID = res.data.data.patientID;
 					this.adminID = res.data.data.admInfoList.admInfo[0].admID;
-					this.register = true;
+					// this.register = true;
 					this.isHospitalization = true;
 				}
 			},
@@ -263,8 +266,8 @@
 					this.preHospitalization = res.data.data.admInfo;
 					this.iPBook = res.data.data.ipBook;
 					this.patientID = res.data.data.patInfo.patientID;
-					this.register = false;
-					this.isHospitalization = true;
+					this.register = true;
+					// this.isHospitalization = true;
 				}
 			},
 		},
@@ -281,7 +284,6 @@
 		
 		.head {
 			padding: 15rpx 0;
-			margin: 0 20rpx;
 			display: flex;
 			justify-content: center;
 			border-bottom: 2rpx solid #d1d9e3;
@@ -289,12 +291,27 @@
 			font-size: 32rpx;
 		}
 		
+		.widthout {
+			font-size: 40rpx;
+			width: 681.3rpx;
+			height: 500rpx;
+			background: #ffffff;
+			margin: 0 auto;
+			border-radius: 15.27rpx;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-top: 50rpx;
+			image {
+				width: 75%
+			}
+		}
+		
 		.application {
 			width: 726rpx;
 			background: #ffffff;
 			border-radius: 16rpx;
 			margin: 20rpx auto;
-			
 			
 			.middle {
 				padding: 20rpx 0;
@@ -369,14 +386,6 @@
 				display: flex;
 				justify-content: space-evenly;
 				margin-top: 20rpx;
-				button {
-					width: 240rpx;
-					min-height: 76rpx;
-					background: linear-gradient(353deg,#479cff 0%, rgba(71,216,251,0.80) 100%);
-					border-radius: 70rpx;
-					color: #fff;
-					font-size: 32rpx;
-				}
 				.gray {
 					background: #96B2D3;
 				}
@@ -387,12 +396,10 @@
 		.content {
 			width: 726rpx;
 			background: #ffffff;
-			padding: 0 20rpx;
+			padding: 10rpx 0px 20rpx;
 			margin: 0 auto;
 			display: flex;
 			flex-direction: column;
-			// overflow: auto;
-			// flex: auto;
 			border-radius: 16rpx 16rpx 0rpx 0rpx;
 			.head {
 				padding: 15rpx 0;
@@ -451,7 +458,7 @@
 					min-height: 86rpx;
 					display: flex;
 					justify-content: left;
-					padding: 1rpx 0;
+					padding: 0 30rpx;
 					.title {
 						width: 180rpx;
 					}
@@ -522,15 +529,6 @@
 			.btn {
 				display: flex;
 				justify-content: space-evenly;
-				// margin-bottom: 120rpx;
-				button {
-					width: 240rpx;
-					min-height: 76rpx;
-					background: linear-gradient(353deg,#479cff 0%, rgba(71,216,251,0.80) 100%);
-					border-radius: 70rpx;
-					color: #fff;
-					font-size: 32rpx;
-				}
 				.gray {
 					background: #96B2D3;
 				}

@@ -1,23 +1,23 @@
 <script>
 	export default {
-		onLaunch: function() {
-			let loginData = uni.getStorageSync("loginData");
-			loginData = loginData ? JSON.parse(loginData) : {};
+		// onLaunch: function() {
+		// 	let loginData = uni.getStorageSync("loginData");
+		// 	loginData = loginData ? JSON.parse(loginData) : {};
 			
-			if (loginData && loginData.defaultArchives) {
-				setTimeout(() => {
-					uni.reLaunch({ url: '/pages/more/index' });
-				}, 100);
-			} 
-			if (JSON.stringify(loginData) != '{}' && !loginData.defaultArchives) {
-				setTimeout(() => {
-					uni.reLaunch({ url: '/sub_packages/family/familyManage' });
-				}, 100);
-			}
-		},
-		onShow: function() {
-			wx.hideTabBar();
-		},
+		// 	if (loginData && loginData.defaultArchives) {
+		// 		setTimeout(() => {
+		// 			uni.reLaunch({ url: '/pages/more/index' });
+		// 		}, 100);
+		// 	} 
+		// 	if (JSON.stringify(loginData) != '{}' && !loginData.defaultArchives) {
+		// 		setTimeout(() => {
+		// 			uni.reLaunch({ url: '/sub_packages/family/familyManage' });
+		// 		}, 100);
+		// 	}
+		// },
+		// onShow: function() {
+		// 	wx.hideTabBar();
+		// },
 		onHide: function() {
 			console.log('App Hide')
 		}
@@ -29,6 +29,8 @@
 	@import "@/colorui/animation.css";
 	@import "@/colorui/icon.css";
 	@import "@/static/css/index-app.css";
+	@import "@/colorui/common-style.scss";
+	
 	page{ height: 100%}
 </style>
 

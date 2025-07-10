@@ -5,7 +5,7 @@
 			<view>
 				<view class="name" @click="outpatientTopUp(1)">
 				<view :class="{black:index===1}">
-					住院充值
+					住院预交金
 					<view class="wire" :class="{blue:index===1}"></view>
 				</view>
 			</view>
@@ -46,10 +46,10 @@
 				</ul>
 			</view>
 			<view class="without" v-if="list.length == 0 && index != 1">
-				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
+				<image src="../static/image/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
-		<view class="confirm" @click="confirm" v-if="index === 1 && isHospitalization">
+		<view class="confirm btnStyle bigBtn" @click="confirm" v-if="index === 1 && isHospitalization">
 			立即充值
 		</view>
 		
@@ -86,6 +86,9 @@
 				wx.setNavigationBarTitle({
 					title: this.index===1 ? '住院预交金' : '充值记录'
 				})
+				if (this.index == 2) {
+					this.getPayRecord();
+				}
 			},
 			priceClick(item){
 				this.price = item
@@ -104,12 +107,12 @@
 				if (res.data.code === 200 && res.data.data.admInfoList != null) {
 					this.adminID = res.data.data.admInfoList.admInfo[0].admID;
 					this.isHospitalization = true;
-					this.getPayRecord();
 				}
 			},
+			
 			getPayRecord() {
 				let data = {
-					patientID: this.footData.patientUniquelyIdentifies,
+					patientID:this.footData.patientUniquelyIdentifies,
 					admID: this.adminID,
 				}
 				hospitalizationApi.getPayRecord(data).then(res => {
@@ -119,6 +122,7 @@
 					}
 				});
 			},
+			
 			confirm(){
 				if(this.index===1){
 					let loginValue = JSON.parse(uni.getStorageSync("loginData"));
@@ -261,7 +265,18 @@
 			margin:  0 auto;
 			padding-bottom: 40rpx;
 			overflow: auto;
-			
+			.without {
+				font-size: 40rpx;
+				width: 681.3rpx;
+				margin: 0 auto;
+				border-radius: 15.27rpx;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				image {
+					width: 75%;
+				}
+			}
 			
 			.center {
 				margin: 0 20rpx;
@@ -360,17 +375,10 @@
 			}
 		}
 		.confirm {
-			margin: 74rpx auto 0 auto;
-			width: 512rpx;
-			height: 92rpx;
-			background: #4286ff;
-			border-radius: 46rpx;
-			font-size: 32rpx;
-			line-height: 32rpx;
+			margin: 30rpx auto;
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			color: #ffffff;
 		}
 		.message {
 			height: 80rpx;

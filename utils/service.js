@@ -22,25 +22,24 @@ export const cjRequest =  (parmas, state) => {
 				store.commit('SET_LOGIN_VALUE', true);
 				return request(parmas,state)
 			}
-		}else{
+		} else{
 			if(!store.state.showModalState && state!==3){
 				store.commit('SET_SHOW_MODAL_STATE', true);
 				return login.loginData(state)
 			}else{
 				return Promise.reject(false);
 			}
-			
 		}
-		
 	}else{
 		return request(parmas,state)
 	}
 }
+
 function request(parmas,state){
 	return new Promise((resolve, reject) => {
 		// 基础url
-		// const baseUrl = "https://www.chinzsoft.com/api/mobile/";
-		const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
+		const baseUrl = "https://www.chinzsoft.com/api/mobile/";
+		// const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
 		if(!state){
 			requestCount++;
 			uni.showLoading({

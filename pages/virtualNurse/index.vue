@@ -1,12 +1,12 @@
 <template>
 	<view class="virtual">
 		
-		<view class=""   :animation="anData"  style="height:0rpx;"></view>
-		<!-- <web-view src="https://dandanxu123.github.io/"></web-view> -->
+		<view class="" :animation="anData"  style="height:0rpx;"></view>
 		<image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	
-		<view class="head">
-			您好！“安好”  为您服务 
-		</view>
+		<view class="head">您好！“安好”  为您服务 </view>
+		<!-- <image class="background" src="../../static/img/anhao.png" />
+		<view class="head"><image src="../../static/img/ahfw.png" /> </view> -->
+		
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
 				<view id="okk" style="padding-bottom: 100rpx;">
@@ -24,7 +24,7 @@
 					<view class="robot" v-else>
 						<view class="robot-box"  v-if="x.type!==2">
 							<view class="triangle"></view>
-							<view class="center">
+							<view class="center" style="opacity: 0.95;">
 								<view class="loading" v-if="x.msgLoad">
 									<text>思考中</text>
 									<view class="dot">
@@ -101,6 +101,7 @@
 		    <view class="foot">
 				<view class="foot-bar">
 					<view :class="{blue:item.state===pattern}" class="test" v-for="item in footBar" :key="item" @click="footBarBtn(item)">
+						<image :src="item.image" class="barImg" />
 						<text>{{item.name}}</text>
 					</view>
 				</view>
@@ -127,7 +128,7 @@
 					</view>
 				</view>
 		    </view>
-			<foot v-if="showComponent" :footState="footState" />
+		<!-- 	<foot v-if="showComponent" :footState="footState" /> -->
 		</view>
 		<!--------------------- 语音  ------------------- -->
 		<view class="flex-column-center" style="position: fixed;bottom: 0px;" >
@@ -166,9 +167,9 @@
 				</view>
 			</view>	
 		</view>	
-		    	</view>
-		    </view>
 		</view>
+	</view>
+	</view>
 	</view>
 </template>
 
@@ -220,10 +221,12 @@
 					{
 						name:'智能导诊',
 						state:1,
+						image: '../../static/img/icon/daozhen.png',
 					},
 					{
 						name:'智能问答',
 						state:2,
+						image: '../../static/img/icon/wenda.png',
 					},
 				],
 				voiceState:false,        //底部切换状态
@@ -321,19 +324,6 @@
 				uni.navigateTo({
 					url: `/sub_packages/subscribe/departments`
 				})
-				// 跳转到山一大二附院小程序挂号科室页面
-				// const appId = 'wx6334d37b051ec074';
-				// const targetUrl = `pages/outpatient-department/main?hosld=2`;
-				// wx.navigateToMiniProgram({
-				//   appId: appId,
-				//   path: targetUrl,
-				//   envVersion: 'release',
-				//   success: function(res) {
-				//   },
-				//   fail: function(err) {
-				//     console.log('跳转失败', err);
-				//   }
-				// });
 			},
 			footBarBtn(item){
 				if(!this.inputState){
@@ -690,26 +680,35 @@
 		
 		.background {
 			position: absolute;
-            width: 100%;
-			height: 89%;
+			width: 100%;
+			height: 85%;
+			// width: 424rpx;
+			// height: 532rpx;
+			top: 6%;
+			// left: 24%;
 		}
 		
 		.head{
 			position: absolute;
-			top: 20rpx;
+			top: 115rpx;
 			left: 32rpx;
 			height: 50rpx;
+			width: 402rpx;
 			font-size: 36rpx;
 			font-weight: 600;
 			text-align: LEFT;
 			color: #ffffff;
+			// image {
+			// 	width: 100%;
+			// 	height: 40rpx;
+			// }
 		}
 		
 		.center{
 			z-index: 0;
 			height: 100%;
 			display: flex;
-			flex-direction: column;  
+			flex-direction: column;
 			.scroll-Y {
 				margin-top: 86rpx;
 			    width: 750rpx;
@@ -727,7 +726,7 @@
 					// justify-content: flex-start;
 					
 					&:nth-of-type(1){
-						padding-top: 140rpx;
+						padding-top: 33%;
 						padding-bottom: 0 !important;
 					}
 					
@@ -1036,12 +1035,16 @@
 					width: 726rpx;
 					display: flex;
 					margin: 20rpx 12rpx;
-					
+					.barImg {
+						width: 30rpx;
+						height: 30rpx;
+						margin-right: 10rpx;
+					}
 					>view {
-						width: 150rpx;
+						width: 200rpx;
 						height: 60rpx;
 						background: rgba(255,255,255,0.90);
-						border-radius: 8rpx;
+						border-radius: 30rpx;
 						line-height: 28rpx;
 						margin-right: 24rpx;
 						color: #000000;
@@ -1052,8 +1055,9 @@
 					}
 					
 					.blue {
-						color: #ffffff;
-						background: #0066ff;
+						color: #0066ff;
+						font-weight: bold;
+						border: 2px solid #0066ff;
 					}
 				}
 				

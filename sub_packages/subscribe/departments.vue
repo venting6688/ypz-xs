@@ -40,9 +40,16 @@
 				department: '',
 			};
 		},
-		onLoad() {
+		// onLoad() {
+		// 	this.getServiceGroup()
+		// },
+		onShow() {
+			console.log('sd0fsd0fs0fs0');
 			this.getServiceGroup()
 		},
+		// mounted() {
+		// 	this.getServiceGroup()
+		// },
 		methods: {
 			onSearchChange(value) {
 				this.searchQuery = value.detail

@@ -12,14 +12,13 @@
 					 <view class="patient-name" @click="cutPatient">
 						<view class="name">
 							 <text>{{footData.patientName?pixelate(footData.patientName):''}}</text>
-							 <image src="@/static/image/Frame.png" mode="widthFix"></image>
+							 <!-- <image src="@/static/image/Frame.png" mode="widthFix"></image> -->
 						</view>
 					 </view>
 				</view>
 				<view class="wire"  v-if="footData.patientName"></view>
 				<view class="foot-bar" :class="{'bar-w':!footData.patientName}">
 					<view class="piece" 
-					:style="{ width: siginData ? '33.333%' : '100%' }" 
 					v-for="item in footList" 
 					:key="item.name" 
 					@click="footBtn(item)"
@@ -39,7 +38,7 @@
 		<uni-popup class="qrcode" safe-area  ref="uvQrcode">
 		    <view class="box" v-if="qrcodeState">
 				<image class="img" :src="`data:image/png;base64,${qrCode}`" mode=""></image>
-				<!-- <uv-qrcode ref="qrcode" size="500rpx" :value="qrCode"></uv-qrcode> -->
+				<uv-qrcode ref="qrcode" size="500rpx" :value="qrCode"></uv-qrcode>
 			</view>
 		</uni-popup>
 		<uni-popup class="cutPatientDialog" @maskClick="cutPatientPopupClick" :safe-area="false"  ref="cutPatientPopup" type="bottom">
@@ -67,6 +66,14 @@
 			
 			footList() {
 				return [
+					{
+						pagePath: "/pages/home/index",
+						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation+.png',
+						selectedIconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation.png',
+						active: this.loginStatus === 'login',
+						name:'首页',
+						type:1,
+					},
 					{
 						pagePath: "/pages/virtualNurse/index",
 						iconPath:'https://aiwz.sdtyfy.com:8099/img/footNavigation+.png',
@@ -138,9 +145,21 @@
 				this.$refs.cutPatientPopup.close()
 			},
 			code(){
-				this.qrCode = this.footData.qrCode
-				this.$refs.uvQrcode.open('center')   //弹框
-				this.qrcodeState = true
+				if (this.footData.healthCardData != null) {
+					let hospitalId = '40237';
+					let healthCardId = this.footData.patientCard;
+					let webviewUrl = '/pages/webview/webview?url=$url';
+					let redirectUrl = '';
+					let fieldCode = '';
+					
+					wx.navigateTo({
+						url: `plugin://healthCardPlugins/healthcode?hospitalId=${hospitalId}&healthCardId=${healthCardId}&webviewUrl=${encodeURIComponent(webviewUrl)}&redirectUrl=${encodeURIComponent(redirectUrl)}`,
+					});	
+				} else {
+					this.qrCode = this.footData.qrCode
+					this.$refs.uvQrcode.open('center')   //弹框
+					this.qrcodeState = true
+				}
 			},
 			
 			footBtn(e){
@@ -150,11 +169,13 @@
 			},
 			cutPatient(){
 				if(this.timer){
+					console.log('11111');
 					clearTimeout(this.timer)
 					this.timer = null
 					this.cutPatientPopupState = false
 				}
 				this.$nextTick(() => {
+					console.log('222222');
 					this.loginData()
 					this.cutPatientPopupState = true
 					this.$refs.cutPatientPopup.open('bottom')   //弹框
@@ -171,6 +192,7 @@
 		},
 		mounted() {
 			this.loginData()
+			console.log(JSON.stringify(this.footData));
 		},
 	}
 </script>
@@ -273,15 +295,12 @@
 					width: 422rpx;
 					height: 144rpx;
 					display: flex;
-					
 					.piece {
-						width: 33.333%;
+						width: 25%;
 						height: 144rpx;
 						font-size: 24rpx;
 						color: #000000;
 						line-height: 24rpx;
-						
-						
 						.title {
 							margin-top: 20rpx;
 							// background: #0F74C8;

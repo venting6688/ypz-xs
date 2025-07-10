@@ -4,7 +4,7 @@
 			<ul v-if="patientList.length">
 				<li v-for="(item,index) in patientList" :key="item.patientCard">
 					<view class="title">
-						<view class="name" @click="amend(index)">
+						<view class="name">
 							<text class="big">{{item.patientName ? pixelate(item.patientName) : ''}}</text>
 							<text class="small">{{item.sex}}</text>
 							<text class="relation">{{item.relation}}</text>
@@ -35,11 +35,6 @@
 							<uni-icons type="upload" color="#1B98FF" size="22" style="margin-right: 10rpx;"></uni-icons> 
 							升级电子健康卡
 						</view>
-						
-						<!-- <view class="content" v-if="item.unfold">
-							<text>余额：</text>
-							<text class="money">￥{{item.accBalance}}</text>
-						</view> -->
 					</view>
 					
 					<!-- 健康卡 -->
@@ -158,14 +153,9 @@
 				}
 			},
 			returnIndex() {
-				uni.switchTab({ url:"/pages/more/index" })
+				uni.switchTab({url:`/pages/home/index`})
 			},
 			
-			amend(index){
-				uni.navigateTo({
-					url: `/sub_packages/family/familyAmend?informationObj=${encodeURIComponent(JSON.stringify(this.patientList[index]))}`
-				})
-			},
 			onFinish(e) {
 				console.log('🐞 onFinish', e);
 			},

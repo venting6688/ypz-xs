@@ -73,6 +73,10 @@
 			},
 			documentReview(item){
 				try {
+					uni.showLoading({
+					  title: '加载中...',
+					  mask: true 
+					})
 					let data = {
 						patientID: this.footData.patientUniquelyIdentifies,
 						// patientID:'0001954286',
@@ -119,6 +123,8 @@
 				} catch (error) {
 					console.log(error)
 					//TODO handle the exception
+				} finally {
+					uni.hideLoading();
 				}
 			},
 			flag(){

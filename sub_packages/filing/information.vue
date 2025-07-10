@@ -1,11 +1,8 @@
 <template>
 	<view class="information">
-		<view class="authorization">
-			一键授权，已有健康卡用户快速绑定
-		</view>
-		<view class="bar">
+		<!-- <view class="bar">
 			<view @click="relationBtn(i)" :class="{b:informationObj.relation===i}" v-for="(i,x) in barList" :key="x">{{i}}</view>
-		</view>
+		</view> -->
 		<form>
 			<view class="cu-form-group">
 				<view class="title">姓名</view>
@@ -217,11 +214,8 @@
 							this.setLoginStatus('login');
 							uni.setStorageSync('loginData', JSON.stringify(res.data.data))
 							setTimeout(()=>{
-								wx.reLaunch({
-								    url: '/pages/more/index',
-								})
+								uni.switchTab({url:`/pages/home/index`})
 							},2000)
-							console.log('建档',res)
 						}else{
 							uni.showToast({
 							    title: res.data.msg,

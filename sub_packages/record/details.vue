@@ -2,12 +2,6 @@
 	<view class="details">
 		<view class="middle">
 			<view class="personal personal-1">
-				<view class="title1">
-					<view class="name">
-						<text>{{footData.patientName}}</text>
-						<text>{{footData.sex}}</text>
-					</view>
-				</view>
 				<view class="center">
 					<view class="no">
 						<text>就诊科室：</text>
@@ -41,9 +35,7 @@
 						<view>
 							<image src="../static/image/Vector@2x.png" mode=""></image>
 						</view>
-						
 					</view>
-					
 				</view>
 			</view>
 			<view class="personal personal-3"  v-if="checkoutList.length">
@@ -61,31 +53,31 @@
 						<view>
 							<image src="../static/image/Vector@2x.png" mode=""></image>
 						</view>
-						
 					</view>
-					
 				</view>
 			</view>
-			<view class="personal personal-4" v-for="(item,index) in alreadyList" :key="index">
-				<view class="title">
-					<view class="name">
-						<text>就诊费用</text>
-					</view>
-					<view class="right"  @click="caseHistoryReport(3,item)">
-						<text>费用明细</text>
-						<image src="../static/image/Vector@2x.png" mode=""></image>
-					</view>
-				</view>
+			<view class="personal personal-4" style="padding-top: 20rpx;">
 				<view class="center">
-					<view class="no">
-						<text>流水号：</text>
-						<text>{{item.invoiceNo}}</text>
+					<view class="uni-container">
+						<uni-table border stripe>
+							<uni-tr>
+								<uni-th style="width: 40% !important">项目</uni-th>
+								<uni-th style="width: 15% !important">数量</uni-th>
+								<uni-th style="width: 20% !important">规格</uni-th>
+								<uni-th style="width: 25% !important">金额</uni-th>
+							</uni-tr>
+							<uni-tr v-for="(val,i) in alreadyList" :key="i">
+								<uni-td>{{val.itemName}}</uni-td>
+								<uni-td>{{val.itemQty}}</uni-td>
+								<uni-td>{{val.itemUom}}</uni-td>
+								<uni-td>￥{{parseFloat(val.itemPrice).toFixed(2)}}</uni-td>
+							</uni-tr>
+						</uni-table>
 					</view>
-					
 				</view>
 				<view class="total">
 					<text>合计：</text>
-					<text>{{item.totalAmt}}元</text>
+					<text>￥{{parseFloat(totalAmt).toFixed(2)}}元</text>
 				</view>
 			</view>
 		</view>
@@ -104,6 +96,9 @@
 				examineList:[],    //检查
 				checkoutList:[],    //检验
 				alreadyList:[],
+				list: [],
+				isShow: false,
+				totalAmt: 0
 			}
 		},
 		computed: {
@@ -139,24 +134,49 @@
 					//TODO handle the exception
 				}
 			},
+			//就诊费用
 			async getPaymentRecord(){
 				try {
+					uni.showLoading({
+					  title: '加载中...',
+					  mask: true 
+					})
 					let data = {
 						patientID: this.footData.patientUniquelyIdentifies,
 						startDate:this.information.startTime,
 						endDate:this.information.endTime,
 						visitNumber:this.information.visitNumber,
 					}
-					outpatientExpenditureApi.getPaymentRecord(data).then(res => {
-						if(res.data.code===200){
-							this.alreadyList = res.data.data||[]
-						}
-					})
+					const res = await outpatientExpenditureApi.getPaymentRecord(data);
+					if(res.data.code === 200){
+						let list = res.data.data || [];
+						const promises = list.map(v => {
+							let detailInfo = {
+								patientID: this.footData.patientUniquelyIdentifies,
+								invoiceNo: v.invoiceNo,
+							};
+							return outpatientExpenditureApi.getPaymentDetails(detailInfo).then(detailRes => {
+								if (detailRes.data.code === 200 && detailRes.data.data.length) {
+									return detailRes.data.data[0];
+								}
+								return null;
+							});
+						});
+						
+						const detail = (await Promise.all(promises)).filter(v => v !== null);
+						this.totalAmt = detail.reduce((sum, item) => sum + (Number(item.itemPrice) || 0), 0);
+						this.totalAmt = Number(this.totalAmt);
+						this.alreadyList = detail;
+						
+					}
 				} catch (error) {
 					console.log(error)
 					//TODO handle the exception
+				} finally {
+					uni.hideLoading();
 				}
 			},
+			
 			caseHistoryReport(num,item){
 				let data = {...item,...this.information}
 				if(num===1){
@@ -166,10 +186,6 @@
 				}else if(num===2){
 					uni.navigateTo({
 						url: `/sub_packages/report/checkout?report=${encodeURIComponent(JSON.stringify(data))}`
-					})
-				}else {
-					uni.navigateTo({
-						url: `/sub_packages/outpatientExpenditure/particulars?detail=${encodeURIComponent(JSON.stringify(item))}`
 					})
 				}
 			}
@@ -192,7 +208,7 @@
 				background: #ffffff;
 				border-radius: 12rpx;
 				margin: 30rpx auto 0 auto;
-				padding-bottom: 20rpx;
+				padding: 5rpx 0 20rpx;
 				.title {
 					margin: 0 20rpx;
 					height: 65rpx;
@@ -253,6 +269,10 @@
 				}
 				.center {
 					margin: 0 20rpx;
+					.uni-container {
+						width: 96%;
+						margin: 0 auto;
+					}
 					.no {
 						margin: 12rpx 0;
 						text {

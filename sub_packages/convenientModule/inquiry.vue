@@ -1,6 +1,5 @@
 <template>
 	<view class="inquiry">
-		
 		<view class="" :animation="anData"  style="height:0rpx;"></view>
 		<image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	
 		<view class="head">
@@ -88,8 +87,7 @@
 				</view>
 		    </scroll-view>
 			<!-- 预问诊结论 -->
-			<uni-popup class="Dialog"  :mask-click="false" ref="popup" type="bottom" mask-background-color="transparent" :safeArea="false" >
-				
+			<uni-popup class="Dialog" :mask-click="false" ref="popup" type="bottom" mask-background-color="transparent" :safeArea="false" >
 			  <view class="center" >
 				<scroll-view class="scroll" scroll-y="true">
 				<view class="middle">
@@ -156,15 +154,14 @@
 					</view>
 				</view>
 				</scroll-view>
-				
 			  </view>
 			  <view class="foot-choice">
-				<view @click="complete(2)">重新问诊</view>
-				<view @click="complete(1)">确认提交</view>
+					<view @click="complete(2)">重新问诊</view>
+					<view @click="complete(1)">确认提交</view>
 			  </view>
 			</uni-popup>
 			<!-- 多选弹窗 -->
-			<uni-popup class="Dialog2"  :mask-click="false" ref="popup2" type="bottom" mask-background-color="transparent" :safeArea="false" >
+			<uni-popup class="Dialog2" :mask-click="false" ref="popup2" type="bottom" mask-background-color="transparent" :safeArea="false" >
 			  <view class="center" >
 				<scroll-view class="scroll" scroll-y="true">
 				<view class="middle">
@@ -173,14 +170,45 @@
 					</text>
 				</view>
 				</scroll-view>
-				
 			  </view>
 			  <view class="foot-choice">
-				<view @click="choice(2)">手动输入</view>
-				<view @click="choice(1)">确定</view>
+					<view @click="choice(2)">手动输入</view>
+					<view @click="choice(1)">确定</view>
 			  </view>
 			</uni-popup>
-		    <view class="foot">
+			
+		  <!-- 持续周期 -->
+			<uni-popup
+				class="Dialog3"
+				ref="popup3"
+				type="bottom"
+				:mask-click="false"
+				:safeArea="false"
+				mask-background-color="transparent"
+			>
+				<view>
+					<picker-view 
+						v-if="visible" 
+						class="picker-view"
+						:indicator-style="indicatorStyle" 
+						:mask-style="maskStyle" 
+						:value="multiIndex" 
+						@change="bindChange"
+					>
+						<picker-view-column>
+							<view class="item" v-for="(item,index) in multiArray" :key="index">{{item}}</view>
+						</picker-view-column>
+						<picker-view-column>
+							<view class="item" v-for="(item,index) in multiType" :key="index">{{item}}</view>
+						</picker-view-column>
+					</picker-view>
+				</view>
+				<view class="foot-choice">
+					<view @click="choice(2)">手动输入</view>
+					<view @click="choice(1)">确定</view>
+				</view>
+			</uni-popup>
+		  <view class="foot">
 				<view v-if="voiceState" class="foot-center">
 					<view class="image">
 					<image @click="voiceState=false" src="@/static/image/keyword.png" mode=""></image>	
@@ -194,8 +222,17 @@
 					<image @click="voiceState=true" src="@/static/image/voice.png" mode=""></image>	
 					</view>
 					<view class="input" :class="{w:msg}">
-						<input v-if="inputState" :class="{ws:msg}" :focus="Focus" @blur="onblur" type="text" cursor-spacing="10" v-model="msg" style="background-color: #f0f0f0;"
-					    @confirm="sendMsg" confirm-type="send"  />
+						<input v-if="inputState" 
+							:class="{ws:msg}" 
+							:focus="Focus" 
+							@blur="onblur" 
+							type="text" 
+							cursor-spacing="10" 
+							v-model="msg" 
+							style="background-color: #f0f0f0;"
+							@confirm="sendMsg" confirm-type="send"
+						/>
+						
 					</view>
 					<view class="sendMsg" @click="sendMsg" v-if="msg">
 						<text>发送</text>
@@ -263,11 +300,12 @@
 		mixins: [mixin],
 		data() {
 			return {
-				number:1,
-				msg:'',
-				anData:{},
 				go:0,
+				msg:'',
+				number:1,
+				anData:{},
 				scrollTop: 0,
+				visible: true,
 				msgList:[
 					{
 						my:false,
@@ -319,13 +357,16 @@
 				requestTask:null,
 				scene:false,     //判断是否是从外部小程序跳转
 				visitNumber: '',
+				multiIndex: [0, 1],
+				multiType: ['小时', '天', '周', '月', '年'],
+				multiArray: Array.from({ length: 30 }, (_, i) => i + 1),
+				indicatorStyle: `height: 50px;`,
+				maskStyle: "",
+				duration: '',
 			}
 		},
 		computed: {
 			...mapState(['footData']),
-		},
-		onLoad(options) {
-			
 		},
 		onShow() {
 			const options = this.$mp.query;
@@ -352,6 +393,15 @@
 		methods: {
 			onblur(){
 				this.Focus = false
+			},
+			bindChange (e) {
+				const val = e.detail.value
+				let numberIndex = val[0];
+				let typeIndex = val[1];
+				
+				let number = this.multiArray[numberIndex];
+				let unit = this.multiType[typeIndex];
+				this.duration = `${number}`+`${unit}`
 			},
 			// 保持消息体可见
 			msgGo(i){
@@ -441,7 +491,6 @@
 						
 				  },
 				  fail: (err) => {
-					  console.log('err',err)
 					  this.inputState = true
 				  },
 				});
@@ -454,55 +503,71 @@
 						text = new Buffer(text, 'base64')
 						let responseText = text.toString('utf-8')
 						let data = responseText.split('data: ')
-						let i 
+						let i;
+						
 						for (let j = 0; j < data.length; j++) {
 							if(!j) continue;
 							if(!data[j].includes('message') || data[j].includes('message_end')){
 								break
 							}
-							parse(data[j]) 
+							parse(data[j])
 							i = JSON.parse(data[j])
 							this.conversation_id = i.conversation_id
+							if(i.answer){
+								i.answer = i.answer && i.answer.replace(/[ \r\n\u21B5]/g,'')
+								this.test1 += i.answer
+								// this.test2 += this.test1
+								this.test2 = parse(this.test1);
+									if(!this.test2.is_complete){
+									if(this.test2.question){
+										this.msgLoad = false
+										const content = {
+											my:false,
+											msgLoad:false,
+											msg:this.test2.question?this.test2.question.replace(/\[.*?\]/, ''):'',
+										}
+										this.msgList.splice(this.msgList.length-1,1,content)
+									}
+								}
+							}
+							if(i.event==='workflow_finished'){
+								if(!this.test2.is_complete){
+										this.mode = this.test2.mode
+										if (this.mode == 'TE') {
+											this.choice(2)
+										} else if (this.mode == 'DA') {
+											// this.choice(2)
+											this.$refs.popup3.open('bottom')
+										} else {
+											this.DataList.main = this.test2.option.map(item=> {
+												return {value:item}
+											})
+											this.$refs.popup2.open('bottom')   //弹框
+										}
+								} else {
+									let mode = this.test2.mode;
+									if (mode == 'TE') {
+										this.choice(2)
+									} else if (this.mode == 'DA') {
+										this.$refs.popup3.open('bottom')
+									} else {
+										this.summary = {
+											allergicHistory:this.test2.summary.allergic_history,
+											chiefComplaint:this.test2.summary.chief_complaint,
+											pastMedicalHistory:this.test2.summary.past_medical_history,
+											presentIllnessHistory:this.test2.summary.present_illness_history,
+											...this.patient
+										}
+										this.$refs.popup.open('bottom')   //弹框
+									}
+								}
+								
+								this.msgLoad=false
+								this.test1 = ''
+								this.msgGo()
+								this.inputState = true
+							}
 							
-									if(i.answer){
-										i.answer = i.answer && i.answer.replace(/[ \r\n\u21B5]/g,'')
-										this.test1 += i.answer
-										// this.test2 += this.test1
-										this.test2 = parse(this.test1)
-											if(!this.test2.is_complete){
-											if(this.test2.question){
-												this.msgLoad=false
-												const content = {
-													my:false,
-													msgLoad:false,
-													msg:this.test2.question?this.test2.question.replace(/\[.*?\]/, ''):'',
-												}
-													this.msgList.splice(this.msgList.length-1,1,content)
-											}
-										}
-									}
-									if(i.event==='workflow_finished'){
-										if(!this.test2.is_complete){
-										    this.mode = this.test2.mode
-										    this.DataList.main = this.test2.option.map(item=> {
-										    	return {value:item}
-										    })
-										    this.$refs.popup2.open('bottom')   //弹框
-										}else{
-											this.summary = {
-												allergicHistory:this.test2.summary.allergic_history,
-												chiefComplaint:this.test2.summary.chief_complaint,
-												pastMedicalHistory:this.test2.summary.past_medical_history,
-												presentIllnessHistory:this.test2.summary.present_illness_history,
-												...this.patient
-											}
-											this.$refs.popup.open('bottom')   //弹框
-										}
-										this.msgLoad=false
-									    this.test1 = ''
-										this.msgGo()
-										this.inputState = true
-									}
 						}
 					} catch (error) {
 						console.log('error',error)
@@ -514,7 +579,8 @@
 			
 			choice(index){
 				let reply = this.reply.join(',')
-				if(index==1) {
+				reply = !reply ? this.duration : reply;
+				if(index == 1) {
 					if(!reply){
 						uni.showToast({
 							title:`您还未选择内容`,
@@ -528,7 +594,9 @@
 				}
 				this.inputState = true
 				this.$refs.popup2.close()
+				this.$refs.popup3.close()
 			 	this.reply = []
+				this.duration = ''
 				this.msgGo()
 			},
 			//结束弹窗
@@ -710,8 +778,33 @@
 </script>
 
 <style lang="less">
+	.foot-choice {
+		background-color: #ffffff;
+		padding: 10rpx 0 45rpx 0;
+		font-size: 40rpx;
+		display: flex;
+		margin: 0;
+		align-items: center;
+		border-top: 2rpx solid #DDDDDD;
+		position: relative;
+		view{
+			color: #0085FF;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 40rpx;
+			width: 50%;
+			height: 80rpx;
+			border:none;
+			
+			&:nth-of-type(1){
+				color: #797979;
+				border-right: 2rpx solid #e7e7e7;
+			}
+		}
+	}
 	
-    .inquiry{
+	.inquiry{
 		height: 100%;
 		position: relative;
 		background: linear-gradient(to right,#4dccfb,#5da9fc);
@@ -1051,10 +1144,6 @@
 			/* 预问诊结论 */
 			.Dialog {
 				width: 750rpx;
-	   //          background-color: #ffffff;
-	   //          border-radius: 30rpx 30rpx 0 0;
-				// height: 380rpx;
-	
 				.center {
 					width: 750rpx;
 					background-color: #ffffff;
@@ -1141,132 +1230,59 @@
 							}
 						}
 					}
-				.foot-choice {
-					background-color: #ffffff;
-					// height: 120rpx;
-					padding: 10rpx 0 45rpx 0;
-					font-size: 40rpx;
-					display: flex;
-					margin: 0;
-					align-items: center;
-					border-top: 2rpx solid #DDDDDD;
-					position: relative;
-					
-						view{
-							color: #0085FF;
-							display: flex;
-							justify-content: center;
-							align-items: center;
-							font-size: 40rpx;
-							width: 50%;
-							height: 80rpx;
-							border:none;
-							
-							&:nth-of-type(1){
-								color: #797979;
-								border-right: 2rpx solid #e7e7e7;
-							}
-							
-						}
-						
-						// .is-hover {
-						// 	background-color: #49c5bf;
-						// 	border-color: #E8F2FE;
-						// }
-						// .is-hover2 {
-						// 	background-color: #d1ebeb !important;
-						// 	border-color: #c3cbd5 !important;
-						// }
-				}
-				
 			}
 			/* 选择症状、疾病 弹窗 */
-						.Dialog2 {
-							width: 750rpx;
-			//          background-color: #ffffff;
-			//          border-radius: 30rpx 30rpx 0 0;
-							// height: 380rpx;
-				
-							.center {
-								width: 750rpx;
-								background-color: #ffffff;
-								border-radius: 30rpx 30rpx 0 0;
-								height: 250rpx;
-								overflow: hidden;
-							.scroll {
-									height: 100%;
-									.middle {
-										    margin: 30rpx 20rpx 0 20rpx;
-											display: flex;
-											flex-wrap: wrap;
-											text {
-												border-radius: 4px;
-												flex-grow: 1;
-												display: flex;
-												justify-content: center;
-												align-items: center;
-												padding: 12rpx 30rpx;
-												margin: 16rpx;
-												color: #004eae;
-												font-size: 38rpx;
-												background: rgba(7,106,255,0.04);
-												border: 2rpx solid #479cff;
-												border-radius: 40rpx;
-											}
-											.colour {
-												background: #479cff !important;
-												color: #ffffff;
-											}
-										}
-									}
-								}
-								
-							.foot-choice {
-								background-color: #ffffff;
-								// height: 120rpx;
-								padding: 10rpx 0 45rpx 0;
-								font-size: 40rpx;
+			.Dialog2 {
+				width: 750rpx;
+				.center {
+					width: 750rpx;
+					background-color: #ffffff;
+					border-radius: 30rpx 30rpx 0 0;
+					height: 250rpx;
+					overflow: hidden;
+				.scroll {
+						height: 100%;
+						.middle {
+									margin: 30rpx 20rpx 0 20rpx;
 								display: flex;
-								margin: 0;
-								align-items: center;
-								border-top: 2rpx solid #DDDDDD;
-								position: relative;
-								
-								
-									view{
-										color: #0085FF;
-										display: flex;
-										justify-content: center;
-										align-items: center;
-										font-size: 40rpx;
-										width: 50%;
-										height: 80rpx;
-										border:none;
-										
-										&:nth-of-type(1){
-											color: #797979;
-											border-right: 2rpx solid #e7e7e7;
-										}
-										
-									}
-									
-									// .is-hover {
-									// 	background-color: #49c5bf;
-									// 	border-color: #E8F2FE;
-									// }
-									// .is-hover2 {
-									// 	background-color: #d1ebeb !important;
-									// 	border-color: #c3cbd5 !important;
-									// }
+								flex-wrap: wrap;
+								text {
+									border-radius: 4px;
+									flex-grow: 1;
+									display: flex;
+									justify-content: center;
+									align-items: center;
+									padding: 12rpx 30rpx;
+									margin: 16rpx;
+									color: #004eae;
+									font-size: 38rpx;
+									background: rgba(7,106,255,0.04);
+									border: 2rpx solid #479cff;
+									border-radius: 40rpx;
+								}
+								.colour {
+									background: #479cff !important;
+									color: #ffffff;
+								}
 							}
-							
 						}
-		
-		    .foot {
-			   
+					}
+			}
+			.Dialog3 {
+				width: 750rpx;
+				.picker-view {
+					height: 300rpx;
+					background: #fff;
+					margin-top: 20rpx;
+					.item {
+						line-height: 100rpx;
+						text-align: center;
+					}
+				}
+			}
+			.foot {
 				margin-bottom:50rpx;
-			    width: 750rpx;
-				
+				width: 750rpx;
 				.foot-center {
 					margin-left: 12rpx;
 					width: 726rpx;
@@ -1335,30 +1351,29 @@
 					}
 					
 					.input {
-									width: 580rpx;
-									height: 71rpx;
-									border: 2rpx solid transparent;
-									border-radius: 8rpx;
-									background-image: linear-gradient(#ffffff, #ffffff),
-									    linear-gradient(101deg, #49a1ff 0%, #55bbfd 100%);
-									background-origin: border-box;
-									background-clip: content-box, border-box;
-										  
-									input{
-									width: 550rpx;
-									height: 71rpx;
-									background-color: transparent !important;
-									font-size: 34rpx;
-									line-height: 34rpx;
-									margin: 0 15rpx;
-									}
-									.ws {
-										width: 490rpx !important;
-									}
-								}
-							}
-					    }
+						width: 580rpx;
+						height: 71rpx;
+						border: 2rpx solid transparent;
+						border-radius: 8rpx;
+						background-image: linear-gradient(#ffffff, #ffffff),
+								linear-gradient(101deg, #49a1ff 0%, #55bbfd 100%);
+						background-origin: border-box;
+						background-clip: content-box, border-box;
+						input{
+							width: 550rpx;
+							height: 71rpx;
+							background-color: transparent !important;
+							font-size: 34rpx;
+							line-height: 34rpx;
+							margin: 0 15rpx;
+						}
+						.ws {
+							width: 490rpx !important;
+						}
 					}
+				}
+			}
+		}
 					/*---------------------------------- 语音样式 ------------------------------ */
 					.voice-mask{
 							position:fixed;

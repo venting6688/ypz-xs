@@ -1,5 +1,6 @@
 <template>
 	<view class="doctorsDetails">
+		<bar v-if="footData.patientName" />
 		<view class="middle">
 			<view class="center">
 				<view class="datum">
@@ -65,7 +66,7 @@
 				</view>
 			</view>
 			<view class="btn">
-				<view class="confirm" @click="confirm">
+				<view class="btnStyle bigBtn" @click="confirm">
 					<text>确定预约</text>
 				</view>
 				<view class="agreement">
@@ -86,12 +87,14 @@
 	import dayjs from 'dayjs';
 	import { mapState } from 'vuex'
 	import login from '@/utils/login.js'
+	import bar from '../components/bar.vue'
 	import Toast from '../components/toast.vue'
 	import registrationApi from '@/api/registrationApi.js'
 	import healthCard from '@/api/healthCard.js'
 	export default {
 		components:{
 			Toast,
+			bar
 		},
 		data() {
 			return {
@@ -130,6 +133,7 @@
 					{name: '美容整形门诊', index: '1400'},
 					{name: '地方病科', index: '1800'},
 				],
+				loginData: {},
 			}
 		},
 		computed: { 
@@ -338,17 +342,12 @@
 		
 		.middle {
 			overflow: auto;
-			margin: 15rpx  0 50rpx 0;
-			
 			.center {
 				width: 680rpx;
 				height: 480rpx;
 				background: #ffffff;
 				border-radius: 11.45rpx;
 				margin: 25rpx auto;
-				
-			
-				
 				.datum{
 					margin:0 10rpx;
 					padding: 17rpx 0;
@@ -515,35 +514,15 @@
 			}
 			.btn {
 				width: 100%;
-				position: absolute;
-				bottom: 110rpx;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
-				.confirm{
-					width: 681.3rpx;
-					height: 87.79rpx;
-					background: #4286ff;
-					border-radius: 43.89rpx;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					color: #ffffff;
-					font-size: 30.53rpx;
-					line-height: 30.53rpx;
-					margin-bottom: 40rpx;
-					
-					text {
-						letter-spacing: 4rpx;
-						padding-left: 4rpx;
-					}
-					
-				}
 				.agreement {
 					display: flex;
 					align-items: center;
 					justify-content: center;
 					color: #999999;
+					margin-top: 30rpx;
 					
 					>view {
 						display: flex;

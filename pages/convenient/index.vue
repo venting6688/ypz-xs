@@ -1,5 +1,5 @@
 <template>
-	<view class="box" >
+	<view class="box">
 		<!-- 头文件 -->
 		<HeaderBar 
 			@handle="show" 
@@ -28,9 +28,9 @@
 		</view>
 		<!-- 没有数据 -->
 		<view class="img scroll-Y" v-if="!signData || departmentList == undefined || departmentList.length == 0">
-			<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
+			<image src="../../static/image/wu.png" mode="widthFix"></image>
 		</view>
-		<foot :footState="footState"/>
+		<!-- <foot :footState="footState"/> -->
 	</view>
 </template>
 <script>
@@ -87,6 +87,7 @@
 				isRequest: false,
 				firstState: false,
 				effectState: false,
+				isHospitalRecord: false
 			}
 		},
 		computed: {
@@ -206,6 +207,7 @@
 			async getAppointment () {
 				let id = this.footData.patientUniquelyIdentifies
 				let res = await hospitalizationApi.getHospitalization(id);
+				this.hospitalRecord = [];
 				if (res.data.code === 200) {
 					this.hospitalRecord = [{
 						queueName: res.data.data && res.data.data.admInfo != undefined ? res.data.data.admInfo.admWardDesc : '',
@@ -221,11 +223,12 @@
 			//获取住院信息
 			async getHospitalRecord () {
 				let data = {
-					AimFlag: 'dep',
+					AimFlag: 'Dep',
 					patientID: this.footData.patientUniquelyIdentifies
 				}
 				
 				let res = await hospitalizationApi.getHospitalRecord(data);
+				this.hospitalRecord = [];
 				if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
 					this.hospitalRecord = [{
 						queueName: res.data.data.admInfoList.admInfo[0].admDept,
@@ -320,20 +323,17 @@
 		background-color: #f5f5f5;
 		display: flex;
 		flex-direction: column;
-	
 		.scroll-Y {
-			// margin-top: 30rpx;
 			width: 750rpx;
 			text-align: center;
-		    flex: auto;
+			flex: auto;
 			overflow: auto;
 			.img {
 				height: 100%;
 				display: flex;
 				align-items: center;
 				image {
-					width: 60%;
-					margin: 0 auto;
+					width: 75%;
 				}
 			}
 			

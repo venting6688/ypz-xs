@@ -16,7 +16,6 @@
 						<view class="wire" :class="{blue:headIndex===2}"></view>
 					</view>
 				</view>
-				
 			</view>
 		</view>
 		<view class="information">
@@ -54,48 +53,47 @@
 				<van-loading size="24px" vertical>{{loading.loadingName}}</van-loading>
 			</view>
 			<view class="without"  v-if="headIndex===1 &&!billList.length && !loading.loadingState">
-				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
+				<image src="../static/image/wu.png" mode="widthFix"></image>
 			</view>
-			<ul v-if="headIndex===2">
-				<template v-if="alreadyList.length">
-					<li @click="particulars(item)" v-for="(item,index) in alreadyList" :key="index">
-						<view class="middle">
-							<view class="title">
-								<view class="header">
-									<view class="time">
-									    {{item.admDate}}
-								    </view>
-									<view class="delete">
-										<text>费用明细</text>
-										<image src="../static/image/Vector@2x.png" mode=""></image>
-									</view>
-								</view>
-							</view>
-							<view class="list">
-								<view>
-									<text>就诊科室：</text>
-									<text>{{item.admDept}}</text>
-								</view>
-								<view>
-									<text>就诊医生：</text>
-									<text>{{item.admDoctor}}</text>
-								</view>
-							</view>
-						</view>
-						<view class="totalMoney">
-							<view>
-								<text>费用合计：</text>
-								<text class="black">￥{{item.totalAmt}}元</text>
-							</view>
-						</view>
-						
-					</li>
-				</template>
-				<view class="without"  v-else>
-					<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
-				</view>
-			</ul>
 			
+			<view class="payment" v-if="headIndex === 2 && alreadyList.length">
+				<view class="detail" v-for="(item,index) in alreadyList" :key="index">
+					<view class="title">
+						<view>
+							<text>科室：</text>
+							<text>{{item.admDept}}</text>
+						</view>
+						<view>
+							<text>医生：</text>
+							<text>{{item.admDoctor}}</text>
+						</view>
+						<!-- <view @click="getPaymentDetails(item, index)" style="color: #4286ff;">费用明细</view> -->
+					</view>
+					<view class="uni-container">
+						<uni-table border stripe>
+							<uni-tr>
+								<uni-th style="width: 40% !important">项目</uni-th>
+								<uni-th style="width: 15% !important">数量</uni-th>
+								<uni-th style="width: 20% !important">规格</uni-th>
+								<uni-th style="width: 25% !important">金额</uni-th>
+							</uni-tr>
+							<uni-tr v-for="(val,i) in item.detailList" :key="i">
+								<uni-td>{{val.itemName}}</uni-td>
+								<uni-td>{{val.itemQty}}</uni-td>
+								<uni-td>{{val.itemUom}}</uni-td>
+								<uni-td>￥{{parseFloat(val.itemPrice).toFixed(2)}}</uni-td>
+							</uni-tr>
+						</uni-table>
+					</view>
+					<view class="total">
+						<text>合计：</text>
+						<text>{{item.totalAmt}}元</text>
+					</view>
+				</view>
+			</view>
+			<view class="without" v-if="headIndex === 2 && alreadyList.length == 0">
+				<image src="../static/image/wu.png" mode="widthFix"></image>
+			</view>
 		</view>
 		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :message="toastObj.message"/>
 	</view>
@@ -207,24 +205,49 @@
 			},
 			
 			//缴费记录
-			async getPaymentRecord(){
-				try {
-					let data = {
-						patientID: this.footData.patientUniquelyIdentifies,
-						startDate: this.date.startTime,
-						endDate: this.date.endTime,
-					}
-					outpatientExpenditureApi.getPaymentRecord(data).then(res => {
-						if(res.data.code===200){
-							this.alreadyList = res.data.data||[]
-						}
-					})
-				} catch (error) {
-					console.log(error)
-					//TODO handle the exception
-				}
-			},
+			async getPaymentRecord() {
+			  try {
+			    uni.showLoading({
+			      title: '加载中...',
+			      mask: true
+			    });
 			
+			    let data = {
+			      patientID: this.footData.patientUniquelyIdentifies,
+			      startDate: this.date.startTime,
+			      endDate: this.date.endTime
+			    };
+			
+			    this.alreadyList = [];
+			
+			    const res = await outpatientExpenditureApi.getPaymentRecord(data);
+			    if (res.data.code === 200) {
+			      const list = res.data.data || [];
+			
+			      const promiseList = list.map(async (item) => {
+			        let detailInfo = {
+			          patientID: this.footData.patientUniquelyIdentifies,
+			          invoiceNo: item.invoiceNo,
+			        };
+			
+			        const detailRes = await outpatientExpenditureApi.getPaymentDetails(detailInfo);
+			        if (detailRes.data.code === 200 && detailRes.data.data.length) {
+			          item.detailList = detailRes.data.data;
+			        } else {
+			          item.detailList = [];
+			        }
+			        return item;
+			      });
+			      const finalList = await Promise.all(promiseList);
+			      this.alreadyList = finalList;
+			    }
+			
+			  } catch (error) {
+			    console.log(error);
+			  } finally {
+			    uni.hideLoading();
+			  }
+			},
 			//支付
 			pay(item){
 				let loginValue = uni.getStorageSync("loginData");
@@ -394,6 +417,35 @@
 			width: 100%;
 			overflow: auto;
 			margin: 0 auto 60rpx auto;
+			.payment {
+				width: 681.3rpx;
+				margin: 0 auto;
+				.detail {
+					background: #fff;
+					padding: 20rpx 15rpx;
+					.title {
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						padding: 10rpx 5rpx 20rpx;
+					}
+					.total {
+						margin-top: 20rpx;
+						text-align: right;
+						padding-bottom: 20rpx;
+						border-bottom: 1px solid #ccc;
+						text {
+							&:nth-child(2){
+								color: #ec2e50;
+								margin-right: 20rpx;
+							}
+							
+						}
+					}
+				}
+			}
+			
+			
 			ul {
 				width: 681.3rpx;
 				margin: 0 auto;
@@ -436,12 +488,6 @@
 									padding-top: 15rpx;
 								}
 							}
-							
-							
-							
-							
-							
-							
 						}
 						.center {
 							display: flex;
@@ -539,10 +585,14 @@
 			height: 500rpx;
 			background: #ffffff;
 			margin: 0 auto;
-			border-radius: 15.27rpx;
+			border-bottom-left-radius: 16px;
+			border-bottom-right-radius: 16px;
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			image {
+				width: 75%;
+			}
 		}
 	}
 </style>

@@ -148,7 +148,7 @@ export default {
 		async getTreatmentStageNew(state) {
 			try{
 				//住院服务横条
-				if (this.department.data && this.department.data.isHospitalized) {
+				if (this.department.data && this.department.data.isHospitalized && this.departmentList.length) {
 					let data = {
 						data:{
 							'住院信息':'1',
@@ -453,9 +453,9 @@ export default {
 			
 		}
 	}
-	.barColor {
-		color: #0f74c8 !important;
-	}
+	// .barColor {
+	// 	color: #0f74c8 !important;
+	// }
 	.barBackground {
 		background: #1b98ff !important;
 		color: #ffffff;

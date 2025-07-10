@@ -57,8 +57,8 @@
 				</ul>
 				<view class="btn" v-if="firstContent.queueName">
 					<view>
-						<button class="cu-btn" @click="getQueueingMessage">刷新信息</button>
-						<button class="cu-btn" @click="cancelRegistration">退号</button>
+						<button class="btnStyle smallBtn" @click="getQueueingMessage">刷新信息</button>
+						<button class="btnStyle smallBtn" @click="cancelRegistration">退号</button>
 					</view>
 				</view>
 				<view class="inquiry" v-if="firstContent.queueName">
@@ -102,8 +102,8 @@
 					</ul>
 					<view class="btn">
 						<view>
-							<button  v-if="subscribeObj.days>='0'" class="cu-btn" @click="cancelAppointmentRegister(subscribeObj.orderCode)">取消预约</button>
-							<button v-if="subscribeObj.days==='0'" class="cu-btn" @click="takeANumberPrePay(subscribeObj)">预约取号</button>
+							<button v-if="subscribeObj.days >= '0'" class="btnStyle bigBtn" @click="cancelAppointmentRegister(subscribeObj.orderCode)">取消预约</button>
+							<button v-if="subscribeObj.days === '0'" class="btnStyle bigBtn" @click="takeANumberPrePay(subscribeObj)">预约取号</button>
 						</view>
 					</view>
 				</view>
@@ -648,33 +648,7 @@
 					view {
 						display: flex;
 						justify-content: center;
-						
-						// button {
-							
-						// 	width: 270rpx;
-						// 	margin: 0 30rpx 24rpx 30rpx;
-						// 	height: 72rpx;
-						// 	line-height: 72rpx;
-						// 	background: linear-gradient(350deg,#479cff 0%, rgba(71,216,251,0.80) 100%);
-						// 	border-radius: 70rpx;
-						// 	font-size: 35rpx;
-						// 	color: #ffffff;
-						// 	font-family: Source Han Sans CN, Source Han Sans CN-500;
-						// 	font-weight: 500;
-						// }
-						button {
-							
-							width: 270rpx;
-							margin: 30rpx 20rpx 24rpx 20rpx;
-							height: 72rpx;
-							line-height: 35rpx;
-							background: linear-gradient(350deg,#479cff 0%, rgba(71,216,251,0.80) 100%);
-							border-radius: 70rpx;
-							font-size: 35rpx;
-							color: #ffffff;
-							font-family: Source Han Sans CN, Source Han Sans CN-500;
-							font-weight: 500;
-						}
+						padding: 20rpx 0 30rpx;
 					}
 				}
 				.footer {

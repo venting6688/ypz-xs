@@ -24,20 +24,20 @@
 					<view class="content">
 						<view class="title">
 							<view class="delete">
-								<text>查看报告</text>
-								<image src="../static/image/Vector@2x.png" mode=""></image>
-							</view>
-						</view>
-						<view class="center">
-							<view class="no">
 								<text>文档ID：</text>
 								<text>{{item.documentID}}</text>
 							</view>
-							<view class="no">
+							<view class="delete">
+								<text style="color: #4286ff;">查看报告</text>
+								<image src="../static/image/Vector@2x.png" mode=""></image>
+							</view>
+						</view>
+						<view class="title">
+							<view class="delete">
 								<text>{{headIndex===1?'检查':'检验'}}项目：</text>
 								<text>{{item.documentTitle}}</text>
 							</view>
-							<view class="no">
+							<view class="delete">
 								<text>{{headIndex===1?'检查':'检验'}}时间：</text>
 								<text>{{item.updateDate}} {{item.updateTime}}</text>
 							</view>
@@ -46,7 +46,7 @@
 				</li>
 			</ul>
 			<view class="without" v-else>
-				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
+				<image src="../static/image/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
 		<auth-popup
@@ -173,7 +173,7 @@
 						uni.showToast({
 							title: '验证失败，请联系管理员',
 							icon: 'none',
-							url: '/pages/more/index',
+							url: '',
 							duration: 2000 
 						}) 
 					}
@@ -210,6 +210,10 @@
 			
 			getVisitRecord(type){
 				try {
+					uni.showLoading({
+					  title: '加载中...',
+					  mask: true 
+					})
 					let data = {
 						patientID: this.footData.patientUniquelyIdentifies,
 						visitNumber: '',
@@ -226,7 +230,8 @@
 					})
 				} catch (error) {
 					console.log(error)
-					//TODO handle the exception
+				} finally {
+					uni.hideLoading();
 				}
 			},
 			information(item){
@@ -267,8 +272,6 @@
 				display: flex;
 				align-items: center;
 				border-bottom: 2rpx solid #eeeeee;
-				
-				
 				.name {
 					display: flex;
 					align-items: center;
@@ -295,9 +298,6 @@
 					color: #000000;
 				}
 			}
-			
-			
-			
 		}
 		.information {
 			width: 100%;
@@ -319,12 +319,11 @@
 						padding-bottom: 20rpx;
 						margin: 0 20rpx;
 						border-bottom: 2rpx solid #eeeeee;
-						
 						.title {
 							height: 70rpx;
 							display: flex;
 							justify-content: space-between;
-							align-items: center;
+							align-items: right;
 							
 							image {
 								width: 12rpx;
@@ -349,7 +348,6 @@
 								line-height: 26.72rpx;
 								font-family: PingFang SC, PingFang SC-400;
 								font-weight: 400;
-								color: #4286ff;
 								padding: 10rpx 0;
 							}
 						}
@@ -359,7 +357,7 @@
 							flex-direction: column;
 							justify-content: space-between;
 							.no {
-								font-size: 24rpx;
+								font-size: 30rpx;
 								text {
 									&:nth-child(1){
 										color: #999999;
@@ -384,6 +382,9 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			image {
+				width: 75%
+			}
 		}
 	}
 </style>

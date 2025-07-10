@@ -1,6 +1,6 @@
 <template>
 	<!-- #ifdef H5 -->
-	<th :rowspan="rowspan" :colspan="colspan" class="uni-table-th" :class="{ 'table--border': border }" :style="{ width: customWidth + 'px', 'text-align': align }">
+	<th :rowspan="rowspan" :colspan="colspan" class="uni-table-th" :class="{ 'table--border': border }" :style="{'text-align': align }">
 		<view class="uni-table-th-row">
 			<view class="uni-table-th-content" :style="{ 'justify-content': contentAlign }" @click="sort">
 				<slot></slot>
@@ -14,7 +14,7 @@
 	</th>
 	<!-- #endif -->
 	<!-- #ifndef H5 -->
-	<view class="uni-table-th" :class="{ 'table--border': border }" :style="{ width: customWidth + 'px', 'text-align': align }"><slot></slot></view>
+	<view class="uni-table-th" :class="{ 'table--border': border }" :style="{  'text-align': align }"><slot></slot></view>
 	<!-- #endif -->
 </template>
 
@@ -228,7 +228,7 @@ $uni-primary: #007aff !default;
 	font-weight: bold;
 	color: #000;
 	border-bottom: 1px $border-color solid;
-	width: 80%
+	// width: 80%
 }
 
 .uni-table-th-row {

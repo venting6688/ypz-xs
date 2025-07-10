@@ -2,7 +2,9 @@
 	<view class="doing">
 		<view class="center">
 			<view class="title">
-				<view @click="matter(i.type)" :class="{b:type===i.type}" v-for="(i,x) in titleList" :key="x">{{i.name}}({{type == i.type ? matterList.length : 0}}项)</view>
+				<view @click="matter(i.type)" :class="{b:type===i.type}" v-for="(i,x) in titleList" :key="x">
+					{{i.name}}({{type == i.type ? matterList.length : 0}}项)
+				</view>
 			</view>
 			<ul class="today" v-if="type ==='today'">
 				<li v-for="(item, index) in matterList" :key="index">
@@ -51,7 +53,7 @@
 			</ul>
 			
 			<view v-if="matterList.length === 0" class="without">
-				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
+				<image src="../../../static/image/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
 	</view>
@@ -140,7 +142,7 @@
 	   }
 	   .b {
 	   	background: #f0f7ff;
-			color: #0B69B6;
+			color: #4286FF;
 	   }
 	.doing{
 		// background: fuchsia;
@@ -149,6 +151,11 @@
 			width: 684rpx;
 			background: #ffffff;
 			border-radius: 12rpx;
+			.without {
+				image {
+					width: 75%;
+				}
+			}
 			.title {
 				display: flex;
 				align-items: center;

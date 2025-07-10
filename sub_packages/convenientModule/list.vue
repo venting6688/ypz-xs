@@ -16,7 +16,7 @@
 				<view class="content">本日消费金额：￥{{item.totalAmount}}元</view>
 			</view>
 			<view v-if="dayList.length === 0" class="without">
-				<image src="https://aiwz.sdtyfy.com:8099/img/wu.png" mode="widthFix"></image>
+				<image src="../static/image/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
 	</view>
@@ -104,7 +104,11 @@
 			background: #ffffff;
 			border-radius: 12rpx;
 			padding: 20rpx 0;
-			
+			.widthout {
+				image {
+					width: 75%;
+				}
+			}
 			&:last-of-type{
 				margin:28rpx 33rpx 28rpx 33rpx;
 			}

@@ -250,7 +250,7 @@
 		onLoad(e) {
 			this.title = e.title
 			wx.setNavigationBarTitle({
-			      title: e.title
+				title: e.title
 			})
 			this.CLGRPRowId = e.CLGRPRowId
 			this.departmentName = e.departmentName;

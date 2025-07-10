@@ -1,16 +1,33 @@
 {
   "pages": [
 		{
+				"path": "pages/home/index",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "首页",
+					"disableScroll": true
+				}
+		},
+		{
 				"path": "pages/more/index",
 				"style": {
-				"navigationBarTitleText": "更多服务",
+					"navigationBarTitleText": "更多服务",
 					"disableScroll": true
 				}
 		},
 		{
 			"path": "pages/virtualNurse/index",
 			"style": {
-					"navigationBarTitleText": "虚拟护士",
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "智能导诊",
+				"disableScroll": true
+			}
+		},
+		{
+			"path": "pages/user/index",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "我的",
 				"disableScroll": true
 			}
 		},
@@ -38,6 +55,38 @@
 				 }
 		}
   ],
+	"tabBar": {
+		"color": "#637088",
+		"selectedColor": "#4286FF",
+		"fontSize": "36rpx",
+		"list": [
+			{ 
+				"text": "首页", 
+				"pagePath": "pages/home/index",
+				"iconPath": "static/img/tabBar/home.png",
+				"selectedIconPath": "static/img/tabBar/home-h.png"
+			},
+			{ 
+				"text": "虚拟护士", 
+				"pagePath": "pages/virtualNurse/index",
+				"iconPath": "static/img/tabBar/nurs.png",
+				"selectedIconPath": "static/img/tabBar/nurs-h.png"
+			},
+			{ 
+				"text": "便捷导诊", 
+				"pagePath": "pages/convenient/index",
+				"iconPath": "static/img/tabBar/daoyin.png",
+				"selectedIconPath": "static/img/tabBar/daoyin-h.png"
+			},
+			{ 
+				"text": "我的", 
+				"pagePath": "pages/user/index",
+				"iconPath": "static/img/tabBar/my.png",
+				"selectedIconPath": "static/img/tabBar/my-h.png"
+			}
+		]
+	},
+	
   "subPackages": [{
   	"root": "sub_packages",
   	"pages": [
@@ -46,7 +95,7 @@
 				"path" : "beHospitalizedRegister/index",
 				"style" : 
 				{
-					"navigationBarTitleText": "入院申请",
+					"navigationBarTitleText": "入院登记",
 					"disableScroll": true
 				}
 			},
@@ -139,6 +188,7 @@
 					{
 					"navigationBarTitleText": "预约挂号",
 						"disableScroll": true
+						// "keep-alive": false
 					}
 				},
 				{
@@ -164,7 +214,7 @@
 					"path" : "filing/information",
 					"style" : 
 					{
-						"navigationBarTitleText": "在线建档",
+						"navigationBarTitleText": "信息完善",
 						"disableScroll": true
 					}
 				},
@@ -243,7 +293,7 @@
 				"path" : "convenientModule/index",
 				"style" : 
 				{
-					"navigationBarTitleText": "住院记录"
+					"navigationBarTitleText": "住院费用"
 					// "disableScroll": true
 				}
 			},
@@ -269,7 +319,7 @@
 				"path" : "deposit/index",
 				"style" : 
 				{
-					"navigationBarTitleText": "住院充值",
+					"navigationBarTitleText": "住院预交金",
 					"disableScroll": true
 				}
 			},
@@ -299,26 +349,26 @@
 					"navigationBarTitleText": "人脸识别",
 					"disableScroll": true
 				}
+			},
+			{
+				//体检中心
+				"path" : "physicalExamination/index",
+				"style" : 
+				{
+					"navigationBarTitleText": "体检中心",
+					"disableScroll": true
+				}
+			},
+			{
+				"path" : "olderVersion/index",
+				"style" : 
+				{
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
 			}
 		]
   }],
-  "tabBar": {
-  		"color": "#7A7E83",
-  		"selectedColor": "#086d5b",
-  		"backgroundColor": "#ffffff",
-  		"list": [
-  			{
-  				"pagePath": "pages/virtualNurse/index"
-  			},
-  			{
-  				"pagePath": "pages/convenient/index"
-  			},
-  			{
-  				"pagePath": "pages/more/index"
-  			}
-  		]
-  		
-  	},
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "uni-app",

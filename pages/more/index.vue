@@ -85,37 +85,43 @@
 								active: true,
 								num:10,
 							},
-							 {
-							img:'https://aiwz.sdtyfy.com:8099/img/person2.png',
-							name:'药品查询',
-							active: true,
-							num:11,
-								},
-								{
-									img:'https://aiwz.sdtyfy.com:8099/img/electronicBills.png',
-									name:'电子票据',
-									active: true,
-									num:12,
-								},
-								{
-									img:'https://aiwz.sdtyfy.com:8099/img/health.png',
-									name:'医保凭证',
-									active: true,
-									num:13,
-								},
-								{
-									img:'https://aiwz.sdtyfy.com:8099/img/medicalRecord.png',
-									name:'病案通',
-									active: true,
-									num:14,
-								},
-								{
-									img:'https://aiwz.sdtyfy.com:8099/img/hospitalized4.png',
-									name:'营养点餐',
-									active: true,
-									num:15,
-								},
-							]
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/person2.png',
+								name:'药品查询',
+								active: true,
+								num:11,
+							},
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/electronicBills.png',
+								name:'电子票据',
+								active: true,
+								num:12,
+							},
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/health.png',
+								name:'医保凭证',
+								active: true,
+								num:13,
+							},
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/medicalRecord.png',
+								name:'病案通',
+								active: true,
+								num:14,
+							},
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/hospitalized4.png',
+								name:'营养点餐',
+								active: true,
+								num:15,
+							},
+							{
+								img:'https://aiwz.sdtyfy.com:8099/img/hospitalized4.png',
+								name:'电子导航',
+								active: true,
+								num:16,
+							},
+						]
 					},
 					{
 						title:'综合服务',
@@ -208,7 +214,7 @@
 					'/sub_packages/family/familyManage',
 					'/sub_packages/filing/identityCard',
 					'空',
-					'空', ///sub_packages/mine/index
+					'/sub_packages/physicalExamination/index',
 					'空',
 					'空',
 					'空',
@@ -223,7 +229,7 @@
 					'空',
 					'空',
 				],
-				jumpLinkNum: [12,13,14,15,22,25,26],
+				jumpLinkNum: [12,13,14,15,22,25,26,16],
 			}
 		},
 		
@@ -243,15 +249,15 @@
 				}else if(num===15){
 					appId = 'wx63c30833d698895a';
 					targetUrl = `pages/hospital/hospital?hoSpitAl_id=dffc9e5a317c&webtype=2`;
+				}else if(num===16){
+					appId = 'gh_aec22a2991d0';
+					targetUrl = `pages/index/index?buildId=1718820999468392449&e=0`;
 				}else if(num===22){
 					appId = 'wxd8f336bfa8545586';
 					targetUrl = `pages/index/isCsmUser/isCsmUser?regNo=&hosId=11012&openId=`;
 				}else if(num===25){
 					appId = 'wx54bf421b03978b4b';
 					targetUrl = `pages/homePage/homePage?stationId=717`;
-				}else if(num===26){
-					appId = 'wx508ee121a3163f4d';
-					targetUrl = `pages/index/index?site=sydefy01`;
 				}
 				wx.navigateToMiniProgram({
 				  appId: appId,
@@ -272,7 +278,7 @@
 						})
 					}else {
 						wx.reLaunch({
-						    url: `/pages/virtualNurse/index?pattern=2`,
+						  url: `/pages/virtualNurse/index?pattern=2`,
 						})
 					}
 				}else if(this.jumpLinkNum.includes(num)){
@@ -320,9 +326,7 @@
 </script>
 
 <style lang="less" scoped>
-	
 	.box{
-		
 		width: 100vw;
 		height: 100%; 
 		// padding-top: 120px; /* 根据导航栏高度调整 */
