@@ -79,9 +79,6 @@
 					})
 					let data = {
 						patientID: this.footData.patientUniquelyIdentifies,
-						// patientID:'0001954286',
-						// patientID:'0001347569',
-						// visitNumber:'861560',
 						visitNumber:this.report.visitNumber,
 						documentType:item.documentType,
 						documentID:item.documentID
@@ -89,15 +86,15 @@
 					elseApi.documentReview(data).then(res => {
 						if(res.data.code===200){
 							let data = res.data.data.body.documentSearchRp.documents.document[0].documentContentJson.clinicalDocument.structuredBody.section || []
-							this.list = data.slice(1)
-							.map(item => {
-							    return {
-							        ...item,
-							        section: item.section.filter(i => {
-							            return i.desc === '检验子项结果';
-							        })
-							    };
+							this.list = data.slice(1).map(item => {
+								return {
+										...item,
+										section: item.section.filter(i => {
+												return i.desc === '检验子项结果';
+										})
+								};
 							});
+							// console.log(JSON.stringify(this.list),'=========');
 							if(data[1]){
 								const { E14, E20 } = data[1];
 								const str = this.list[0] && this.list[0].section
@@ -115,9 +112,7 @@
 								};
 								this.report = {...this.report,...newData}
 							}
-							// this.list = data.filter(item => {
-							// 	return item.desc==='检验子项结果'
-							// })
+							
 						}
 					})
 				} catch (error) {

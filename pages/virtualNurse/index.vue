@@ -128,7 +128,6 @@
 					</view>
 				</view>
 		    </view>
-		<!-- 	<foot v-if="showComponent" :footState="footState" /> -->
 		</view>
 		<!--------------------- 语音  ------------------- -->
 		<view class="flex-column-center" style="position: fixed;bottom: 0px;" >
@@ -182,15 +181,11 @@
 	var mgUpHeight
 	
 	import MarkdownIt from 'markdown-it';
-	import foot from '@/components/footer.vue'
 	import bus from "@/utils/bus";
 	import login from '@/utils/login.js'
 	import { parse } from 'best-effort-json-parser'
 	import {mapActions} from 'vuex'
 	export default {
-	components:{
-		foot,
-	},
 		data() {
 			return {
 				md: new MarkdownIt(),

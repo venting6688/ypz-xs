@@ -150,6 +150,10 @@
 		methods: {
 			// 获取号源
 			getScheduleDates(){
+				uni.showLoading({
+				  title: '加载中...',
+				  mask: true 
+				})
 				registrationApi.getScheduleDates({
 					patientID:this.footData.patientUniquelyIdentifies,
 					days:6,
@@ -157,10 +161,11 @@
 				}).then(res => {
 					this.timeList = res.data.data
 					this.getScheduleDetail(this.timeList[0],0)
-				})
-				.catch(err => {
+				}).catch(err => {
 					console.log('2：', err);
-				})
+				}).finally(() => {
+					uni.hideLoading();
+				});
 				
 			},
 			// 获取医生
@@ -171,16 +176,21 @@
 				}else{
 					this.today = false
 				}
+				uni.showLoading({
+				  title: '加载中...',
+				  mask: true 
+				})
 				registrationApi.getScheduleDetail({
 					patientID: this.footData.patientUniquelyIdentifies, //'0000111227',
 					dateStr:item.date,
 					specialtyGroupId:this.CLGRPRowId
 				}).then(res => {
 					this.doctorList = res.data.data
-				})
-				.catch(err => {
+				}).catch(err => {
 					console.log('2：', err);
-				})
+				}).finally(() => {
+					uni.hideLoading();
+				});
 			},
 			onChange(detail) {
 				this.checked = detail.detail

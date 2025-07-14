@@ -1,13 +1,10 @@
 <template>
 	<scroll-view scroll-y class="homeLayout pageBg otherPageBg">
 		<customerNav title="我的" />
-		<view class="first">
-			<patients />
-		</view>
+		<view class="first"><patients /></view>
 		<view class="ai" @click="onOldClick">
 			<image src="../../static/img/laonian.png" mode="aspectFit" />
 		</view>
-		
 		<view class="content">
 			<view class="section" v-for="(block, i) in gridData" :key="i">
 				<view class="title">{{ block.title }}</view>
@@ -18,7 +15,6 @@
 					</view>
 				</view>
 			</view>
-			
 			<view class="setting" @click="onSetting">
 				<view class="left">
 					<image src="../../static/img/icon/setting.png" mode="aspectFit" />
@@ -83,14 +79,9 @@
 				uni.navigateTo({ url: '/sub_packages/olderVersion/index' })
 			},
 			onSetting() {
-				uni.showToast({
-					title: '暂未开放',
-					icon: 'none'
-				})
+				uni.navigateTo({ url: '/sub_packages/setting/index' })
 			},
 		},
-		
-	  
 	}
 </script>
 

@@ -20,15 +20,12 @@
 				</view>
 			</view>
 		</view>
-		<foot :footState="footState" />
 	</view>
 </template>
 <script>
-	import foot from '@/components/footer.vue'
 	import HeaderBar from '@/components/HeaderBar.vue';
 	export default {
 		components: {
-			foot,
 			HeaderBar
 		},
 		data() {

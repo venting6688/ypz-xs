@@ -9,13 +9,6 @@
 				}
 		},
 		{
-				"path": "pages/more/index",
-				"style": {
-					"navigationBarTitleText": "更多服务",
-					"disableScroll": true
-				}
-		},
-		{
 			"path": "pages/virtualNurse/index",
 			"style": {
 				"navigationStyle": "custom",
@@ -96,15 +89,6 @@
 				"style" : 
 				{
 					"navigationBarTitleText": "入院登记",
-					"disableScroll": true
-				}
-			},
-			{
-				//我的
-				"path" : "mine/index",
-				"style" : 
-				{
-					"navigationBarTitleText": "我的",
 					"disableScroll": true
 				}
 			},
@@ -221,24 +205,6 @@
 			{
 				//家庭管理
 				"path" : "family/familyManage",
-				"style" : 
-				{
-					"navigationBarTitleText": "就诊人管理",
-					"disableScroll": true
-				}
-			},
-			{
-				//家庭管理-添加家庭成员
-				"path" : "family/familyInformation",
-				"style" : 
-				{
-					"navigationBarTitleText": "添加家庭成员",
-					"disableScroll": true
-				}
-			},
-			{
-				//家庭管理-修改信息
-				"path" : "family/familyAmend",
 				"style" : 
 				{
 					"navigationBarTitleText": "就诊人管理",
@@ -365,6 +331,13 @@
 				{
 					"navigationBarTitleText": "",
 					"navigationStyle": "custom"
+				}
+			},
+			{
+				"path" : "setting/index",
+				"style" : 
+				{
+					"navigationBarTitleText": "设置"
 				}
 			}
 		]

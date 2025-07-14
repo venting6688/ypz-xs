@@ -40,16 +40,9 @@
 				department: '',
 			};
 		},
-		// onLoad() {
-		// 	this.getServiceGroup()
-		// },
 		onShow() {
-			console.log('sd0fsd0fs0fs0');
 			this.getServiceGroup()
 		},
-		// mounted() {
-		// 	this.getServiceGroup()
-		// },
 		methods: {
 			onSearchChange(value) {
 				this.searchQuery = value.detail
@@ -57,6 +50,10 @@
 			},
 			// 获取大科室
 			getServiceGroup() {
+				uni.showLoading({
+				  title: '加载中...',
+				  mask: true 
+				})
 				registrationApi.getServiceGroup().then(res => {
 					if(res.data.code===200) {
 						this.stairDepartment = res.data.data.ClinicServiceGroup.map(item =>({text:item.CliSerGroupName,...item}));
@@ -67,7 +64,9 @@
 					}
 				}).catch(err => {
 					console.log('errrrrr：', err);
-				})
+				}).finally(() => {
+					uni.hideLoading();
+				});
 			},
 			// 获取小科室
 			getSpecialtyGroup(CliSerGroupID) {

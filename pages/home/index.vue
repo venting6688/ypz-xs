@@ -1,5 +1,7 @@
 <template>
 	<scroll-view scroll-y class="homeLayout pageBg homePageBg">
+		<visitNotice ref="notice" :fontMode="fontMode" @confirmed="handleConfirm" />
+		
 		<customerNav title="山东第一医科大学第二附属医院" />
 		<view class="first">
 			<image
@@ -49,18 +51,22 @@
 <script>
 	import { mapState } from 'vuex'
 	import customerNav from '@/components/customerNav.vue';
+	import visitNotice from '@/components/visitNotice.vue';
 	import patients from '@/components/patients.vue';
 	
 	export default {
 	  components: {
 	    customerNav,
-			patients
+			visitNotice,
+			patients,
 	  },
 		computed: {
 			...mapState(['footData']),
 		},
 		data() {
 			return {
+				showMain: false,
+				fontMode: 'normal',
 				current: 0,
 				list: [
 					{ img: '../../static/img/yuyue.png', url: "/sub_packages/subscribe/departments" },
@@ -105,7 +111,15 @@
 				]
 			}
 		},
+	  onLoad() {
+			this.$nextTick(() => {
+				this.$refs.notice.open();
+			});
+		},
 		methods: {
+			handleConfirm() {
+				this.showMain = true;
+			},
 			onClickItem(e) {
 				this.current = e.currentIndex
 			},
@@ -139,9 +153,6 @@
 				}
 			}
 		},
-	  mounted() {
-			console.log(JSON.stringify(this.footData));
-	  }
 	}
 </script>
 

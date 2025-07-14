@@ -28,15 +28,13 @@
 		</view>
 		<!-- 没有数据 -->
 		<view class="img scroll-Y" v-if="!signData || departmentList == undefined || departmentList.length == 0">
-			<image src="../../static/image/wu.png" mode="widthFix"></image>
+			<image src="../../static/image/wu.png" mode="widthFix" />
 		</view>
-		<!-- <foot :footState="footState"/> -->
 	</view>
 </template>
 <script>
 	import {mapState, mapMutations} from 'vuex'
 	import HeaderBar from '@/components/HeaderBar.vue';
-	import foot from '@/components/footer.vue'
 	import first from '../../sub_packages/convenientModule/components/outpatient/first.vue'
 	import check from '../../sub_packages/convenientModule/components/outpatient/check.vue'
 	import answer from '../../sub_packages/convenientModule/components/outpatient/answer.vue'
@@ -52,7 +50,6 @@
 	export default {
 		components:{
 			HeaderBar,
-			foot,
 			first,
 			check,
 			answer,
@@ -332,11 +329,11 @@
 				height: 100%;
 				display: flex;
 				align-items: center;
-				image {
-					width: 75%;
-				}
 			}
-			
+			image {
+				width: 75%;
+			}
 		}
+		
 	}
 </style>

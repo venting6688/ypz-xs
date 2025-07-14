@@ -2,6 +2,7 @@
 	<view class="box">
 		<uni-datetime-picker 
 		v-model="range" 
+		:end="now"
 		type="daterange" 
 		style="border: none !important; border-radius: 15rpx !important;" 
 		/>
@@ -14,6 +15,7 @@
 		data() {
 			return {
 				date:{},
+				now: dayjs().format('YYYY-MM-DD'),
 				range: [dayjs().subtract(6, 'month').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
 			}
 		},

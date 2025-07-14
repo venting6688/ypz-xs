@@ -59,15 +59,9 @@
 			<view class="payment" v-if="headIndex === 2 && alreadyList.length">
 				<view class="detail" v-for="(item,index) in alreadyList" :key="index">
 					<view class="title">
-						<view>
-							<text>科室：</text>
-							<text>{{item.admDept}}</text>
-						</view>
-						<view>
-							<text>医生：</text>
-							<text>{{item.admDoctor}}</text>
-						</view>
-						<!-- <view @click="getPaymentDetails(item, index)" style="color: #4286ff;">费用明细</view> -->
+						<view><text>{{item.admDept}}</text></view>
+						<view><text>{{item.admDoctor}}</text></view>
+						<view><text>{{item.invDate}} {{item.invTime}}</text></view>
 					</view>
 					<view class="uni-container">
 						<uni-table border stripe>
