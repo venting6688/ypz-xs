@@ -36,6 +36,7 @@
 		methods: {
 			...mapMutations({
 				setLoginStatus: 'SET_LOGINSTATUS',
+				setLoginToken:'SET_LOGINTOKEN',
 			}),
 			userAgreement(){
 				uni.navigateTo({
@@ -56,7 +57,7 @@
 					    title: '请先阅读用户协议和隐私政策',
 					    icon: 'none',   
 					    duration: 2000 
-					})  
+					})
 				}
 			},
 			onGetPhoneNumber(e){ 
@@ -66,6 +67,7 @@
 							let items = JSON.stringify(data.data)
 							uni.setStorageSync('loginData', items)
 							this.setLoginStatus('login');
+							this.setLoginToken(items.token);
 							if (!data.data.defaultArchives) {
 								uni.navigateTo({ url:"/sub_packages/family/familyManage" })
 							} else {

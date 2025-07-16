@@ -339,6 +339,14 @@
 				{
 					"navigationBarTitleText": "设置"
 				}
+			},
+			{
+				"path" : "questionnaire/index",
+				"style" : 
+				{
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
 			}
 		]
   }],

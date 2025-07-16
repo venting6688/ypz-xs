@@ -1,6 +1,10 @@
 <template>
 	<scroll-view scroll-y class="homeLayout pageBg homePageBg">
-		<visitNotice ref="notice" :fontMode="fontMode" @confirmed="handleConfirm" />
+		<visitNotice 
+		ref="notice" 
+		:fontMode="fontMode" 
+		@confirmed="handleConfirm" 
+		/>
 		
 		<customerNav title="山东第一医科大学第二附属医院" />
 		<view class="first">
@@ -82,7 +86,7 @@
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/outpatient7.png', name: '就诊记录', url: '/sub_packages/record/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/synthesize1.png', name: '就诊人管理', url: '/sub_packages/family/familyManage' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/tsjy.png', name: '投诉与建议' },
-						{ img: 'https://aiwz.sdtyfy.com:8099/img/myd.png', name: '满意度调查' },
+						{ img: 'https://aiwz.sdtyfy.com:8099/img/myd.png', name: '满意度调查', url: '/sub_packages/questionnaire/index'  },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/daohang.png', name: '院内导航', appid: 'wx1d5dbdc2760788da', targetUrl: 'pages/index/index?buildld=1718820999468392449&e=0' },
 					],
 					[
@@ -112,9 +116,14 @@
 			}
 		},
 	  onLoad() {
-			this.$nextTick(() => {
-				this.$refs.notice.open();
-			});
+		  const confirmed = uni.getStorageSync('popupConfirmed');
+			if (!confirmed) {
+				this.$nextTick(() => {
+					this.$refs.notice.open();
+				});
+			} else {
+				this.showMain = true;
+			}
 		},
 		methods: {
 			handleConfirm() {

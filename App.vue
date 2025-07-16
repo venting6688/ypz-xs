@@ -1,23 +1,15 @@
 <script>
 	export default {
-		// onLaunch: function() {
-		// 	let loginData = uni.getStorageSync("loginData");
-		// 	loginData = loginData ? JSON.parse(loginData) : {};
-			
-		// 	if (loginData && loginData.defaultArchives) {
-		// 		setTimeout(() => {
-		// 			uni.reLaunch({ url: '/pages/more/index' });
-		// 		}, 100);
-		// 	} 
-		// 	if (JSON.stringify(loginData) != '{}' && !loginData.defaultArchives) {
-		// 		setTimeout(() => {
-		// 			uni.reLaunch({ url: '/sub_packages/family/familyManage' });
-		// 		}, 100);
-		// 	}
-		// },
-		// onShow: function() {
-		// 	wx.hideTabBar();
-		// },
+		onLaunch() {
+			uni.removeStorageSync('popupConfirmed')
+		},
+		
+		onShow() {
+		  const isConfirmed = uni.getStorageSync('popupConfirmed');
+			if (!isConfirmed) {
+				this.showNotice = true;
+			}
+		},
 		onHide: function() {
 			console.log('App Hide')
 		}
