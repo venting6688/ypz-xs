@@ -33,14 +33,14 @@ const patient = {
 		/**
 		  * footer更换就诊人
 		*/
-		    async updateDefaultArchives(data) {
-		    	const res = await cjRequest({
-		    		url: `updateDefaultArchives?patientCard=${data.patientCard}&phone=${data.phone}`,
-		    		method: "post",
-		    		
-		    	})
-		    	return res
-		    },
+		async updateDefaultArchives(data) {
+			const res = await cjRequest({
+				url: `updateDefaultArchives?patientCard=${data.patientCard}&phone=${data.phone}`,
+				method: "post",
+				
+			})
+			return res
+		},
 		/**
 		  * 刷新用户信息
 		*/

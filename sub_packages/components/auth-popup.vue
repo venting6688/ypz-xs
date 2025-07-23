@@ -36,37 +36,29 @@ export default {
       this.$refs.popup.open()
       this.showAuth = true
     },
-    
     // 关闭弹窗
     close() {
       this.$refs.popup.close()
       this.showAuth = false
       this.$emit('cancel')
     },
-    
     // 处理授权按钮点击
     handleAuthClick() {
-      // 这里会触发 health-card-login 组件自己的授权逻辑
       console.log('触发插件授权流程')
     },
-		
 		returnHome() {
 			uni.navigateTo({url: '/sub_packages/family/familyManage'});
 		},
-    
     // 授权成功
     onAuthSuccess(e) {
-			console.log(e,'aaa==a=a=a=a=a=');
       this.close()
       this.$emit('success', e)
     },
-    
     // 授权失败
     onAuthFail(e) {
       this.close()
       this.$emit('fail', e)
     },
-    
     // 授权取消
     onAuthCancel() {
       this.close()

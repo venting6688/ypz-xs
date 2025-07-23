@@ -1,5 +1,6 @@
 import login from './login.js'
 import store from '../store';
+	
 let requestCount = 0
 /**
  *
@@ -35,81 +36,37 @@ export const cjRequest =  (parmas, state) => {
 	}
 }
 
-// const BASE_URL = "https://www.chinzsoft.com/api/mobile/";
-// const BASE_URL = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/";
-
-// function request() {
-// 	let { 
-// 		url, 
-// 		method = 'GET',
-// 		header = {},
-// 		data = {},
-// 	} = obj;
-	
-// 	url = BASE_URL+url;
-// 	header['Authorization'] = 'lwt9311';
-	
-// 	// 使用promise封装方法
-// 	return new Promise((resolve,reject) => {
-// 		uni.request({
-// 			url,
-// 			method,
-// 			header,
-// 			data,
-// 			success: res => {
-// 				if (res.data.errCode == 0) {
-// 					resolve(res.data)
-// 				} else if (res.data.errCode == 400) {
-// 					uni.showModal({
-// 						title:'错误提示',
-// 						content: res.data.errMsg,
-// 						showCancel:false
-// 					})
-// 					resolve(res.data)
-// 				} else {
-// 					uni.showToast({
-// 						title:res.data.errMsg,
-// 						icon:"none"
-// 					})
-// 					reject(res.data)
-// 				}
-// 			},
-// 			fail: err => {
-// 				reject(err)
-// 			}
-// 		});
-// 	})
-	
-// }
+const baseUrl = "https://www.chinzsoft.com/api/mobile/";
+// const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
 
 function request(parmas,state){
+	let header = { "Authorization": store.state.loginToken };
+	
 	return new Promise((resolve, reject) => {
-		// 基础url
-		const baseUrl = "https://www.chinzsoft.com/api/mobile/";
-		// const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
 		if(!state){
 			requestCount++;
 			uni.showLoading({
 				title:'加载中'
 			})
 		}
-		wx.request({
-				...parmas,
-				url: baseUrl + parmas.url,
-				success: (result) => {
+		uni.request({
+			url: baseUrl + parmas.url,
+			method: parmas.method,
+			header,
+			data: parmas.data,
+			success: res => {
 				if(!state){
 					requestCount--;
 					if(!requestCount){
 						uni.hideLoading()
 					}
 				}
-						resolve(result)
-				},
-				fail: (err) => {
-						reject(err)
-				},
-			 
-		}); 
+				resolve(res)
+			},
+			fail: err => {
+				reject(err)
+			}
+		});
 	})
 }
  

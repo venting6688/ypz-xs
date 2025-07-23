@@ -347,6 +347,14 @@
 					"navigationBarTitleText": "",
 					"navigationStyle": "custom"
 				}
+			},
+			{
+				"path" : "complaint/index",
+				"style" : 
+				{
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
 			}
 		]
   }],

@@ -1,34 +1,14 @@
 <template>
   <view class="question-box">
-    <view class="question-title">{{ index }}. {{ title }}</view>
-    <view v-if="type === 'radio'" class="options">
-			<radio-group @change="handleRadioChange" class="option-group">
-			  <label v-for="(item, i) in options" :key="i" class="option-label">
-			    <radio :value="item" :checked="value === item" class="custom-radio" />
-			    <text class="option-text">{{ item }}</text>
-			  </label>
-			</radio-group>
+    <view class="question-title">{{ index+1 }}. {{ question }}</view>
+    <view class="options">
+			<uni-data-checkbox 
+			:localdata="options"
+			:value="innerValue"
+			@change="handleChange"
+			>
+			</uni-data-checkbox>
     </view>
-		
-    <view v-else-if="type === 'checkbox'" class="options">
-			<checkbox-group @change="handleCheckboxChange" class="option-group">
-			  <label v-for="(item, i) in options" :key="i" class="option-label">
-			    <checkbox :value="item" :checked="Array.isArray(value) && value.includes(item)" class="custom-radio" />
-			    <text class="option-text">{{ item }}</text>
-			  </label>
-			</checkbox-group>
-    </view>
-		
-		<view v-else-if="type === 'input'" class="input-wrapper">
-			<textarea
-				class="input-box"
-				v-model="innerValue"
-				@input="emitInput"
-				placeholder="请输入内容"
-				auto-height
-			/>
-		</view>
-		
   </view>
 </template>
 
@@ -36,19 +16,11 @@
 export default {
   name: 'questionItem',
    props: {
-		title: String,
+		question: String,
 		index: Number,
-		type: {
-			type: String,
-			default: 'radio'
-		},
 		options: {
 			type: Array,
 			default: () => []
-		},
-		required: {
-			type: Boolean,
-			default: false
 		},
 		value: {
 		  type: [String, Array],
@@ -57,7 +29,7 @@ export default {
 	},
 	data() {
 		return {
-			innerValue: this.value,
+			innerValue: this.value
 		};
 	},
 	watch: {
@@ -65,17 +37,12 @@ export default {
 			this.innerValue = val;
 		}
 	},
-  methods: {
-    handleRadioChange(e) {
-			this.$emit('update:value', e.detail.value);
-		},
-		handleCheckboxChange(e) {
-			this.$emit('update:value', e.detail.value);
-		},
-		emitInput() {
-			this.$emit('update:value', this.innerValue);
+	methods: {
+		handleChange(e) {
+			this.innerValue = e.detail.value;
+			this.$emit('input', this.innerValue);
 		}
-  }
+	}
 }
 </script>
 
@@ -110,7 +77,7 @@ export default {
 	.option-label {
 	  display: flex;
 	  align-items: center;
-	  margin-right: 20rpx;
+	  margin-right: 25rpx;
 	  padding: 10rpx 0;
 	}
 	

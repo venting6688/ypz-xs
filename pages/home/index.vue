@@ -85,7 +85,7 @@
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/outpatient4.png', name: '门诊报告', url: '/sub_packages/report/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/outpatient7.png', name: '就诊记录', url: '/sub_packages/record/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/synthesize1.png', name: '就诊人管理', url: '/sub_packages/family/familyManage' },
-						{ img: 'https://aiwz.sdtyfy.com:8099/img/tsjy.png', name: '投诉与建议' },
+						{ img: 'https://aiwz.sdtyfy.com:8099/img/tsjy.png', name: '投诉与建议', url: '/sub_packages/complaint/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/myd.png', name: '满意度调查', url: '/sub_packages/questionnaire/index'  },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/daohang.png', name: '院内导航', appid: 'wx1d5dbdc2760788da', targetUrl: 'pages/index/index?buildld=1718820999468392449&e=0' },
 					],
@@ -124,6 +124,52 @@
 			} else {
 				this.showMain = true;
 			}
+			
+			uni.getSetting({
+				withSubscriptions: true,
+				success(res) {
+					 if (res.subscriptionsSetting.mainSwitch) { // 用户打开了订阅消息总开关
+						 if (res.subscriptionsSetting.itemSettings) { // 用户同意总是保持是否推送消息的选择, 这里表示以后不会再拉起推送消息的授权
+							 //@ts-ignore
+							 let moIdState = res.subscriptionsSetting.itemSettings['5847baw5j8Zs_nIZ_4Uizi46e2ZmXe8MYbNNWCaHXcw', 'LO1VOwEIQuQqbIwmOtK9djON_9scW-ju6n2NF0HqWDs']; // 用户同意的消息模板id
+							 if (moIdState === 'accept') {
+								 uni.requestSubscribeMessage({
+									 tmplIds: ['5847baw5j8Zs_nIZ_4Uizi46e2ZmXe8MYbNNWCaHXcw', 'LO1VOwEIQuQqbIwmOtK9djON_9scW-ju6n2NF0HqWDs'],
+									 success(res) {
+										 console.log("success ~ 不会再拉起推送消息的授权,订阅成功")
+									 },
+								 })
+							 } else if (moIdState === 'reject') {
+								 console.log('拒绝了消息推送');
+								 uni.showToast({
+									 title: '拒绝了消息推送',
+								 });
+								 uni.openSetting({
+									 withSubscriptions: true,
+								 });
+							 } else if (moIdState === 'ban') {
+								 uni.showToast({
+									 title: '已被后台封禁',
+								 })
+							 }
+						 } else {
+							 //提示开始订阅消息
+							 uni.requestSubscribeMessage({
+								 // 此处填写申请的订阅消息模板的ID
+								 tmplIds: ['c6DX7UbTOL1hciWxbdeTjBr-FFWQrFXO5z9XXXXXXXX', 'ftpGE2XLY4rgXXxFWQrFXO5z9XXXXXXXX'],
+								 success(res) {
+									 console.log("uni.requestSubscribeMessage" + JSON.stringify(res))
+								 }
+							 })
+						 }
+					 } else {
+						 uni.openSetting({
+							 withSubscriptions: true,
+						 })
+					 }
+				}
+			})
+			
 		},
 		methods: {
 			handleConfirm() {

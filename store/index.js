@@ -13,7 +13,7 @@ export default new Vuex.Store({
 		showModalState:false, //登录、绑卡弹窗
 		loginValue:false, //登录、绑卡数据
 		loginStatus: uni.getStorageSync('loginStatus') || '',
-		loginToken: ''
+		loginToken: uni.getStorageSync('loginToken') || '',
   },
   mutations: {
 		SET_LOGIN_VALUE(state, newValue) {

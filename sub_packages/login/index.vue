@@ -36,7 +36,7 @@
 		methods: {
 			...mapMutations({
 				setLoginStatus: 'SET_LOGINSTATUS',
-				setLoginToken:'SET_LOGINTOKEN',
+				setLoginToken: 'SET_LOGINTOKEN',
 			}),
 			userAgreement(){
 				uni.navigateTo({
@@ -64,10 +64,12 @@
 			    this.loginFn().then(res => {  // 微信登录&服务端获取openid
 					this.getPhoneNumberFn(e.detail.code, res.code).then(data => { // 服务端获取手机号
 						if (data.code === 200) {
-							let items = JSON.stringify(data.data)
+							let res = data.data;
+							let items = JSON.stringify(res);
 							uni.setStorageSync('loginData', items)
+							uni.setStorageSync('loginToken', res.token)
 							this.setLoginStatus('login');
-							this.setLoginToken(items.token);
+							this.setLoginToken(res.token);
 							if (!data.data.defaultArchives) {
 								uni.navigateTo({ url:"/sub_packages/family/familyManage" })
 							} else {

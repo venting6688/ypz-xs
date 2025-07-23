@@ -57,9 +57,7 @@
 				<input v-model="informationObj.phone"  type="number" placeholder="请输入手机号" name="input"></input>
 			</view>
 			<view class="cu-form-group">
-				<view class="x">
-					*
-				</view>
+				<view class="x">*</view>
 				<view class="title">验证码</view>
 				<input v-model="informationObj.verificationCode" placeholder="请输入短信验证码" name="input" />
 				<view @click="verificationCodeBtn" v-if="!verificationCodeState" class="verificationCode">
@@ -156,12 +154,8 @@
 			}
 			 
 		},
-		onReady() {
-			console.log('先')
-		},
 		mounted() {
 			this.$nextTick(()=>{
-				console.log('后')
 				uni.$emit('pageNavigated');
 			})
 		},
