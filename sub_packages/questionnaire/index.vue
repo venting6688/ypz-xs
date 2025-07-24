@@ -47,8 +47,9 @@
 					<text class="label">其他建议：</text>
 					<textarea v-model="otherText" placeholder="请填写..." class="border textarea" />
 				</view>
+				<button class="btnStyle bigBtn" @click="submit">提交</button>
 			</view>
-			<button class="btnStyle bigBtn" @click="submit">提交</button>
+			
 		</view>
 		<view class="fill" :style="{ height: barHeight + 'px' }"></view>
 	</view>
@@ -249,7 +250,9 @@
 			  return /^1[3-9]\d{9}$/.test(phone);
 			},
 			submit() {
-				const currentAnswers = this.answersList[this.currentTab];
+				let currentQuestions = this.questionsList[this.currentTab];
+				let currentAnswers = this.answersList[this.currentTab];
+					
 				if (!this.name) {
 					uni.showToast({ title: '请输入姓名', icon: 'none' });
 					return;
@@ -260,18 +263,21 @@
 					return;
 				}
 		
-				// 如果所有问题未答完，可选校验
-				const questions = this.questionsList[this.currentTab];
-				const hasUnanswered = currentAnswers.length !== questions.length || currentAnswers.includes('');
-				if (hasUnanswered) {
+				if (currentAnswers.length !== currentQuestions.length || currentAnswers.includes('')) {
 					uni.showToast({ title: '请完成所有题目', icon: 'none' });
 					return;
 				}
 		
+				let content = currentQuestions.map((item, index) => ({
+					question: item.title,
+					answer: currentAnswers[index]
+				}));
+				
 				let detail = {
-					answer: currentAnswers,
-					feedback: this.otherText,
+					content,
+					feedback: this.otherText
 				};
+
 				detail = JSON.stringify(detail)
 				let payload = {
 					patientId: this.footData.patientUniquelyIdentifies,
