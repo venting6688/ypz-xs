@@ -20,7 +20,7 @@
 		</view>
 		
 		<view class="ai" @click="onAiClick">
-			<image src="../../static/img/ai.png" mode="aspectFit"></image>
+			<image src="https://aiwz.sdtyfy.com:8099/img/ai.png" mode="aspectFit"></image>
 		</view>
 		
 		<view class="content">
@@ -73,9 +73,9 @@
 				fontMode: 'normal',
 				current: 0,
 				list: [
-					{ img: '../../static/img/yuyue.png', url: "/sub_packages/subscribe/departments" },
-					{ img: '../../static/img/menzhen.png', url: "/sub_packages/report/index" },
-					{ img: '../../static/img/jiaofei.png', url: "/sub_packages/outpatientExpenditure/index" },
+					{ img: 'https://aiwz.sdtyfy.com:8099/img/yuyue.png', url: "/sub_packages/subscribe/departments" },
+					{ img: 'https://aiwz.sdtyfy.com:8099/img/menzhen.png', url: "/sub_packages/report/index" },
+					{ img: 'https://aiwz.sdtyfy.com:8099/img/jiaofei.png', url: "/sub_packages/outpatientExpenditure/index" },
 				],
 				items: ['门诊服务', '住院服务', '我的体检', '综合服务'],
 				gridList: [

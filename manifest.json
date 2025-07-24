@@ -59,7 +59,8 @@
     "mp-weixin" : {
         "appid" : "wxfef5325b51f9169d",
         "setting" : {
-            "urlCheck" : true
+            "urlCheck" : true,
+            "minified" : true
         },
         "optimization" : {
             "subPackages" : true
@@ -68,12 +69,12 @@
         "plugins" : {
             "WechatSI" : {
                 "version" : "0.3.6",
-                "provider" : "wx069ba97219f66d99" 
+                "provider" : "wx069ba97219f66d99"
             },
-						"healthCardPlugins": {
-							"version": "3.55.0",
-							"provider": "wxee969de81bba9a45" 
-						}
+            "healthCardPlugins" : {
+                "version" : "3.55.0",
+                "provider" : "wxee969de81bba9a45"
+            }
         },
         "secureNetwork" : {
             "enable" : true

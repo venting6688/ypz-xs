@@ -40,7 +40,6 @@
 						<text>就诊时间</text>
 						<view class="time">
 							<text>{{doctor.StartTime||''}}-{{doctor.EndTime||''}}</text>
-							<!-- <image src="@/static/image/more/FrameRight.png" mode=""></image> -->
 						</view>
 					</view>
 				</view>
@@ -51,7 +50,6 @@
 				</view>
 				<view class="name">
 					<text>{{footData.patientName ? footData.patientName:''}}</text>
-					<!-- <image src="@/static/image/more/FrameRight.png" mode=""></image> -->
 				</view>
 			</view>
 			<view class="tips">

@@ -32,10 +32,10 @@
 		data() {
 			return {
 				list: [
-					{ img: '../static/image/ln_yuyue.png', url: "/sub_packages/subscribe/departments" },
-					{ img: '../static/image/ln_menzhen.png', url: "/sub_packages/report/index" },
-					{ img: '../static/image/ln_jiaofei.png', url: "/sub_packages/outpatientExpenditure/index" },
-					{ img: '../static/image/ln_jiuzhen.png', url: "/sub_packages/record/index" },
+					{ img: 'https://aiwz.sdtyfy.com:8099/img/ln_yuyue.png', url: "/sub_packages/subscribe/departments" },
+					{ img: 'https://aiwz.sdtyfy.com:8099/img/ln_menzhen.png', url: "/sub_packages/report/index" },
+					{ img: 'https://aiwz.sdtyfy.com:8099/img/ln_jiaofei.png', url: "/sub_packages/outpatientExpenditure/index" },
+					{ img: 'https://aiwz.sdtyfy.com:8099/img/ln_jiuzhen.png', url: "/sub_packages/record/index" },
 				],
 			}
 		},

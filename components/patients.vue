@@ -14,7 +14,7 @@
 						<view class="id">{{pixelateNumber(footData.idNum ? footData.idNum : defaultVal.idNum)}}</view>
 					</view>
 					<view class="code" @click="code">
-						<image src="../static/img/code.png" mode="aspectFit" />
+						<image src="https://aiwz.sdtyfy.com:8099/img/qrcode.png" mode="aspectFit" />
 					</view>
 				</view>
 				<view class="addPatients" v-else @click="onPatientClick">

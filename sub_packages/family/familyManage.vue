@@ -42,11 +42,11 @@
 						<view class="cardNum">就诊卡：{{item.idNum}}</view>
 						<view>
 							<view class="card-face-container" @click="showQRCode(item.patientCard)">
-								<img class="card-bg" src="../static/image/cardnewbg.png" alt="" />
+								<img class="card-bg" src="https://aiwz.sdtyfy.com:8099/img/cardnewbg.png" alt="" />
 								<view class="card-top-info">
 										<view class="card-top-org">山东省卫生健康委员会</view>
 										<view class="card-top-title">
-												<img src="../static/image/icon2.png" alt="" />
+												<img src="https://aiwz.sdtyfy.com:8099/img/icon2.png" alt="" />
 												<span>电子健康卡</span>
 										</view>
 								</view>
@@ -56,8 +56,8 @@
 												<span class="card-user-id">{{pixelateNumber(item.idNum)}}</span>
 										</view>
 										<view class="card-qrcode">
-												<img class="card-qrcode-logo" src="../static/image/logo_.png" alt="" />
-												<img src="../static/image/qrcode.png" alt="" />
+												<img class="card-qrcode-logo" src="https://aiwz.sdtyfy.com:8099/img/logo_.png" alt="" />
+												<img src="https://aiwz.sdtyfy.com:8099/img/qrcode.png" alt="" />
 										</view>
 								</view>
 								<view class="card-footer">中华人民共和国国家卫生健康委员会监制</view>

@@ -2,7 +2,7 @@
 	<view class="head" :class="{convenient:footState===2}">
 		<image class="background" src="https://aiwz.sdtyfy.com:8099/img/Group.png" mode="widthFix"></image>
 		<view class="text">
-			<view class="title">您好！"安好" 为您服务<image class="icon" src="@/static/image/Group308.png" mode="widthFix"></image></view>
+			<view class="title">您好！"安好" 为您服务</view>
 			<view class="news">
 				{{ animatedText.slice(0,39) }}
 			</view>

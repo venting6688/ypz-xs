@@ -3,7 +3,7 @@
 		<customerNav title="我的" />
 		<view class="first"><patients /></view>
 		<view class="ai" @click="onOldClick">
-			<image src="../../static/img/laonian.png" mode="aspectFit" />
+			<image src="https://aiwz.sdtyfy.com:8099/img/laonian.png" mode="aspectFit" />
 		</view>
 		<view class="content">
 			<view class="section" v-for="(block, i) in gridData" :key="i">

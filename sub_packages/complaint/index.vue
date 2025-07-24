@@ -6,10 +6,10 @@
 		</view>
 		<view class="head">
 			<view class="left">
-				<image src="../static/image/text-ts.png" />
+				<image src="https://aiwz.sdtyfy.com:8099/img/text-ts.png" />
 				<text>若您对就医过程中的服务、流程等有不满意的地方，请告诉我们，以便于督促我们不断改进。</text>
 			</view>
-			<image src="../static/image/manyi.png" mode="aspectFit" />
+			<image src="https://aiwz.sdtyfy.com:8099/img/manyi.png" mode="aspectFit" />
 		</view>
 		<view class="content">
 		  <uni-segmented-control
