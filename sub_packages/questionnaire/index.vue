@@ -57,6 +57,7 @@
 
 <script>
 	import { mapState } from 'vuex'
+	import login from '@/utils/login.js'
 	import customerNav from '@/components/customerNav.vue';
 	import questionItem from '../components/questionItem.vue'
 	import { getStatusBarHeight } from "@/utils/system.js";
@@ -250,54 +251,56 @@
 			  return /^1[3-9]\d{9}$/.test(phone);
 			},
 			submit() {
-				let currentQuestions = this.questionsList[this.currentTab];
-				let currentAnswers = this.answersList[this.currentTab];
-					
-				if (!this.name) {
-					uni.showToast({ title: '请输入姓名', icon: 'none' });
-					return;
-				}
-		
-				if (!this.phone || !this.isValidPhone(this.phone)) {
-					uni.showToast({ title: '请输入有效手机号', icon: 'none' });
-					return;
-				}
-		
-				if (currentAnswers.length !== currentQuestions.length || currentAnswers.includes('')) {
-					uni.showToast({ title: '请完成所有题目', icon: 'none' });
-					return;
-				}
-		
-				let content = currentQuestions.map((item, index) => ({
-					question: item.title,
-					answer: currentAnswers[index]
-				}));
-				
-				let detail = {
-					content,
-					feedback: this.otherText
-				};
-
-				detail = JSON.stringify(detail)
-				let payload = {
-					patientId: this.footData.patientUniquelyIdentifies,
-					name: this.name,
-					phone: this.phone,
-					detail,
-					type: this.currentTab+1
-				};
-				console.log(JSON.stringify(payload));
-				questionnaireApi.submitAnswers(payload).then(res => {
-					if (res.data.code === 200) {
-						uni.showToast({ title: '提交成功', icon: 'success' });
-						// 清空数据
-						this.answersList[this.currentTab] = [];
-						this.otherText = '';
-						this.name = '';
-						this.phone = '';
+				if (!this.footData.patientUniquelyIdentifies) {
+					login.loginData().catch((error) => {});
+				} else {
+					let currentQuestions = this.questionsList[this.currentTab];
+					let currentAnswers = this.answersList[this.currentTab];
+						
+					if (!this.name) {
+						uni.showToast({ title: '请输入姓名', icon: 'none' });
+						return;
 					}
-				});
-				  
+			
+					if (!this.phone || !this.isValidPhone(this.phone)) {
+						uni.showToast({ title: '请输入有效手机号', icon: 'none' });
+						return;
+					}
+			
+					if (currentAnswers.length !== currentQuestions.length || currentAnswers.includes('')) {
+						uni.showToast({ title: '请完成所有题目', icon: 'none' });
+						return;
+					}
+			
+					let content = currentQuestions.map((item, index) => ({
+						question: item.title,
+						answer: currentAnswers[index]
+					}));
+					
+					let detail = {
+						content,
+						feedback: this.otherText
+					};
+
+					detail = JSON.stringify(detail)
+					let payload = {
+						patientId: this.footData.patientUniquelyIdentifies,
+						name: this.name,
+						phone: this.phone,
+						detail,
+						type: this.currentTab+1
+					};
+					questionnaireApi.submitAnswers(payload).then(res => {
+						if (res.data.code === 200) {
+							// 清空数据
+							this.answersList[this.currentTab] = [];
+							this.otherText = '';
+							this.name = '';
+							this.phone = '';
+							uni.showToast({ title: '提交成功', icon: 'success' });
+						}
+					});
+				}
 			}
 		}
 	}
@@ -307,22 +310,6 @@
 	.homeLayout {
 		width: 100%;
 		overflow-x: hidden;
-		.goBack {
-			position: fixed;
-			z-index: 999;
-			top: 0;
-			left: 30rpx;
-			margin-left: 0;
-			width: 30px;
-			height: 30px;
-			border: 1rpx solid rgba(255, 255, 255, 0.3);
-			border-radius: 35px;
-			background: rgba(66, 134, 255);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			backdrop-filter: blur(10rpx);
-		}
 		
 		.head {
 			position: absolute;

@@ -52,8 +52,8 @@
 					{
 						title: '常用功能',
 						list: [
-							{ icon: '../../static/img/icon/info.png', label: '信息完善' },
-							{ icon: '../../static/img/icon/jiuzhen.png', label: '就诊人管理', url: '/sub_packages/family/familyManage' },
+							{ icon: '../../static/img/icon/info.png', label: '信息完善', url: '/sub_packages/filing/information' },
+							{ icon: '../../static/img/icon/jiuzhen.png', label: '就诊人管理', url: '/sub_packages_healthcard/family/familyManage' },
 							{ icon: '../../static/img/icon/manyi.png', label: '满意度调查' },
 							{ icon: '../../static/img/icon/tousu.png', label: '投诉与建议' }
 						]

@@ -84,7 +84,7 @@
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/outpatient3.png', name: '门诊缴费', url: '/sub_packages/outpatientExpenditure/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/outpatient4.png', name: '门诊报告', url: '/sub_packages/report/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/outpatient7.png', name: '就诊记录', url: '/sub_packages/record/index' },
-						{ img: 'https://aiwz.sdtyfy.com:8099/img/synthesize1.png', name: '就诊人管理', url: '/sub_packages/family/familyManage' },
+						{ img: 'https://aiwz.sdtyfy.com:8099/img/synthesize1.png', name: '就诊人管理', url: '/sub_packages_healthcard/family/familyManage' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/tsjy.png', name: '投诉与建议', url: '/sub_packages/complaint/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/myd.png', name: '满意度调查', url: '/sub_packages/questionnaire/index'  },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/daohang.png', name: '院内导航', appid: 'wx1d5dbdc2760788da', targetUrl: 'pages/index/index?buildld=1718820999468392449&e=0' },
@@ -94,12 +94,13 @@
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/hospitalized7.png', name: '住院预交金', url: '/sub_packages/deposit/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/hospitalized5.png', name: '住院费用', url: '/sub_packages/convenientModule/index' },
 						// { img: 'https://aiwz.sdtyfy.com:8099/img/cpjs.png', name: '床旁结算' },
+						{ img: 'https://aiwz.sdtyfy.com:8099/img/cpjs.png', name: '住院报告', url: '/sub_packages/report/hospitalization' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/zybl.png', name: '住院病历' },
 					],
 					[
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/yyjl.png', name: '预约记录' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/ttyy.png', name: '团体预约' },
-						{ img: 'https://aiwz.sdtyfy.com:8099/img/gryy.png', name: '个人预约' },
+						{ img: 'https://aiwz.sdtyfy.com:8099/img/gryy.png', name: '个人预约', url: '/sub_packages/physicalExamination/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/bgcx.png', name: '报告查询' }
 					],
 					[

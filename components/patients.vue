@@ -82,7 +82,7 @@
 			},
 			
 			onPatientClick() {
-				uni.navigateTo({ url: '/sub_packages/family/familyManage' })
+				uni.navigateTo({ url: '/sub_packages_healthcard/family/familyManage' })
 			},
 			
 			code(){

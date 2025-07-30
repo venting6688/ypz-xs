@@ -71,7 +71,7 @@
 							this.setLoginStatus('login');
 							this.setLoginToken(res.token);
 							if (!data.data.defaultArchives) {
-								uni.navigateTo({ url:"/sub_packages/family/familyManage" })
+								uni.navigateTo({ url:"/sub_packages_healthcard/family/familyManage" })
 							} else {
 								uni.showToast({ title: '登录成功' })
 								wx.reLaunch({ url: `/pages/virtualNurse/index?pattern=2&shouldUpdate=true` })

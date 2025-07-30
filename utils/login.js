@@ -5,7 +5,7 @@
 		if (!loginValue) {
 			uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" })
 		} else {
-			uni.navigateTo({ url:"/sub_packages/family/familyManage" })
+			uni.navigateTo({ url:"/sub_packages_healthcard/family/familyManage" })
 		}
 	})
 }

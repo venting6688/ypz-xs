@@ -5,7 +5,7 @@ const questionnaire = {
 		const res = await cjRequest({
 			url: "dict/data/type/"+type,
 			method: "get"
-		})
+		}, 2)
 		return res
 	},
 	

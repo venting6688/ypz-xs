@@ -47,7 +47,7 @@ export default {
       console.log('触发插件授权流程')
     },
 		returnHome() {
-			uni.navigateTo({url: '/sub_packages/family/familyManage'});
+			uni.navigateTo({url: '/sub_packages_healthcard/family/familyManage'});
 		},
     // 授权成功
     onAuthSuccess(e) {

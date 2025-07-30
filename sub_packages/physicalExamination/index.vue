@@ -1,25 +1,17 @@
 <template>
-	<view class="inventory">
-		<HeaderBar @handle="show" :footState="footState" />
-		<view>
-			<uni-segmented-control 
-			:current="current" 
-			:values="items" 
-			@clickItem="onClickItem" 
-			styleType="button" 
-			activeColor="#1B98FF"
-			class="tab"
-			>
-			</uni-segmented-control>
-			<view class="content">
-				<view v-show="current === 0">
-					选项卡1的内容
-				</view>
-				<view v-show="current === 1">
-					选项卡2的内容
-				</view>
-			</view>
+	<view class="inventory pageBg homePageBg">
+		<customerNav title=" " />
+		<view class="goBack" :style="{top: barHeight +'px'}" @click="goBack">
+			<uni-icons type="back" color="#fff" size="15"></uni-icons>
 		</view>
+		<view class="head">
+			<view class="left">
+				<image src="https://aiwz.sdtyfy.com:8099/img/text-my.png" />
+				<text>为了更好提升我院服务质量，占用您宝贵的1分钟时间，邀请您填写调查问卷</text>
+			</view>
+			<image src="https://aiwz.sdtyfy.com:8099/img/manyi.png" mode="aspectFit" />
+		</view>
+		
 	</view>
 </template>
 <script>
@@ -49,9 +41,34 @@
 		width: 100vw;
 		height: 100%; 
 		background-color: #f5f5f5;
-		.tab {
-			background: #fff;
-			padding: 15rpx;
+		.head {
+			position: absolute;
+			top: 12%;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+			padding: 0 30rpx;
+			box-sizing: border-box;
+			.left {
+				display: flex;
+				flex-direction: column; 
+				flex: 1;
+				text {
+					flex: 1;
+					font-size: 28rpx;
+					word-wrap: break-word;
+				}
+				image {
+					width: 456rpx;
+					height: 66rpx;
+					margin-bottom: 20rpx;
+				}
+			} 
+			image {
+				width: 200rpx;
+				height: 200rpx;
+			}
 		}
 	}
 </style>

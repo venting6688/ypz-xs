@@ -66,7 +66,7 @@
 				"selectedIconPath": "static/img/tabBar/nurs-h.png"
 			},
 			{ 
-				"text": "便捷导诊", 
+				"text": "便捷导引", 
 				"pagePath": "pages/convenient/index",
 				"iconPath": "static/img/tabBar/daoyin.png",
 				"selectedIconPath": "static/img/tabBar/daoyin-h.png"
@@ -79,8 +79,50 @@
 			}
 		]
 	},
-	
   "subPackages": [{
+      "root": "sub_packages_healthcard",
+			"plugins": {
+				"healthCardPlugins": {
+					"version": "3.55.0",
+					"provider": "wxee969de81bba9a45"
+				}
+			},
+      "pages": [
+				{
+					//家庭管理
+					"path" : "family/familyManage",
+					"style" : 
+					{
+						"navigationBarTitleText": "就诊人管理",
+						"disableScroll": true,
+						"usingComponents": {
+						  "health-card-login": "plugin://healthCardPlugins/healthCardLogin"
+						}
+					}
+				},
+        {
+          "path": "family/registerHealth",
+          "style": {
+            "navigationBarTitleText": "添加就诊人",
+            "disableScroll": true,
+            "usingComponents": {
+              "health-card-login": "plugin://healthCardPlugins/healthCardLogin"
+            }
+          }
+        },
+        {
+          "path": "family/faceVerify",
+          "style": {
+            "navigationBarTitleText": "人脸识别",
+            "disableScroll": true,
+            "usingComponents": {
+              "health-card-login": "plugin://healthCardPlugins/healthCardLogin"
+            }
+          }
+        }
+      ]
+    },
+		{
   	"root": "sub_packages",
   	"pages": [
 			{
@@ -156,49 +198,40 @@
 				}
 			},
 			{
-					// 预约挂号-科室
-					"path" : "subscribe/departments",
-					"style" : 
-					{
-						// "navigationStyle": "custom",
-						"navigationBarTitleText": "预约挂号",
-						"disableScroll": true
-					}
-				},
-				{
-					//预约挂号-医生
-					"path" : "subscribe/doctors",
-					"style" : 
-					{
-					"navigationBarTitleText": "预约挂号",
-						"disableScroll": true
-						// "keep-alive": false
-					}
-				},
-				{
-					//预约挂号-医生详情
-					"path" : "subscribe/doctorDetails",
-					"style" : 
-					{
-					"navigationBarTitleText": "预约挂号",
-						"disableScroll": true
-					}
-				},
-				{
-					//在线建档-填写信息页面
-					"path" : "filing/information",
-					"style" : 
-					{
-						"navigationBarTitleText": "信息完善",
-						"disableScroll": true
-					}
-				},
-			{
-				//家庭管理
-				"path" : "family/familyManage",
+				// 预约挂号-科室
+				"path" : "subscribe/departments",
 				"style" : 
 				{
-					"navigationBarTitleText": "就诊人管理",
+					// "navigationStyle": "custom",
+					"navigationBarTitleText": "预约挂号",
+					"disableScroll": true
+				}
+			},
+			{
+				//预约挂号-医生
+				"path" : "subscribe/doctors",
+				"style" : 
+				{
+				"navigationBarTitleText": "预约挂号",
+					"disableScroll": true
+					// "keep-alive": false
+				}
+			},
+			{
+				//预约挂号-医生详情
+				"path" : "subscribe/doctorDetails",
+				"style" : 
+				{
+				"navigationBarTitleText": "预约挂号",
+					"disableScroll": true
+				}
+			},
+			{
+				//信息完善
+				"path" : "filing/information",
+				"style" : 
+				{
+					"navigationBarTitleText": "信息完善",
 					"disableScroll": true
 				}
 			},
@@ -290,20 +323,11 @@
 				}
 			},
 			{
-				//添加就诊人（健康卡）
-				"path" : "family/registerHealth",
+				//住院报告
+				"path" : "report/hospitalization",
 				"style" : 
 				{
-					"navigationBarTitleText": "添加就诊人",
-					"disableScroll": true
-				}
-			},
-			{
-				//人脸识别
-				"path" : "family/faceVerify",
-				"style" : 
-				{
-					"navigationBarTitleText": "人脸识别",
+					"navigationBarTitleText": "住院报告",
 					"disableScroll": true
 				}
 			},
@@ -313,7 +337,7 @@
 				"style" : 
 				{
 					"navigationBarTitleText": "体检中心",
-					"disableScroll": true
+					"navigationStyle": "custom"
 				}
 			},
 			{
@@ -364,8 +388,8 @@
 				"van-toast": "/wxcomponents/vant/toast/index",
 				"van-rate": "/wxcomponents/vant/rate/index",
 				"van-loading": "/wxcomponents/vant/loading/index",
-				"van-progress": "/wxcomponents/vant/progress/index",
-				"health-card-login": "plugin://healthCardPlugins/healthCardLogin"
+				"van-progress": "/wxcomponents/vant/progress/index"
+				// "health-card-login": "plugin://healthCardPlugins/healthCardLogin"
 				// "health-card-users": "plugin://healthCardPlugins/healthCardUsers",
 				// "health-card-create-card": "plugin://healthCardPlugins/healthCardCreateCard",
 				// "health-card-query-comp": "plugin://healthCardPlugins/healthCardQueryComp"

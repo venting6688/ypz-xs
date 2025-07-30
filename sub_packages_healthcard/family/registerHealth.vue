@@ -303,10 +303,10 @@
 					let query = {
 						domainChannel: 3,
 						authCode: this.authCode,
-						successRedirectUrl: 'mini:/sub_packages/family/familyManage?healthCode=${healthCode}',
-						failRedirectUrl: 'mini:/sub_packages/family/registerHealth?regInfoCode=${regInfoCode}',
-						verifyFailRedirectUrl: `mini:/sub_packages/family/registerHealth`,
-						faceUrl: `/sub_packages/family/faceVerify`,
+						successRedirectUrl: 'mini:/sub_packages_healthcard/family/familyManage?healthCode=${healthCode}',
+						failRedirectUrl: 'mini:/sub_packages_healthcard/family/registerHealth?regInfoCode=${regInfoCode}',
+						verifyFailRedirectUrl: `mini:/sub_packages_healthcard/family/registerHealth`,
+						faceUrl: `/sub_packages_healthcard/family/faceVerify`,
 					}
 					await healthCard.registerHealthCardPreFill(this.informationObj, query).then((res) => {
 						if (res.data.code == 200) {

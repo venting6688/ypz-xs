@@ -107,7 +107,7 @@
 			recharge(num){
 				this.$emit('handle','')
 				uni.navigateTo({
-					url: `/sub_packages/family/familyManage`
+					url: `/sub_packages_healthcard/family/familyManage`
 				})
 			},
 		}

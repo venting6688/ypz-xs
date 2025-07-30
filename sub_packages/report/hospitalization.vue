@@ -1,23 +1,7 @@
 <template>
 	<view class="box">
-		<bar v-if="loginData.defaultArchives" />
+		<!-- <bar v-if="loginData.defaultArchives" /> -->
 		<date @handle="show" />
-		<view class="head">
-			<view>
-				<view class="name" @click="headBtn(1)">
-					<view :class="{black:headIndex===1}">
-						检查报告
-						<view class="wire" :class="{blue:headIndex===1}"></view>
-					</view>
-				</view>
-				<view class="name" @click="headBtn(2)">
-					<view :class="{black:headIndex===2}">
-						检验报告
-					<view class="wire" :class="{blue:headIndex===2}"></view>
-					</view>
-				</view>
-			</view>
-		</view>
 		<view class="information">
 			<ul v-if="List.length">
 				<li @click="information(item)" v-for="(item,index) in List" :key="index">
@@ -49,12 +33,6 @@
 				<image src="../static/image/wu.png" mode="widthFix"></image>
 			</view>
 		</view>
-		<!-- <auth-popup
-			ref="authPopup"
-			@success="authSuccess"
-			@fail="authFail"
-			@cancel="authCancel"
-		/> -->
 		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :url="toastObj.url" :tips="toastObj.tips" :message="toastObj.message" />
 	</view>
 </template>
@@ -66,12 +44,10 @@
 	import Toast from '../components/toast.vue'
 	import elseApi from '@/api/elseApi.js'
 	import healthCard from '@/api/healthCard.js'
-  // import AuthPopup from '../components/auth-popup.vue'
 	export default {
 		components:{
 			bar,
 			date,
-			// AuthPopup,
 			Toast,
 		},
 		data(){
@@ -80,7 +56,6 @@
 				date:{},
 				List:[],
 				loginData: {},
-				siginData: {},
 				isVerify: false,
 				toastObj:{
 					state:false,
@@ -91,19 +66,8 @@
 			...mapState(['footData']),
 		},
 		onLoad(e) {
-			let loginValue = uni.getStorageSync("loginData");
-			this.loginData = loginValue ? JSON.parse(loginValue) : {};
-			this.siginData = this.loginData.defaultArchives ? this.loginData.defaultArchives : {};
-			this.headBtn(1);
+			this.getVisitRecord();
 			this.isVerify = true;
-			//实人验证逻辑，不可删除
-			// this.registerOrderId = e.registerOrderId ? e.registerOrderId : '';
-			// if (this.registerOrderId == '') {
-			// 	this.healthcardVerify();
-			// }
-			// if (this.registerOrderId != '') {
-			// 	this.checkUniformVerifyResult();
-			// }
 		},
 		methods: {
 			closeToast(state){
@@ -116,98 +80,12 @@
 				if(datePattern){
 					this.date = time
 					if (this.isVerify) {
-						let type = this.headIndex === 1 ? '00' : '99';
-						this.getVisitRecord(type)
+						this.getVisitRecord()
 					}
 				}
 			},
-			headBtn(num){
-				this.headIndex = num
-				let type = num === 1 ? '00' : '99';
-				this.getVisitRecord(type)
-			},
 			
-			//实人验证
-			healthcardVerify() {
-				var plugin = requirePlugin("healthCardPlugins");
-				plugin.login((isok, res) => {
-					if (!isok && res.result.toLogin) {
-						this.$refs.authPopup.open();
-					} else {
-						this.verifyOrder(res);
-					}
-				}, {
-					wechatCode: true,
-				});
-			},
-			
-			//实人验证生成orderid
-			verifyOrder(val) {
-				const { wechatCode } = val.result;
-				
-				let data = {
-					cardType: '01',
-					idCard: this.siginData.idNum,
-					name: this.siginData.patientName,
-					wechatCode,
-					ecardNo: '',
-					scene: '0101081',
-					department: '',
-					useCardType: '01',
-					cardCostTypes: '',
-					verifySuccessRedirectUrl: 'mini:/sub_packages/report/index?registerOrderId=${registerOrderId}',
-					verifyFailRedirectUrl: 'mini:/sub_packages/report/index?registerOrderId=${registerOrderId}',
-					faceUrl:`/sub_packages_healthcard/family/faceVerify`,
-					domainChannel: 3,
-					openid: this.loginData.xcxOpenId,
-				}
-				
-				healthCard.registerUniformVerifyOrder(data).then((res) => {
-					let msg = res.data.data.commonOut.errMsg
-					if (res.data.code == 200 && msg == '成功') {
-						let url = res.data.data.rsp.verifyUrl;
-						uni.setStorageSync('verifyOrderId', res.data.data.rsp.verifyOrderId)
-						uni.redirectTo({ url: '/pages/webview/webview?url=' + encodeURIComponent(url) });
-					} else {
-						uni.showToast({
-							title: '验证失败，请联系管理员',
-							icon: 'none',
-							url: '',
-							duration: 2000 
-						}) 
-					}
-				});
-			},
-			
-			//实人验证结果查询
-			checkUniformVerifyResult() {
-				let verifyOrderId = uni.getStorageSync('verifyOrderId');
-				let data = {
-					verifyOrderId,
-					verifyResult: this.registerOrderId,
-					openid: this.loginData.xcxOpenId,
-				}
-				
-				healthCard.checkUniformVerifyResult(data).then((res) => {
-					if (res.data.code == 200) {
-						this.headBtn(1);
-						this.isVerify = true;
-					}
-				});
-			},
-			
-			authSuccess(e) {
-				const res = e.detail; 
-				this.verifyOrder(res);
-			},
-			authFail(e) {
-				console.log('授权失败：', e)
-			},
-			authCancel(e) {
-				console.log('用户取消授权：', e)
-			},
-			
-			getVisitRecord(type){
+			getVisitRecord(){
 				try {
 					uni.showLoading({
 					  title: '加载中...',
@@ -216,10 +94,10 @@
 					let data = {
 						patientID: this.footData.patientUniquelyIdentifies,
 						visitNumber: '',
-						documentType: type,
+						documentType: '',
 						startDate: this.date.startTime,
 						endDate: this.date.endTime,
-						admType: 'O',
+						admType: 'I',
 					}
 					elseApi.getDocumentRetrieval(data).then(res => {
 						if(res.data.code===200){
@@ -234,19 +112,6 @@
 					uni.hideLoading();
 				}
 			},
-			information(item){
-				if(this.headIndex===1){
-					//检查
-					uni.navigateTo({
-						url: `/sub_packages/report/examine?report=${encodeURIComponent(JSON.stringify(item))}`
-					})
-				}else {
-					//检验
-					uni.navigateTo({
-						url: `/sub_packages/report/checkout?report=${encodeURIComponent(JSON.stringify(item))}`
-					})
-				}
-			}
 		},
 	}
 </script>

@@ -1,179 +1,321 @@
 <template>
 	<view class="information">
-		<!-- <view class="bar">
-			<view @click="relationBtn(i)" :class="{b:informationObj.relation===i}" v-for="(i,x) in barList" :key="x">{{i}}</view>
-		</view> -->
 		<form>
 			<view class="cu-form-group">
+				<view class="x">*</view>
 				<view class="title">姓名</view>
-				<text class="answer">{{informationObj.name}}</text>
-			</view>
-			<view class="cu-form-group">
-				<view class="title">性别</view>
-				<text class="answer">{{informationObj.sex}}</text>
-			</view>
-			<view class="cu-form-group">
-				<view class="title">民族</view>
-				<text class="answer">{{informationObj.nationality}}</text>
-			</view>
-			<view class="cu-form-group">
-				<view class="title">出生日期</view>
-				<text class="answer">{{informationObj.birth}}</text>
-			</view>
-			<view class="cu-form-group">
-				<view class="title">家庭住址</view>
-				<text class="answer">{{informationObj.address}}</text>
-			</view>
-			<view class="cu-form-group">
-				<view class="title">身份证号</view>
-				<text class="answer">{{informationObj.num}}</text>
-			</view>
-			<view class="cu-form-group">
-				<view class="title">患者类型</view>
-				<picker @change="patientTypePickerChange" :value="patientTypePickerIndex" range-key="name" :range="patientTypePicker">
-					<view class="picker">
-						{{patientTypePickerIndex>-1 ? patientTypePicker[patientTypePickerIndex].name : '请选择'}}
-					</view>
-				</picker>
-				<!-- <text class="answer">自费</text> -->
-			</view>
-			<view class="cu-form-group">
-				<view class="x">
-					*
-				</view>
-				<view class="title">职业</view>
-				<picker @change="occupationPickerChange" :value="occupationPickerIndex" range-key="name" :range="occupationPicker">
-					<view class="picker">
-						{{occupationPickerIndex>-1 ? occupationPicker[occupationPickerIndex].name:'请选择'}}
-					</view>
-				</picker>
-			</view>
-			
-			<view class="cu-form-group" style="margin-top: 30rpx;">
-				<view class="x">
-					*
-				</view>
-				<view class="title">手机号</view>
-				<input v-model="informationObj.phone"  type="number" placeholder="请输入手机号" name="input"></input>
+				<input v-model="informationObj.name" placeholder="请输入" name="input" />
 			</view>
 			<view class="cu-form-group">
 				<view class="x">*</view>
-				<view class="title">验证码</view>
-				<input v-model="informationObj.verificationCode" placeholder="请输入短信验证码" name="input" />
-				<view @click="verificationCodeBtn" v-if="!verificationCodeState" class="verificationCode">
-					获取验证码
-				</view>
-				<view class="answer" v-else>
-					{{time}}
-				</view>
+				<view class="title">手机号码</view>
+				<input v-model="informationObj.phone1" placeholder="请输入" name="input" maxlength="11" />
+			</view>
+			<view class="cu-form-group">
+				<view class="x">*</view>
+				<view class="title">证件类型</view>
+				<picker mode="selector" :value="informationObj.idType" :range="cardTypeValue" @change="onIdTypeChange">
+					<text class="picker birth">{{selectedIdType}}</text>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="x">*</view>
+				<view class="title">证件号码</view>
+				<input v-model="informationObj.idNumber" placeholder="请输入" name="input" @input="parseIdCard" maxlength="18" />
+			</view>
+			<view class="cu-form-group">
+				<view class="title">性别</view>
+				<picker mode="selector" :value="informationObj.gender" :range="sexs" @change="onSexChange">
+					<text class="picker birth">{{selectedSex}}</text>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">出生日期</view>
+				<picker mode="date" :value="informationObj.birthday" :start="startDate" :end="endDate" fields="day" @change="bindDateChange">
+				    <text class="picker birth">{{informationObj.birthday}}</text>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">婚姻</view>
+				<picker mode="selector" :value="informationObj.marriage" :range="marriage" @change="onSexChange">
+					<text class="picker birth">{{selectedMarriage}}</text>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="x">*</view>
+				<view class="title">民族</view>
+				<picker mode="selector" :value="informationObj.nation" :range="nations" @change="onNationChange">
+					<text class="picker birth">{{selectedNation}}</text>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">职业</view>
+				<picker mode="selector" :value="informationObj.career" :range="careerValue" @change="onCareerChange">
+					<text class="picker birth">{{selectedCareer}}</text>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">现住址</view>
+				<picker mode="region" @change="chooseregion" :value="provincesAndMunicipalities">
+					<view class="picker">
+						<text>{{ provincesAndMunicipalities }}</text>
+					</view>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">现住址具体地址</view>
+				<input v-model="informationObj.currentAddress" name="input" />
+			</view>
+			<view class="cu-form-group">
+				<view class="title">籍贯</view>
+				<picker mode="region" @change="changeNativePlace" :value="selectedNativePlace">
+					<view class="picker">
+						<text>{{ selectedNativePlace }}</text>
+					</view>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">户口地址</view>
+				<picker mode="region" @change="changeHousehold" :value="selectedHouseholdAddress">
+					<view class="picker">
+						<text>{{ selectedHouseholdAddress }}</text>
+					</view>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">户口具体地址</view>
+				<input v-model="informationObj.householdAddress" name="input" />
+			</view>
+			<view class="cu-form-group">
+				<view class="title">出生地址</view>
+				<picker mode="region" @change="changeHousehold" :value="selectedBirthplace">
+					<view class="picker">
+						<text>{{ selectedBirthplace }}</text>
+					</view>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">出生地具体地址</view>
+				<input v-model="informationObj.birthplace" name="input" />
+			</view>
+			<view class="cu-form-group">
+				<view class="title">联系人姓名</view>
+				<input v-model="informationObj.contactName" name="input" />
+			</view>
+			<view class="cu-form-group">
+				<view class="title">联系人电话</view>
+				<input v-model="informationObj.contactPhone" name="input" />
+			</view>
+			<view class="cu-form-group">
+				<view class="title">联系人证件号</view>
+				<input v-model="informationObj.contactIdNum" name="input" />
+			</view>
+			<view class="cu-form-group">
+				<view class="title">联系人证件类型</view>
+				<picker mode="selector" :value="informationObj.contactIdType" :range="cardTypeValue" @change="changeIdType">
+					<text class="picker birth">{{selectedContactIdType}}</text>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">与联系人关系</view>
+				<picker mode="selector" :value="informationObj.relation" :range="relation" @change="onRelationChange">
+					<text class="picker birth">{{selectedRelation}}</text>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">联系人地址</view>
+				<picker mode="region" @change="changeContactAddress" :value="selectedContactAddress">
+					<view class="picker">
+						<text>{{ selectedContactAddress }}</text>
+					</view>
+				</picker>
+			</view>
+			<view class="cu-form-group">
+				<view class="title">联系人具体地址</view>
+				<input v-model="informationObj.contactAddress" name="input" />
 			</view>
 		</form>
-		<view class="tips">
-			<view class="tips-title">
-				温馨提示
-			</view>
-			<view class="center">
-				<view>★  上述身份信息需要在医院建档，请务必填写真实信息；</view>
-				<view>★  手机号需要填写本人正在使用的手机号</view>
-			</view>
-		</view>
-		<view class="confirm" @click="Filing" :class="{unclickable:!informationObj.occupation ||!informationObj.patientType ||!informationObj.phone || !informationObj.verificationCode }">
-			确认建档
+		<view 
+		class="confirm" 
+		@click="Filing" 
+		:class="{unclickable: !informationObj.occupation || !informationObj.patientType || !informationObj.phone || !informationObj.verificationCode }"
+		>
+			修改信息
 		</view>
 	</view>
 </template>
 <script>
-	import filingApi from '@/api/filingApi.js'
-	import {mapMutations} from 'vuex'
+	import login from '../../utils/login';
+import filingApi from '@/api/filingApi.js'
+	import { mapState } from 'vuex'
+	
 	export default {
+		computed: {
+			...mapState(['footData']),
+		},
 		data(){
 			return {
 				informationObj:{
-					relation:'',
 					name:'',
-					sex:'',
-					nationality:'',
-					birth:'',
-					address:'',
-					occupation:'',
-					patientType:'',
-					num:'',
-					phone:'',
+					gender:'',
+					nation:'', //民族
+					birthday:'',
+					idType: '',
+					idNumber:'',
+					phone1:'',
+					relation:'',
+					career: '',
+					patientType: 0,
 					verificationCode:'',
+					openId: '',
+					currentAddress: '',
+					householdAddress: '',
+					birthplace: '',
+					contactName: '',
+					contactPhone: '',
+					contactIdNum: '',
+					contactIdType: '',
+					contactRelation: '',
+					contactAddress: '',
 				},
-				occupationPickerIndex: -1,
-				patientTypePickerIndex:-1,
-				occupationPicker: [
-					{name:'国家公务员',type:'11'},
-					{name:'专业技术人员',type:'13'},
-					{name:'职员',type:'17'},
-					{name:'企业管理人员',type:'21'},
-					{name:'工人', type:'24'},
-					{name:'农民', type:'27'},
-					{name:'学生', type:'31'},
-					{name:'现役军人', type:'37'},
-					{name:'自由职业者', type:'51'},
-					{name:'个体经营者', type:'54'},
-					{name:'无业人员', type:'70'},
-					{name:'退(离)休人员', type:'80'},
-					{name:'其他',type:'90'},
-					{name:'散居儿童',type:'97'},
-					{name:'幼托儿童',type:'98'},
-					],
-				patientTypePicker: [
-					{name:'自费', type:'01'},
-					{name:'本市职工慢病', type:'02'},
-					{name:'本市居民慢病', type:'03'},
-					{name:'省内异地职工门诊', type:'04'},
-					{name:'省直', type:'05'},
-					{name:'离休',type:'06'},
-					{name:'省外异地职工慢病', type:'07'},
-					{name:'省内异地职工慢病', type:'08'},
-					{name:'省内异地居民门诊', type:'09'},
-					{name:'省内异地居民慢病', type:'10'},
-					{name:'省直门诊慢病', type:'11'},
-					{name:'本市职工普通门诊', type:'12'},
-					{name:'省外异地职工门诊', type:'13'},
-					{name:'省外异地居民慢病',type:'14'},
-					{name:'省外异地居民门诊',type:'15'},
-					],
-				barList:['本人','配偶','父母','子女','其他'],
-				countTimer:null,
-				time:60,
-				verificationCodeState:false,
+				address: '',
+				provincesAndMunicipalities: ['山东省','济南市','历下区'],
+				nations: [
+					'汉族', '蒙古族', '回族', '藏族', '维吾尔族', '苗族', '彝族', '壮族', '布依族', '朝鲜族',
+					'满族', '侗族', '瑶族', '白族', '土家族', '哈尼族', '哈萨克族', '傣族', '黎族', '傈僳族',
+					'傈僳族', '仡佬族', '东乡族', '高山族', '拉祜族', '水族', '佤族', '纳西族', '羌族', '土族',
+					'佤族', '畲族', '高山族', '拉祜族', '水族', '东乡族', '纳西族', '景颇族', '柯尔克孜族',
+					'土族', '达斡尔族', '仫佬族', '羌族', '布朗族', '撒拉族', '毛南族', '仡佬族', '锡伯族', '阿昌族',
+					'普米族', '塔吉克族', '怒族', '乌孜别克族', '俄罗斯族', '鄂温克族', '德昂族','保安族','裕固族',
+					'京族','塔塔尔族','独龙族','鄂伦春族','赫哲族','门巴族','珞巴族','基诺族'
+				],
+				cardType: [
+					{index: '01', value: '居民身份证'},
+					{index: '02', value: '居民户口簿'},
+					{index: '03', value: '护照'},
+					{index: '04', value: '军官证'},
+					{index: '05', value: '驾驶证'},
+					{index: '06', value: '港澳居民来往内地通行证	'},
+					{index: '07', value: '台湾居民来往内地通行证'},
+					{index: '08', value: '出生医学证明'},
+					{index: '15', value: '外国人永久居留身份证'},
+					{index: '16', value: '新生儿证件（3个月无证件儿童）'},
+					{index: '17', value: '港澳台居民居住证'},
+					{index: '99', value: '其他法定有效证件	'},
+				],
+				cardTypeValue: [
+					'居民身份证','居民户口簿','护照','军官证','驾驶证','港澳居民来往内地通行证	',
+				  '台湾居民来往内地通行证','出生医学证明','外国人永久居留身份证','新生儿证件（3个月无证件儿童）',
+					'港澳台居民居住证','其他法定有效证件'
+				],
+				sexs: ['男', '女'],
+				marriage: ['未婚','已婚','丧偶','离婚'],
+				relation:['本人','父母','子女','夫妻', '亲属', '朋友', '其他'],
+				careerValue: [
+					'国家公务员', '专业技术人员', '职员', '企业管理人员', '工人', '农民', '学生', 
+				  '现役军人', '自由职业者', '个体经营者', '无业人员', '退（离）休人员', '其他'
+				],
+				career: [
+					{index: '11', value: '国家公务员'},
+					{index: '13', value: '专业技术人员'},
+					{index: '17', value: '职员'},
+					{index: '21', value: '企业管理人员'},
+					{index: '24', value: '工人'},
+					{index: '27', value: '农民'},
+					{index: '31', value: '学生'},
+					{index: '37', value: '现役军人'},
+					{index: '51', value: '自由职业者'},
+					{index: '54', value: '个体经营者'},
+					{index: '70', value: '无业人员'},
+					{index: '80', value: '退（离）休人员'},
+					{index: '90', value: '其他'},
+				],
+				selectedSex: '',
+				selectedIdType: '',
+				selectedNation: '',
+				selectedRelation: '',
+				selectedCareer: '',
+				selectedContactIdType: '',
+				selectedHouseholdAddress: ['山东省','济南市','历下区'],
+				selectedBirthplace: ['山东省','济南市','历下区'],
+				selectedNativePlace: ['山东省','济南市','历下区'],
+				selectedContactAddress: ['山东省','济南市','历下区'],
 			}
 		},
-		onLoad(e) {
-			this.informationObj = JSON.parse(decodeURIComponent(e.getIdCardInformation))
-			this.$set(this.informationObj,'relation','本人')
-			
-			console.log(JSON.stringify(this.informationObj))
-			
-			if(this.informationObj.name){
-				this.informationObj.birth = [this.informationObj.birth.slice(0,4),this.informationObj.birth.slice(4,6),this.informationObj.birth.slice(6)].join('-')
+		onLoad() {
+			let loginVal = uni.getStorageSync("loginData");
+			loginVal = loginVal ? JSON.parse(loginVal) : {};
+			let defaultArchives = loginVal.defaultArchives;
+			if (JSON.stringify(loginVal) != "{}" && defaultArchives != undefined) {
+				this.informationObj = {
+					name: defaultArchives.patientName,
+					gender: defaultArchives.sex,
+					idType: defaultArchives.idTypeDesc,
+					idNumber: defaultArchives.idNum,
+					patientTypeDesc: defaultArchives.patientTypeDesc,
+					birthday: defaultArchives.dob,
+					phone1: defaultArchives.phoneNum,
+					relation: defaultArchives.relation,
+				}
+				this.selectedIdType = this.informationObj.idType;
+				this.selectedRelation = this.informationObj.relation;
+				this.selectedSex = this.informationObj.gender;
 			}
-			 
-		},
-		mounted() {
-			this.$nextTick(()=>{
-				uni.$emit('pageNavigated');
-			})
 		},
 		methods: {
-			...mapMutations({
-				setFootData:'SET_FOOT_DATA',
-				setLoginStatus: 'SET_LOGINSTATUS',
-			}),
-			occupationPickerChange(e) {
-				this.occupationPickerIndex = e.detail.value
-				this.informationObj.occupation = this.occupationPicker[e.detail.value].type;
+			//选择日期
+			bindDateChange(e) { 
+				this.informationObj.birthday = e.detail.value
 			},
-			patientTypePickerChange(e) {
-				this.patientTypePickerIndex = e.detail.value
-				this.informationObj.patientType = this.patientTypePicker[e.detail.value].type;
+			//省市区
+			chooseregion(event){
+				this.provincesAndMunicipalities = event.detail.value.toString();
 			},
-			relationBtn(i){
-				this.informationObj.relation = i
+			changeNativePlace(event){
+				this.selectedNativePlace = event.detail.value.toString();
+			},
+			changeHousehold(event){
+				this.selectedHouseholdAddress = event.detail.value.toString();
+			},
+			// chooseregion(event){
+			// 	this.provincesAndMunicipalities = event.detail.value.toString();
+			// },
+			// chooseregion(event){
+			// 	this.provincesAndMunicipalities = event.detail.value.toString();
+			// },
+			//性别
+			onSexChange(e) {
+				const index = e.detail.value
+				this.selectedSex = this.sexs[index]
+				this.informationObj.gender = this.selectedSex;
+			},
+			//民族
+			onNationChange(e) {
+				const index = e.detail.value
+				this.selectedNation = this.nations[index]
+				this.informationObj.nation = this.selectedNation;
+			},
+			//证件类型
+			onIdTypeChange(e) {
+				const index = e.detail.value;
+				let val = this.cardTypeValue[index];
+				let filter = this.cardType.filter(x => x.value == val);
+				this.selectedIdType = val;
+				this.informationObj.idType = filter[0].index;
+			},
+			//家庭关系
+			onRelationChange(e) {
+				const index = e.detail.value
+				this.selectedRelation = this.relation[index]
+				this.informationObj.relation = index;
+			},
+			//职业
+			onCareerChange(e) {
+				const index = e.detail.value;
+				let val = this.careerValue[index];
+				let filter = this.career.filter(x => x.value == val);
+				this.selectedCareer = val;
+				this.informationObj.career = filter[0].index;
 			},
 			// 获取验证码
 			verificationCodeBtn(){
@@ -294,8 +436,17 @@
 			
 			.cu-form-group {
 				min-height: 86rpx;
-				
+				.title {
+					width: 160rpx;
+				}
 				.answer {
+					color: #999999;
+				}
+				.birth{
+					height: 86rpx;
+					display: inline-block;
+					text-align: left;
+					width: 420rpx;
 					color: #999999;
 				}
 				.verificationCode {

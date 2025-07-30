@@ -90,6 +90,7 @@
 
 <script>
 	import { mapState } from 'vuex'
+	import login from '@/utils/login.js'
 	import customerNav from '@/components/customerNav.vue';
 	import noData from '../components/noData.vue';
 	import questionItem from '../components/questionItem.vue'
@@ -166,7 +167,6 @@
 										value: v.dictValue
 									})
 								})
-								console.log(JSON.stringify(this.complaintSteps),'------');
 			        }
 			      }
 			      resolve();
@@ -182,7 +182,6 @@
 							v.status = this.status.filter(x => x.dictValue == v.status)[0].dictLabel
 						})
 						this.lists = res.data.list;
-						
 						this.lists = res.data.list.map(v => {
 						  const safeTime = v.createTime.replace(/-/g, '/');
 						  return {
@@ -196,46 +195,57 @@
 				});
 			},
 			submit() {
-				if (!this.form.name ||!this.form.phone ||!this.form.departmentComplainedAgainst || !this.form.specificContent) {
-					uni.showToast({
-						title: '请完善您的信息',
-						icon: 'none',
-						duration: 2000 
-					})
+				if (!this.footData.patientUniquelyIdentifies) {
+					login.loginData().catch((error) => {});
 				} else {
-					const phoneReg = /^1[3-9]\d{9}$/;
-					if (!phoneReg.test(this.form.phone)) {
-						uni.showToast({ title: '手机号格式不正确', icon: 'none' });
+					if (!this.form.name ||!this.form.phone ||!this.form.departmentComplainedAgainst || !this.form.specificContent) {
+						uni.showToast({
+							title: '请完善您的信息',
+							icon: 'none',
+							duration: 2000 
+						})
 					} else {
-						this.form.patientId = this.footData.patientUniquelyIdentifies,
-						this.form.complaintSection = this.complaintSection.join(',');
-						questionnaireApi.addComplaintContent(this.form).then(res => {
-							if (res.data.code == 200) {
-								uni.showToast({
-									title: '反馈成功，敬请等待',
-									icon: 'none',
-									duration: 2000 
-								})
-								this.form = {
-									name: '',
-									phone: '',
-									departmentComplainedAgainst: '',
-									complaintSection: '',
-									specificContent: '',
-								};
-								this.complaintSection = [];
-								this.getList();
-							}
-						});
+						const phoneReg = /^1[3-9]\d{9}$/;
+						if (!phoneReg.test(this.form.phone)) {
+							uni.showToast({ title: '手机号格式不正确', icon: 'none' });
+						} else {
+							this.form.patientId = this.footData.patientUniquelyIdentifies,
+							this.form.complaintSection = this.complaintSection.join(',');
+							questionnaireApi.addComplaintContent(this.form).then(res => {
+								if (res.data.code == 200) {
+									this.form = {
+										name: '',
+										phone: '',
+										departmentComplainedAgainst: '',
+										complaintSection: '',
+										specificContent: '',
+									};
+									this.complaintSection = [];
+									
+									uni.showToast({
+										title: '反馈成功，敬请等待',
+										icon: 'success',
+										duration: 2000 
+									})
+									setTimeout(() => {
+										this.getList();
+									}, 200);
+								}
+							});
+						}
 					}
 				}
 			}
 		},
 		mounted() {
 			this.getComplaintContent('cloud_complaint_section');
-			this.getComplaintContent('cloud_complaint_status').then(() => {
-				this.getList();
-			});
+			if (this.footData.patientUniquelyIdentifies) {
+				this.getComplaintContent('cloud_complaint_status').then(() => {
+					this.getList();
+				});
+			} else {
+				this.getComplaintContent('cloud_complaint_status');
+			}
 		}
 	}
 </script>
