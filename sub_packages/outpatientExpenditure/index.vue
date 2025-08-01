@@ -2,92 +2,90 @@
 	<view class="box" v-if="showState">
 		<bar v-if="loginValue.xcxOpenId" />
 		<date @handle="show" />
-		<view class="head">
-			<view>
-				<view class="name" @click="headBtn(1)">
-					<view :class="{black:headIndex===1}">
-						未缴费
-					<view class="wire" :class="{blue:headIndex===1}"></view>
-					</view>
-				</view>
-				<view class="name" @click="headBtn(2)">
-					<view :class="{black:headIndex===2}">
-						缴费记录
-						<view class="wire" :class="{blue:headIndex===2}"></view>
-					</view>
-				</view>
-			</view>
-		</view>
 		<view class="information">
-			<ul v-if="headIndex===1 && !loading.loadingState">
-				<li v-for="(item,index) in billList" :key="index">
-					<view class="middle">
-						<view class="title">
-							<view class="clinic"><text>就诊时间：{{item.admDate}}</text></view>
-							<view class="clinic"><text>就诊科室：{{item.admLoc}}</text></view>
-							<view class="clinic"><text>就诊医生：{{item.admDoc}}</text></view>
+			<uni-section type="line">
+				<view class="uni-padding-wrap uni-common-mt">
+					<uni-segmented-control 
+						:current="currentTab" 
+						:values="tabs" 
+						style-type="button"
+						activeColor="#4286FF"
+						@clickItem="onTabClick" 
+					/>
+				</view>
+				<view class="tab-content">
+					<view class="content" v-if="currentTab === 0">
+						<ul v-if="billList.length > 0">
+							<li v-for="(item,index) in billList" :key="index">
+								<view class="middle">
+									<view class="title">
+										<view class="clinic"><text>就诊时间：{{item.admDate}}</text></view>
+										<view class="clinic"><text>就诊科室：{{item.admLoc}}</text></view>
+										<view class="clinic"><text>就诊医生：{{item.admDoc}}</text></view>
+									</view>
+									<view class="center"  v-for="(i,x) in item.itemList.item" :key="x">
+										<view class="no">
+											<view class="name">{{i.itemName}}</view>
+											<view class="price">
+												<text>单价：{{parseFloat(i.itemPrice).toFixed(2)}}</text>
+												<text>￥{{i.itemSum}}</text>
+											</view>
+										</view>
+									</view>
+								</view>
+								<view class="totalMoney">
+									<view class="">
+										<text>待缴费金额：</text>
+										<text>￥{{item.orderSum}}元</text>
+									</view>
+								</view>
+								<view class="btn">
+									<!-- <view class="medical">医保支付</view> -->
+									<view class="self-paying" @click="pay(item)">立即缴费</view>
+								</view>
+							</li>
+						</ul>
+						<view class="without"  v-else>
+							<image src="../static/image/wu.png" mode="widthFix"></image>
 						</view>
-						<view class="center"  v-for="(i,x) in item.itemList.item" :key="x">
-							<view class="no">
-								<view class="name">{{i.itemName}}</view>
-								<view class="price">
-									<text>单价：{{parseFloat(i.itemPrice).toFixed(2)}}</text>
-									<text>￥{{i.itemSum}}</text>
+					</view>
+						<view class="payment" v-if="currentTab === 1">
+							<view v-if="alreadyList.length > 0">
+								<view class="detail" v-for="(item,index) in alreadyList" :key="index">
+									<view class="title">
+										<view><text>{{item.admDept}}</text></view>
+										<view><text>{{item.admDoctor}}</text></view>
+										<view><text>{{item.invDate}} {{item.invTime}}</text></view>
+									</view>
+									<view class="uni-container">
+										<uni-table border stripe>
+											<uni-tr>
+												<uni-th style="width: 40% !important">项目</uni-th>
+												<uni-th style="width: 15% !important">数量</uni-th>
+												<uni-th style="width: 20% !important">规格</uni-th>
+												<uni-th style="width: 25% !important">金额</uni-th>
+											</uni-tr>
+											<uni-tr v-for="(val,i) in item.detailList" :key="i">
+												<uni-td>{{val.itemName}}</uni-td>
+												<uni-td>{{val.itemQty}}</uni-td>
+												<uni-td>{{val.itemUom}}</uni-td>
+												<uni-td>￥{{parseFloat(val.itemPrice).toFixed(2)}}</uni-td>
+											</uni-tr>
+										</uni-table>
+									</view>
+									<view class="total">
+										<text>合计：</text>
+										<text>{{item.totalAmt}}元</text>
+									</view>
 								</view>
 							</view>
+							<view class="without" v-else>
+								<image src="../static/image/wu.png" mode="widthFix"></image>
+							</view>
 						</view>
-					</view>
-					<view class="totalMoney">
-						<view class="">
-							<text>待缴费金额：</text>
-							<text>￥{{item.orderSum}}元</text>
-						</view>
-					</view>
-					<view class="btn">
-						<!-- <view class="medical">医保支付</view> -->
-						<view class="self-paying" @click="pay(item)">立即缴费</view>
-					</view>
-				</li>
-			</ul>
-			<view class="loading" v-if="loading.loadingState">
-				<van-loading size="24px" vertical>{{loading.loadingName}}</van-loading>
-			</view>
-			<view class="without"  v-if="headIndex===1 &&!billList.length && !loading.loadingState">
-				<image src="../static/image/wu.png" mode="widthFix"></image>
-			</view>
-			
-			<view class="payment" v-if="headIndex === 2 && alreadyList.length">
-				<view class="detail" v-for="(item,index) in alreadyList" :key="index">
-					<view class="title">
-						<view><text>{{item.admDept}}</text></view>
-						<view><text>{{item.admDoctor}}</text></view>
-						<view><text>{{item.invDate}} {{item.invTime}}</text></view>
-					</view>
-					<view class="uni-container">
-						<uni-table border stripe>
-							<uni-tr>
-								<uni-th style="width: 40% !important">项目</uni-th>
-								<uni-th style="width: 15% !important">数量</uni-th>
-								<uni-th style="width: 20% !important">规格</uni-th>
-								<uni-th style="width: 25% !important">金额</uni-th>
-							</uni-tr>
-							<uni-tr v-for="(val,i) in item.detailList" :key="i">
-								<uni-td>{{val.itemName}}</uni-td>
-								<uni-td>{{val.itemQty}}</uni-td>
-								<uni-td>{{val.itemUom}}</uni-td>
-								<uni-td>￥{{parseFloat(val.itemPrice).toFixed(2)}}</uni-td>
-							</uni-tr>
-						</uni-table>
-					</view>
-					<view class="total">
-						<text>合计：</text>
-						<text>{{item.totalAmt}}元</text>
-					</view>
+						
 				</view>
-			</view>
-			<view class="without" v-if="headIndex === 2 && alreadyList.length == 0">
-				<image src="../static/image/wu.png" mode="widthFix"></image>
-			</view>
+			</uni-section>
 		</view>
 		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :message="toastObj.message"/>
 	</view>
@@ -113,6 +111,8 @@
 		data(){
 			return {
 				headIndex:1,
+				currentTab: 0,
+				tabs: ['未缴费', '缴费记录'],
 				list1:[],
 				list2:[],
 				billList:[],
@@ -144,6 +144,10 @@
 			this.reportHISData();
 		},
 		methods: {
+			onTabClick(e) {
+				this.currentTab = e.currentIndex
+				this.currentTab === 0 ? this.queryMedicalRecords() : this.getPaymentRecord();
+			},
 			closeToast(state){
 				this.toastObj.state = state
 			},
@@ -357,6 +361,9 @@
 </script>
 
 <style lang="less" scoped>
+	::v-deep .segmented-control__text {
+	  font-size: 30rpx !important;
+	}
 	.box {
 		width: 100vw;
 		height: 100%; 
@@ -408,9 +415,11 @@
 			
 		}
 		.information {
-			width: 100%;
+			margin: 20rpx;
 			overflow: auto;
-			margin: 0 auto 60rpx auto;
+			border-radius: 10rpx;
+			background: #fff;
+			
 			.payment {
 				width: 681.3rpx;
 				margin: 0 auto;
@@ -438,8 +447,6 @@
 					}
 				}
 			}
-			
-			
 			ul {
 				width: 681.3rpx;
 				margin: 0 auto;
@@ -451,9 +458,7 @@
 						>view {
 							border: 0;
 						}
-						
 					}
-					
 					.middle{
 						padding-bottom: 20rpx;
 						margin: 0 20rpx;
@@ -558,8 +563,6 @@
 							}
 						}
 					}
-					
-					
 				}
 			}
 			.loading {

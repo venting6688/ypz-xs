@@ -48,7 +48,7 @@
 		onLoad(e) {
 			this.report = JSON.parse(decodeURIComponent(e.report))
 			if(this.report.documentID){
-			this.documentReview(this.report)
+				this.documentReview(this.report)
 			}
 		},
 		methods: {

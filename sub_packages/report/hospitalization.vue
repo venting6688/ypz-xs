@@ -1,122 +1,151 @@
 <template>
 	<view class="box">
-		<!-- <bar v-if="loginData.defaultArchives" /> -->
 		<date @handle="show" />
 		<view class="information">
-			<ul v-if="List.length">
-				<li @click="information(item)" v-for="(item,index) in List" :key="index">
-					<view class="content">
-						<view class="title">
-							<view class="delete">
-								<text>检查编号：</text>
-								<text>{{item.documentID}}</text>
+			<uni-section type="line">
+				<view class="uni-padding-wrap uni-common-mt">
+					<uni-segmented-control 
+						:current="currentTab" 
+						:values="tabs" 
+						style-type="button"
+						activeColor="#4286FF"
+						@clickItem="onTabClick" 
+					/>
+				</view>
+				<view class="tab-content">
+					<view class="content" v-for="(val, i) in tabs" :key="i" v-show="currentTab === i">
+						<view v-if="currentTab === i">
+							<view v-if="List.length > 0">
+								<view class="list" @click="information(item)" v-for="(item,index) in List" :key="index">
+									<view class="top">
+										<view>
+											<text class="text-color">检查编号：</text>
+											<text>{{item.documentID}}</text>
+										</view>
+										<view style="color: #4286ff;">查看报告<image src="../static/image/Vector@2x.png" mode=""></image></view>
+									</view>
+									<view class="bottom">
+										<view>
+											<text class="text-color">{{currentTab === 0 ? '检查' : '检验'}}项目：</text>
+											<text>{{item.documentTitle}}</text>
+										</view>
+										<view class="time">
+											<text class="text-color">{{currentTab === 0 ? '检查' : '检验'}}时间：</text>
+											<text>{{item.updateDate}} {{item.updateTime}}</text>
+										</view>
+									</view>
+								</view>
 							</view>
-							<view class="delete">
-								<text style="color: #4286ff;">查看报告</text>
-								<image src="../static/image/Vector@2x.png" mode=""></image>
-							</view>
-						</view>
-						<view class="title">
-							<view class="delete">
-								<text>{{headIndex===1?'检查':'检验'}}项目：</text>
-								<text>{{item.documentTitle}}</text>
-							</view>
-							<view class="delete">
-								<text>{{headIndex===1?'检查':'检验'}}时间：</text>
-								<text>{{item.updateDate}} {{item.updateTime}}</text>
+							<view class="without" v-else>
+								<image src="../static/image/wu.png" mode="widthFix"></image>
 							</view>
 						</view>
 					</view>
-				</li>
-			</ul>
-			<view class="without" v-else>
-				<image src="../static/image/wu.png" mode="widthFix"></image>
-			</view>
+				</view>
+			</uni-section>
+			
 		</view>
-		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :url="toastObj.url" :tips="toastObj.tips" :message="toastObj.message" />
 	</view>
 </template>
 
 <script>
 	import { mapState } from 'vuex'
-	import bar from '../components/bar.vue'
 	import date from '../components/date.vue'
-	import Toast from '../components/toast.vue'
 	import elseApi from '@/api/elseApi.js'
 	import healthCard from '@/api/healthCard.js'
 	export default {
 		components:{
-			bar,
 			date,
-			Toast,
 		},
 		data(){
 			return {
-				headIndex:1,
+				currentTab: 0,
+				tabs: ['检查项目', '检验项目'],
 				date:{},
 				List:[],
 				loginData: {},
+				siginData: {},
 				isVerify: false,
-				toastObj:{
-					state:false,
-				},
 			}
 		},
 		computed: {
 			...mapState(['footData']),
 		},
 		onLoad(e) {
-			this.getVisitRecord();
+			let loginValue = uni.getStorageSync("loginData");
+			this.loginData = loginValue ? JSON.parse(loginValue) : {};
+			this.siginData = this.loginData.defaultArchives ? this.loginData.defaultArchives : {};
 			this.isVerify = true;
 		},
 		methods: {
-			closeToast(state){
-				this.toastObj = {
-					state:state,
-				}
+			onTabClick(e) {
+				this.currentTab = e.currentIndex
+				let type = this.currentTab === 0 ? '00' : '99';
+				this.getVisitRecord(type)
 			},
+			
 			show(time){
 				const datePattern = /^\d{4}-\d{2}-\d{2}$/.test(time.startTime);
 				if(datePattern){
 					this.date = time
 					if (this.isVerify) {
-						this.getVisitRecord()
+						let type = this.currentTab === 0 ? '00' : '99';
+						this.getVisitRecord(type)
 					}
 				}
 			},
-			
-			getVisitRecord(){
-				try {
-					uni.showLoading({
-					  title: '加载中...',
-					  mask: true 
-					})
-					let data = {
-						patientID: this.footData.patientUniquelyIdentifies,
-						visitNumber: '',
-						documentType: '',
-						startDate: this.date.startTime,
-						endDate: this.date.endTime,
-						admType: 'I',
-					}
-					elseApi.getDocumentRetrieval(data).then(res => {
-						if(res.data.code===200){
-							this.List = res.data.data;
-						}else {
-							this.List = []
-						}
-					})
-				} catch (error) {
-					console.log(error)
-				} finally {
-					uni.hideLoading();
+
+			getVisitRecord(type){
+				uni.showLoading({
+					title: '加载中...',
+					mask: true 
+				})
+				let data = {
+					patientID: this.footData.patientUniquelyIdentifies,  //'0000837231'
+					visitNumber: '',
+					documentType: type,
+					startDate: this.date.startTime,
+					endDate: this.date.endTime,
+					admType: 'I',
 				}
+				elseApi.getDocumentRetrieval(data).then(res => {
+					this.List = []
+					if(res.data.code===200){
+						this.List = res.data.data
+					}
+				}).catch(err => {
+					uni.showToast({
+						title: '加载失败',
+						icon: 'none'
+					});
+				}).finally(() => {
+					setTimeout(() => {
+						uni.hideLoading();
+					}, 300);
+				});
+				
 			},
+			information(item){
+				if(this.currentTab === 0){
+					//检查
+					uni.navigateTo({
+						url: `/sub_packages/report/examine?report=${encodeURIComponent(JSON.stringify(item))}`
+					})
+				}else {
+					//检验
+					uni.navigateTo({
+						url: `/sub_packages/report/checkout?report=${encodeURIComponent(JSON.stringify(item))}`
+					})
+				}
+			}
 		},
 	}
 </script>
 
 <style lang="less" scoped>
+	::v-deep .segmented-control__text {
+	  font-size: 30rpx !important;
+	}
 	.box {
 		width: 100vw;
 		height: 100%; 
@@ -165,75 +194,41 @@
 			}
 		}
 		.information {
-			width: 100%;
+			margin: 20rpx;
 			overflow: auto;
-			margin-bottom: 50rpx;
-			ul {
-				width: 681.3rpx;
-				margin: 0 auto;
-				> li {
-					width: 681.3rpx;
-					background: #ffffff;
-					&:last-child{
-						.content{
-							border: 0 !important;
-						}
-					}
-					
-					>.content{
-						padding-bottom: 20rpx;
-						margin: 0 20rpx;
-						border-bottom: 2rpx solid #eeeeee;
-						.title {
-							height: 70rpx;
+			border-radius: 10rpx;
+			background: #fff;
+			.text-color {
+				color: #666;
+			}
+			.tab-content {
+				padding: 15rpx 0;
+				margin: 0 15rpx;
+				.content {
+					display: flex;
+					flex-direction: column;
+					.list {
+						padding: 15rpx;
+						margin-bottom: 15rpx;
+						border-bottom: 1px solid #ccc;
+						.top {
+							height: 50rpx;
 							display: flex;
 							justify-content: space-between;
 							align-items: right;
-							
 							image {
 								width: 12rpx;
 								height: 18rpx;
 								margin-left:20rpx;
 							}
-							
-							.name {
-								display: flex;
-								align-items: center;
-								font-size: 28rpx;
-								line-height: 34.35rpx;
-								font-family: PingFang SC, PingFang SC-600;
-								font-weight: 600;
-								color: #000000;
-								padding: 10rpx 0;
-							}
-							.delete {
-								display: flex;
-								align-items: center;
-								font-size: 26.72rpx;
-								line-height: 26.72rpx;
-								font-family: PingFang SC, PingFang SC-400;
-								font-weight: 400;
-								padding: 10rpx 0;
-							}
 						}
-						.center {
-							height: 140rpx;
-							display: flex;
-							flex-direction: column;
-							justify-content: space-between;
-							.no {
-								font-size: 30rpx;
-								text {
-									&:nth-child(1){
-										color: #999999;
-									}
-									&:nth-child(2){
-										color: #333333;
-									}
-								}
+						.bottom {
+							.time {
+								margin-top: 20rpx;
 							}
 						}
 					}
+					
 				}
 			}
 		}

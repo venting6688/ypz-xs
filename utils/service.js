@@ -36,8 +36,8 @@ export const cjRequest =  (parmas, state) => {
 	}
 }
 
-const baseUrl = "https://www.chinzsoft.com/api/mobile/";
-// const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
+// const baseUrl = "https://www.chinzsoft.com/api/mobile/";
+const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
 
 function request(parmas,state){
 	let header = { "Authorization": store.state.loginToken };
@@ -60,6 +60,16 @@ function request(parmas,state){
 					if(!requestCount){
 						uni.hideLoading()
 					}
+				}
+				if (res.statusCode === 401) {
+				  uni.showModal({
+						title: '登录过期',
+						content: '请重新授权手机号登录',
+						showCancel: false,
+						success: () => {
+							uni.navigateTo({ url:"/sub_packages/login/index?title=山东第一医科大学第二附属医院" });
+						}
+					});
 				}
 				resolve(res)
 			},

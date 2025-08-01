@@ -166,7 +166,7 @@
 				"path" : "report/examine",
 				"style" : 
 				{
-					"navigationBarTitleText": "门诊报告",
+					"navigationBarTitleText": "检查报告详情",
 					"disableScroll": true
 				}
 			},
@@ -175,7 +175,7 @@
 				"path" : "report/checkout",
 				"style" : 
 				{
-					"navigationBarTitleText": "门诊报告",
+					"navigationBarTitleText": "检验报告详情",
 					"disableScroll": true
 				}
 			},

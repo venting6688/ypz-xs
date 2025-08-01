@@ -1,6 +1,6 @@
 <template>
 	<view class="box">
-		<bar v-if="loginData.defaultArchives" />
+		<!-- <bar v-if="loginData.defaultArchives" /> -->
 		<date @handle="show" />
 		<view class="information">
 			<ul v-if="list.length">
@@ -24,8 +24,8 @@
 							</view>
 						</view>
 						<view class="no">
-							<text>就诊时间：</text>
-							<text style="color: #4286ff;">{{item.appointmentTime}}</text>
+							<text>{{item.appointmentTime ? '就诊' : '预约'}}时间：</text>
+							<text style="color: #4286ff;">{{item.appointmentTime ? item.appointmentTime : item.admitDate}}</text>
 						</view>
 					</view>
 					<view class="bottom">

@@ -135,13 +135,13 @@
 				<input v-model="informationObj.contactAddress" name="input" />
 			</view>
 		</form>
-		<view 
+		<!-- <view 
 		class="confirm" 
 		@click="Filing" 
 		:class="{unclickable: !informationObj.occupation || !informationObj.patientType || !informationObj.phone || !informationObj.verificationCode }"
 		>
 			修改信息
-		</view>
+		</view> -->
 	</view>
 </template>
 <script>
