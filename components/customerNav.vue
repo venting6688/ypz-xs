@@ -31,7 +31,7 @@
 	}
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .layout {
 	.navbar {
 		position: fixed;

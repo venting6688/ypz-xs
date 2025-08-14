@@ -107,7 +107,7 @@
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/synthesize3.png', name: '健康随访', appid: 'wxd8f336bfa8545586', targetUrl: 'pages/index/isCsmUser/isCsmUser?regNo=&hosId=11012&openId=' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/synthesize4.png', name: '互联网+护理', appid: 'wx54bf421b03978b4b', targetUrl: 'pages/homePage/homePage?stationId=717' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/person3.png', name:'疾病百科' },
-						{ img: 'https://aiwz.sdtyfy.com:8099/img/person2.png', name:'药品查询' },
+						{ img: 'https://aiwz.sdtyfy.com:8099/img/person2.png', name:'药品查询', url: '/sub_packages/medicament/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/electronicBills.png', name:'电子票据', appid: 'wx8e0b79a7f627ca18', targetUrl: 'pages/index/index?agencyCode=d103b2f4592543e987fffc7f6d75cd03' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/health.png', name:'医保凭证', appid: 'wx7ec43a6a6c80544d', targetUrl: 'pages/new_index/index/index' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/medicalRecord.png', name:'病案通', appid: 'wxff4273542debbc64', targetUrl: 'pages/index/index?hosId=2119' },

@@ -78,7 +78,7 @@
 						startDate: this.startDate,
 						endDate: this.endDate
 					}
-					const res = await await hospitalizationApi.getHospitalRecord(data);
+					const res = await hospitalizationApi.getHospitalRecord(data);
 					this.recordList = []; this.visibleData = [];
 					if (res.data.code === 200 && res.data.data.admInfoList != undefined) {
 						let resData = res.data.data.admInfoList.admInfo

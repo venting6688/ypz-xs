@@ -2,55 +2,48 @@
 	<view class="information">
 		<form>
 			<view class="cu-form-group">
-				<view class="x">*</view>
 				<view class="title">姓名</view>
-				<input v-model="informationObj.name" placeholder="请输入" name="input" />
+				<text>{{informationObj.patientName}}</text>
 			</view>
 			<view class="cu-form-group">
-				<view class="x">*</view>
 				<view class="title">手机号码</view>
-				<input v-model="informationObj.phone1" placeholder="请输入" name="input" maxlength="11" />
+				<input v-model="informationObj.phoneNum" placeholder="请输入" name="input" maxlength="11" />
 			</view>
 			<view class="cu-form-group">
-				<view class="x">*</view>
 				<view class="title">证件类型</view>
-				<picker mode="selector" :value="informationObj.idType" :range="cardTypeValue" @change="onIdTypeChange">
-					<text class="picker birth">{{selectedIdType}}</text>
-				</picker>
+				<text>{{informationObj.idType}}</text>
 			</view>
 			<view class="cu-form-group">
-				<view class="x">*</view>
 				<view class="title">证件号码</view>
-				<input v-model="informationObj.idNumber" placeholder="请输入" name="input" @input="parseIdCard" maxlength="18" />
+				<text>{{informationObj.idNum}}</text>
 			</view>
 			<view class="cu-form-group">
 				<view class="title">性别</view>
-				<picker mode="selector" :value="informationObj.gender" :range="sexs" @change="onSexChange">
+				<picker mode="selector" :value="informationObj.sex" :range="sexs" @change="onSexChange">
 					<text class="picker birth">{{selectedSex}}</text>
 				</picker>
 			</view>
 			<view class="cu-form-group">
 				<view class="title">出生日期</view>
-				<picker mode="date" :value="informationObj.birthday" :start="startDate" :end="endDate" fields="day" @change="bindDateChange">
-				    <text class="picker birth">{{informationObj.birthday}}</text>
+				<picker mode="date" :value="informationObj.dob" :start="startDate" :end="endDate" fields="day" @change="bindDateChange">
+				    <text class="picker birth">{{informationObj.dob}}</text>
 				</picker>
 			</view>
 			<view class="cu-form-group">
 				<view class="title">婚姻</view>
-				<picker mode="selector" :value="informationObj.marriage" :range="marriage" @change="onSexChange">
+				<picker mode="selector" :value="informationObj.marriage" :range="marriageVal" @change="onMarriageChange">
 					<text class="picker birth">{{selectedMarriage}}</text>
 				</picker>
 			</view>
 			<view class="cu-form-group">
-				<view class="x">*</view>
 				<view class="title">民族</view>
-				<picker mode="selector" :value="informationObj.nation" :range="nations" @change="onNationChange">
+				<picker mode="selector" :value="informationObj.nationality" :range="nations" @change="onNationChange">
 					<text class="picker birth">{{selectedNation}}</text>
 				</picker>
 			</view>
 			<view class="cu-form-group">
 				<view class="title">职业</view>
-				<picker mode="selector" :value="informationObj.career" :range="careerValue" @change="onCareerChange">
+				<picker mode="selector" :value="informationObj.occupation" :range="careerValue" @change="onCareerChange">
 					<text class="picker birth">{{selectedCareer}}</text>
 				</picker>
 			</view>
@@ -64,7 +57,7 @@
 			</view>
 			<view class="cu-form-group">
 				<view class="title">现住址具体地址</view>
-				<input v-model="informationObj.currentAddress" name="input" />
+				<input v-model="informationObj.currentAddressDetail" name="input" />
 			</view>
 			<view class="cu-form-group">
 				<view class="title">籍贯</view>
@@ -84,11 +77,11 @@
 			</view>
 			<view class="cu-form-group">
 				<view class="title">户口具体地址</view>
-				<input v-model="informationObj.householdAddress" name="input" />
+				<input v-model="informationObj.hukouAddressDetail" name="input" />
 			</view>
 			<view class="cu-form-group">
 				<view class="title">出生地址</view>
-				<picker mode="region" @change="changeHousehold" :value="selectedBirthplace">
+				<picker mode="region" @change="changeBirthplace" :value="selectedBirthplace">
 					<view class="picker">
 						<text>{{ selectedBirthplace }}</text>
 					</view>
@@ -96,29 +89,29 @@
 			</view>
 			<view class="cu-form-group">
 				<view class="title">出生地具体地址</view>
-				<input v-model="informationObj.birthplace" name="input" />
+				<input v-model="informationObj.birthplaceDetail" name="input" />
 			</view>
 			<view class="cu-form-group">
 				<view class="title">联系人姓名</view>
-				<input v-model="informationObj.contactName" name="input" />
+				<input v-model="informationObj.contactPersonName" name="input" />
 			</view>
 			<view class="cu-form-group">
 				<view class="title">联系人电话</view>
-				<input v-model="informationObj.contactPhone" name="input" />
+				<input v-model="informationObj.contactPersonPhone" name="input" />
 			</view>
 			<view class="cu-form-group">
 				<view class="title">联系人证件号</view>
-				<input v-model="informationObj.contactIdNum" name="input" />
+				<input v-model="informationObj.contactPersonIdNumber" name="input" />
 			</view>
 			<view class="cu-form-group">
 				<view class="title">联系人证件类型</view>
-				<picker mode="selector" :value="informationObj.contactIdType" :range="cardTypeValue" @change="changeIdType">
+				<picker mode="selector" :value="informationObj.contactIdType" :range="cardTypeVal" @change="onIdTypeChange">
 					<text class="picker birth">{{selectedContactIdType}}</text>
 				</picker>
 			</view>
 			<view class="cu-form-group">
 				<view class="title">与联系人关系</view>
-				<picker mode="selector" :value="informationObj.relation" :range="relation" @change="onRelationChange">
+				<picker mode="selector" :value="informationObj.relation" :range="relationVal" @change="onRelationChange">
 					<text class="picker birth">{{selectedRelation}}</text>
 				</picker>
 			</view>
@@ -132,21 +125,15 @@
 			</view>
 			<view class="cu-form-group">
 				<view class="title">联系人具体地址</view>
-				<input v-model="informationObj.contactAddress" name="input" />
+				<input v-model="informationObj.contactPersonAddressDetail" name="input" />
 			</view>
 		</form>
-		<!-- <view 
-		class="confirm" 
-		@click="Filing" 
-		:class="{unclickable: !informationObj.occupation || !informationObj.patientType || !informationObj.phone || !informationObj.verificationCode }"
-		>
-			修改信息
-		</view> -->
+		<view class="btnStyle bigBtn" @click="Filing">修改信息</view>
 	</view>
 </template>
 <script>
 	import login from '../../utils/login';
-import filingApi from '@/api/filingApi.js'
+	import filingApi from '@/api/filingApi.js'
 	import { mapState } from 'vuex'
 	
 	export default {
@@ -155,28 +142,30 @@ import filingApi from '@/api/filingApi.js'
 		},
 		data(){
 			return {
+				siginVal: {},
 				informationObj:{
-					name:'',
-					gender:'',
-					nation:'', //民族
-					birthday:'',
+					patientName:'',
+					sex:'',
+					nationality:'',
+					marriage: '',
+					dob:'',
 					idType: '',
-					idNumber:'',
-					phone1:'',
+					idNum:'',
+					phoneNum:'',
 					relation:'',
-					career: '',
+					occupation: '',
 					patientType: 0,
 					verificationCode:'',
 					openId: '',
-					currentAddress: '',
-					householdAddress: '',
-					birthplace: '',
-					contactName: '',
-					contactPhone: '',
-					contactIdNum: '',
+					currentAddressDetail: '',
+					hukouAddressDetail: '',
+					birthplaceDetail: '',
+					contactPersonName: '',
+					contactPersonPhone: '',
+					contactPersonIdNumber: '',
 					contactIdType: '',
 					contactRelation: '',
-					contactAddress: '',
+					contactPersonAddressDetail: '',
 				},
 				address: '',
 				provincesAndMunicipalities: ['山东省','济南市','历下区'],
@@ -189,53 +178,22 @@ import filingApi from '@/api/filingApi.js'
 					'普米族', '塔吉克族', '怒族', '乌孜别克族', '俄罗斯族', '鄂温克族', '德昂族','保安族','裕固族',
 					'京族','塔塔尔族','独龙族','鄂伦春族','赫哲族','门巴族','珞巴族','基诺族'
 				],
-				cardType: [
-					{index: '01', value: '居民身份证'},
-					{index: '02', value: '居民户口簿'},
-					{index: '03', value: '护照'},
-					{index: '04', value: '军官证'},
-					{index: '05', value: '驾驶证'},
-					{index: '06', value: '港澳居民来往内地通行证	'},
-					{index: '07', value: '台湾居民来往内地通行证'},
-					{index: '08', value: '出生医学证明'},
-					{index: '15', value: '外国人永久居留身份证'},
-					{index: '16', value: '新生儿证件（3个月无证件儿童）'},
-					{index: '17', value: '港澳台居民居住证'},
-					{index: '99', value: '其他法定有效证件	'},
-				],
-				cardTypeValue: [
-					'居民身份证','居民户口簿','护照','军官证','驾驶证','港澳居民来往内地通行证	',
-				  '台湾居民来往内地通行证','出生医学证明','外国人永久居留身份证','新生儿证件（3个月无证件儿童）',
-					'港澳台居民居住证','其他法定有效证件'
-				],
+				cardTypeVal: [],
+				cardType: [],
 				sexs: ['男', '女'],
-				marriage: ['未婚','已婚','丧偶','离婚'],
-				relation:['本人','父母','子女','夫妻', '亲属', '朋友', '其他'],
-				careerValue: [
-					'国家公务员', '专业技术人员', '职员', '企业管理人员', '工人', '农民', '学生', 
-				  '现役军人', '自由职业者', '个体经营者', '无业人员', '退（离）休人员', '其他'
-				],
-				career: [
-					{index: '11', value: '国家公务员'},
-					{index: '13', value: '专业技术人员'},
-					{index: '17', value: '职员'},
-					{index: '21', value: '企业管理人员'},
-					{index: '24', value: '工人'},
-					{index: '27', value: '农民'},
-					{index: '31', value: '学生'},
-					{index: '37', value: '现役军人'},
-					{index: '51', value: '自由职业者'},
-					{index: '54', value: '个体经营者'},
-					{index: '70', value: '无业人员'},
-					{index: '80', value: '退（离）休人员'},
-					{index: '90', value: '其他'},
-				],
+				marriageVal: [],
+				marriage: [],
+				relationVal:[],
+				relation: [],
+				careerValue: [],
+				career: [],
 				selectedSex: '',
 				selectedIdType: '',
 				selectedNation: '',
 				selectedRelation: '',
 				selectedCareer: '',
 				selectedContactIdType: '',
+				selectedMarriage: '',
 				selectedHouseholdAddress: ['山东省','济南市','历下区'],
 				selectedBirthplace: ['山东省','济南市','历下区'],
 				selectedNativePlace: ['山东省','济南市','历下区'],
@@ -246,26 +204,52 @@ import filingApi from '@/api/filingApi.js'
 			let loginVal = uni.getStorageSync("loginData");
 			loginVal = loginVal ? JSON.parse(loginVal) : {};
 			let defaultArchives = loginVal.defaultArchives;
+			this.siginVal = defaultArchives;
+			
 			if (JSON.stringify(loginVal) != "{}" && defaultArchives != undefined) {
 				this.informationObj = {
-					name: defaultArchives.patientName,
-					gender: defaultArchives.sex,
+					patientName: defaultArchives.patientName,
+					sex: defaultArchives.sex,
 					idType: defaultArchives.idTypeDesc,
-					idNumber: defaultArchives.idNum,
-					patientTypeDesc: defaultArchives.patientTypeDesc,
-					birthday: defaultArchives.dob,
-					phone1: defaultArchives.phoneNum,
-					relation: defaultArchives.relation,
+					idNum: defaultArchives.idNum,
+					hukouAddressDetail: defaultArchives.hukouAddressDetail,
+					birthplaceDetail: defaultArchives.birthplaceDetail,
+					currentAddressDetail: defaultArchives.currentAddressDetail,
+					contactPersonName: defaultArchives.contactPersonName,
+					contactPersonPhone: defaultArchives.contactPersonPhone,
+					contactPersonIdNumber: defaultArchives.contactPersonIdNumber,
+					contactPersonIdType: defaultArchives.contactPersonIdType,
+					contactPersonAddressDetail: defaultArchives.contactPersonAddressDetail,
+					dob: defaultArchives.dob,
+					phoneNum: defaultArchives.phoneNum,
+					relation: defaultArchives.relationshipWithContact,
 				}
 				this.selectedIdType = this.informationObj.idType;
-				this.selectedRelation = this.informationObj.relation;
-				this.selectedSex = this.informationObj.gender;
+				this.selectedSex = this.informationObj.sex;
+				this.selectedMarriage = defaultArchives.marriage ? defaultArchives.marriage : '';
+				this.selectedNation = defaultArchives.nationality ? defaultArchives.nationality : '';
+				this.selectedCareer = defaultArchives.occupation ? defaultArchives.occupation : '';
+				
+				let hukouAddress = defaultArchives.hukouAddress;
+				this.selectedHouseholdAddress = hukouAddress ? hukouAddress.split(',') : ['山东省','济南市','历下区'];
+				let birthplace = defaultArchives.birthplace;
+				this.selectedBirthplace = birthplace ? birthplace.split(',') : ['山东省','济南市','历下区'];
+				let jiguan = defaultArchives.jiguan;
+				this.selectedNativePlace = jiguan ? jiguan.split(',') : ['山东省','济南市','历下区'];
+				let currentAddress = defaultArchives.currentAddress;
+				this.provincesAndMunicipalities = currentAddress ? currentAddress.split(',') : ['山东省','济南市','历下区'];
+				let contactPersonAddress = defaultArchives.contactPersonAddress;
+				this.selectedContactAddress = contactPersonAddress ? contactPersonAddress.split(',') : ['山东省','济南市','历下区'];
+				this.selectedContactIdType = defaultArchives.contactPersonIdType ? defaultArchives.contactPersonIdType : '';
+				this.selectedRelation = defaultArchives.relationshipWithContact ? defaultArchives.relationshipWithContact : '';
 			}
+			
+			this.getInfoType();
 		},
 		methods: {
 			//选择日期
 			bindDateChange(e) { 
-				this.informationObj.birthday = e.detail.value
+				this.informationObj.dob = e.detail.value
 			},
 			//省市区
 			chooseregion(event){
@@ -273,16 +257,18 @@ import filingApi from '@/api/filingApi.js'
 			},
 			changeNativePlace(event){
 				this.selectedNativePlace = event.detail.value.toString();
+				this.informationObj.jiguan = this.selectedNativePlace;
 			},
 			changeHousehold(event){
 				this.selectedHouseholdAddress = event.detail.value.toString();
 			},
-			// chooseregion(event){
-			// 	this.provincesAndMunicipalities = event.detail.value.toString();
-			// },
-			// chooseregion(event){
-			// 	this.provincesAndMunicipalities = event.detail.value.toString();
-			// },
+			changeContactAddress(event){
+				this.selectedContactAddress = event.detail.value.toString();
+			},
+			changeBirthplace(event){
+				this.selectedBirthplace = event.detail.value.toString();
+			},
+			
 			//性别
 			onSexChange(e) {
 				const index = e.detail.value
@@ -293,21 +279,31 @@ import filingApi from '@/api/filingApi.js'
 			onNationChange(e) {
 				const index = e.detail.value
 				this.selectedNation = this.nations[index]
-				this.informationObj.nation = this.selectedNation;
+				this.informationObj.nationality = this.selectedNation;
 			},
 			//证件类型
 			onIdTypeChange(e) {
 				const index = e.detail.value;
-				let val = this.cardTypeValue[index];
+				let val = this.cardTypeVal[index];
 				let filter = this.cardType.filter(x => x.value == val);
-				this.selectedIdType = val;
-				this.informationObj.idType = filter[0].index;
+				this.selectedContactIdType = val;
 			},
-			//家庭关系
+			onMarriageChange(e) {
+				const index = e.detail.value;
+				let val = this.marriageVal[index];
+				let filter = this.marriage.filter(x => x.value == val);
+				this.selectedMarriage = val;
+				this.informationObj.marriage = val;
+				this.informationObj.marriageCode = filter[0].index;
+			},
+			//关系
 			onRelationChange(e) {
 				const index = e.detail.value
-				this.selectedRelation = this.relation[index]
-				this.informationObj.relation = index;
+				let val = this.relationVal[index];
+				let filter = this.relation.filter(x => x.value == val);
+				this.selectedRelation = val;
+				this.informationObj.relationshipWithContact = val;
+				this.informationObj.relationshipWithContactCode = filter[0].index;
 			},
 			//职业
 			onCareerChange(e) {
@@ -315,58 +311,83 @@ import filingApi from '@/api/filingApi.js'
 				let val = this.careerValue[index];
 				let filter = this.career.filter(x => x.value == val);
 				this.selectedCareer = val;
-				this.informationObj.career = filter[0].index;
+				this.informationObj.occupation = val;
+				this.informationObj.occupationCode = filter[0].index; 
 			},
-			// 获取验证码
-			verificationCodeBtn(){
-				this.verificationCodeState = true
-				this.count(60)
-				filingApi.sendVerificationCode(this.informationObj.phone).then(res => {
-				})
-				.catch(err => {
-					console.log('2：', err);
-				})
-				
+			
+			async getInfoType() {
+			  try {
+			    const res = await filingApi.getInforCategory('*');
+			    if (res.data.code === 200) {
+			      const data = res.data.data;
+			      let careerValue = data.filter(x => x.dictType == 'cloud_archives_occupation');
+						careerValue.map(v => {
+							this.careerValue.push(v.dictLabel);
+							this.career.push({
+								index: v.dictCode,
+								value: v.dictLabel
+							})
+						})
+			      let marriage = data.filter(x => x.dictType == 'cloud_archives_marriage');
+						marriage.map(v => {
+							this.marriageVal.push(v.dictLabel);
+							this.marriage.push({
+								index: v.dictCode,
+								value: v.dictLabel
+							})
+						})
+			      let cardType = data.filter(x => x.dictType == 'cloud_archives_id_type');
+						cardType.map(v => {
+							this.cardTypeVal.push(v.dictLabel);
+							this.cardType.push({
+								index: v.dictCode,
+								value: v.dictLabel
+							})
+						})
+			      let relation = data.filter(x => x.dictType == 'cloud_archives_contact');
+						relation.map(v => {
+							this.relationVal.push(v.dictLabel);
+							this.relation.push({
+								index: v.dictCode,
+								value: v.dictLabel
+							})
+						})
+			      this.dictLoaded = true;
+			    }
+			  } catch (err) {
+			    console.error('获取字典失败', err);
+			  }
 			},
+			
 			Filing(){
 				let loginValue = uni.getStorageSync("loginData");
 				let loginData = JSON.parse(loginValue)
-				this.informationObj.cloudUser = loginData
 				
-				if (!this.informationObj.occupation ||!this.informationObj.patientType ||!this.informationObj.phone || !this.informationObj.verificationCode) {
-				    uni.showToast({
-				        title: '请完善您的信息',
-				        icon: 'none',   
-				        duration: 2000 
-				    })
-				} else {
-					filingApi.Filing(this.informationObj).then(res => {
-						if(res.data.code===200){
-							uni.showToast({
-								title: '建档成功',
-								duration: 2000
-							});
-							this.setFootData(res.data.data.defaultArchives)
-							this.setLoginStatus('login');
-							uni.setStorageSync('loginData', JSON.stringify(res.data.data))
-							setTimeout(()=>{
-								uni.switchTab({url:`/pages/home/index`})
-							},2000)
-						}else{
-							uni.showToast({
-							    title: res.data.msg,
-							    icon: 'none',   
-							    duration: 3000 
-							})
-						}
-						
-					})
-					.catch(err => {
-						console.log('2：', err);
-					})
-				}
+				this.informationObj.patientUniquelyIdentifies = this.siginVal.patientUniquelyIdentifies;
+				this.informationObj.patientCard = this.siginVal.patientCard;
+				this.informationObj.currentAddress = this.provincesAndMunicipalities.toString();
+				this.informationObj.hukouAddress = this.selectedHouseholdAddress.toString();
+				this.informationObj.birthplace = this.selectedBirthplace.toString();
+				this.informationObj.contactPersonIdType = this.selectedContactIdType;
+				this.informationObj.contactPersonAddress = this.selectedContactAddress.toString();
 				
-				
+				filingApi.replenishArchives(this.informationObj).then(res => {
+					if(res.data.code===200){
+						uni.showToast({
+							title: '信息更新成功',
+							icon: 'success',
+							duration: 2000 
+						})
+					}else{
+						uni.showToast({
+							title: res.data.msg,
+							icon: 'none',
+							duration: 3000 
+						})
+					}
+				}).catch(err => {
+					console.log('2：', err);
+				})
 			},
 			count(time) {
 			    if (time) {
@@ -392,7 +413,9 @@ import filingApi from '@/api/filingApi.js'
 	.unclickable{
 		background: #beccff !important;
 	}
-	
+	.bigBtn {
+		margin: 20rpx auto;
+	}
 	.information {
 		width: 100vw;
 		height: 100%; 
@@ -436,9 +459,9 @@ import filingApi from '@/api/filingApi.js'
 			
 			.cu-form-group {
 				min-height: 86rpx;
-				.title {
-					width: 160rpx;
-				}
+				// .title {
+				// 	width: 160rpx;
+				// }
 				.answer {
 					color: #999999;
 				}

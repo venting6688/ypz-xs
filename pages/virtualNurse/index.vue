@@ -4,9 +4,6 @@
 		<view class="" :animation="anData"  style="height:0rpx;"></view>
 		<image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	
 		<view class="head">您好！“安好”  为您服务 </view>
-		<!-- <image class="background" src="../../static/img/anhao.png" />
-		<view class="head"><image src="../../static/img/ahfw.png" /> </view> -->
-		
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
 				<view id="okk" style="padding-bottom: 100rpx;">
@@ -254,11 +251,11 @@
 		onLoad(options) {
 			let loginData = uni.getStorageSync("loginData");
 			let defaultLogin = loginData ? JSON.parse(loginData) : {};
-			if (!loginData || !defaultLogin.defaultArchives) {
-				setTimeout(() => {
-					uni.reLaunch({ url: `/sub_packages/login/index?title=山东第一医科大学第二附属医院`});
-				}, 100)
-			} else {
+			// if (!loginData || !defaultLogin.defaultArchives) {
+			// 	setTimeout(() => {
+			// 		uni.reLaunch({ url: `/sub_packages/login/index?title=山东第一医科大学第二附属医院`});
+			// 	}, 100)
+			// } else {
 				if (Object.keys(options).length > 0) {
 					this.pattern = Number(options.pattern)
 					let manifestation = options.manifestation
@@ -301,7 +298,7 @@
 						
 						}
 				} 
-			}
+			// }
 		},
 		computed: {
 		    parsedMarkdown() {

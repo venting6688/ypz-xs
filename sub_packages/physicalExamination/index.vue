@@ -12,88 +12,66 @@
 			</view>
 			<image src="../static/image/anhao.png" mode="aspectFit" />
 		</view>
-		
 		<view class="container">
 			<view class="filter">
 				<view class="tabs">
-					<view
-						class="tab"
-						v-for="(item, index) in tabs"
-						:key="index"
-						:class="{ active: currentTab === index }"
-						@click="currentTab = index"
+					<scroll-view
+						:scroll-x="true" 
+						:show-scrollbar="true"
+						scroll-with-animation
+						class="scroll-container"
 					>
-						{{ item }}
-					</view>
+						<view 
+							v-for="(item,index) in tabs" 
+							:key="index" 
+							class="scroll-item"
+							:class="{active: levelId === index}"
+							@click="searchType(index)" 
+						>
+							<view>{{item}}</view>
+						</view>
+					</scroll-view>
 				</view>
-					
-				<!-- 筛选栏 -->
+				
 				<view class="filter-bar">
 					<view class="filter-item" @click="onGenderClick">
-						性别
+						性别 
 						<uni-icons type="bottom" size="18" color="#999" />
 					</view>
 					<view class="filter-item" @click="togglePriceSort">
-						价格
+						价格 
 						<uni-icons :type="priceSort === 'asc' ? 'arrow-up' : 'arrow-down'" size="18" color="#999" />
 					</view>
-					<view class="filter-item" @click="onFilterClick">
-						筛选
-						<uni-icons type="settings" size="18" color="#999" />
-					</view>
 				</view>
 			</view>
+			<list :lists="filteredList" />
 			
-	
-			<!-- 套餐卡片列表 -->
-			<view class="card-list">
-				<view class="card" v-for="(item, index) in filteredList" :key="index">
-					<view class="corner-tag">21项</view>
-	
-					<view class="content">
-						<view class="title">{{ item.title }}</view>
-						<view class="price-box">
-							<text class="price">¥{{ item.price }}</text>
-							<text class="old-price">¥{{ item.oldPrice }}</text>
-						</view>
-						<view class="tag-row">
-							<text class="orange-tag">活动套餐</text>
-							<text class="red-tip">距离活动结束仅剩10天</text>
-						</view>
-					</view>
-				</view>
-			</view>
-	
 			<!-- VS 对比按钮 -->
-			<view class="vs-button">VS对比</view>
+			<!-- <view class="vs-button">VS对比</view> -->
 		</view>
 		<!-- 性别 popup -->
-		<uni-popup ref="genderPopup" type="bottom">
+		<uni-popup ref="sexPopup" background-color="#fff">
 			<view class="popup-content">
-				<view class="popup-option" @click="selectGender('通用')">通用</view>
-				<view class="popup-option" @click="selectGender('男')">男性</view>
-				<view class="popup-option" @click="selectGender('女')">女性</view>
+				<view class="popup-option" 
+				v-for="(item,index) in sexArr"
+				:key="index"
+				:class="{selectedSex: sexId === index}"
+				@click="changeSex(index)" 
+				>{{item}}</view>
 			</view>
 		</uni-popup>
-			
-		<!-- 筛选 popup -->
-		<uni-popup ref="filterPopup" type="right">
-			<view class="popup-content">
-				<view class="popup-option">支持医保</view>
-				<view class="popup-option">体检中心</view>
-				<view class="popup-option">可预约时间</view>
-			</view>
-		</uni-popup>
-
 	</view>
 </template>
 <script>
-	import HeaderBar from '@/components/HeaderBar.vue';
+	import list from './components/list.vue';
 	import { getStatusBarHeight } from "@/utils/system.js";
-	
+	import customerNav from '@/components/customerNav.vue';
+	import physicalExamination from '@/api/physicalExamination.js'
+
 	export default {
 		components: {
-			HeaderBar
+			customerNav,
+			list
 		},
 		computed: {
 			barHeight() {
@@ -101,63 +79,49 @@
 			},
 			filteredList() {
 				let filtered = this.list;
-	
-				if (this.searchKeyword) {
-					filtered = filtered.filter(item => item.title.includes(this.searchKeyword));
-				}
-	
-				if (this.selectedGender !== '全部') {
-					filtered = filtered.filter(item => item.gender === this.selectedGender);
-				}
-	
 				if (this.priceSort === 'asc') {
-					filtered = filtered.sort((a, b) => a.price - b.price);
+					filtered = filtered.sort((a, b) => a.packageAmt - b.packageAmt);
 				} else {
-					filtered = filtered.sort((a, b) => b.price - a.price);
+					filtered = filtered.sort((a, b) => b.packageAmt - a.packageAmt);
 				}
-	
 				return filtered;
 			}
 		},
 		data() {
 			return {
-				searchKeyword: '',
-				currentTab: 0,
-				tabs: ['全部', '男性套餐', '女性套餐', '入职体检'],
+				sex: '',
+				levelId: 0,
+				tabs: ['全部'],
+				sexArr: ['全部', '男性', '女性'],
+				sexId: 0,
 				priceSort: 'asc',
 				showGenderPopup: false,
 				showFilterPopup: false,
 				selectedGender: '全部',
 				loginData: {},
-				list: [
-					{ title: '呵护父母基础套餐-女士', price: 860, oldPrice: 1299, gender: '女' },
-					{ title: '呵护父母基础套餐-男士', price: 900, oldPrice: 1299, gender: '男' },
-					{ title: '入职基础套餐', price: 580, oldPrice: 999, gender: '不限' },
-					{ title: '入职基础套餐', price: 620, oldPrice: 999, gender: '不限' },
-					{ title: '入职基础套餐', price: 170, oldPrice: 999, gender: '不限' },
-				],
+				list: [],
 			}
 		},
 		onLoad() {
 			let loginValue = uni.getStorageSync("loginData");
 			this.loginData = loginValue ? JSON.parse(loginValue) : {};
+			this.getPhysicalExaminationPackageList();
+			this.getPhysicalExaminationPackageType();
 		},
 		methods: {
 			onGenderClick() {
-				// this.$refs.genderPopup.open('right');
-			},
-			onFilterClick() {
-				// this.$refs.filterPopup.open()
+				this.$refs.sexPopup.open('bottom')
 			},
 			togglePriceSort() {
 				this.priceSort = this.priceSort === 'asc' ? 'desc' : 'asc';
 			},
-			selectGender(gender) {
-				this.selectedGender = gender;
-				this.$refs.genderPopup.close();
-			},
-			confirmFilter() {
-				this.$refs.filterPopup.close();
+			changeSex(index) {
+				let val = index == 0 ? '全部' : index == "1" ? '男' : '女';
+				this.sexId = index;
+				this.selectedGender = val;
+				this.sex = val == '全部' ? '' : val;
+				this.$refs.sexPopup.close();
+				this.getPhysicalExaminationPackageList();
 			},
 			goBack() {
 				uni.navigateBack({
@@ -169,6 +133,43 @@
 						})
 					}
 				})
+			},
+			searchType(index) {
+				this.levelId = index;
+				this.getPhysicalExaminationPackageList();
+			},
+			//获取体检套餐类型
+			async getPhysicalExaminationPackageType() {
+				try {
+					const res = await physicalExamination.getPhysicalExaminationPackageType();
+					console.log(JSON.stringify(res.data),'==111==');
+					if (res.data.code == 200) {
+						let type = res.data.data.ExamPackagesLevel;
+						type.map(v => {
+							this.tabs.push(v.levelDesc);
+						})
+					}
+				} catch (err) {
+			    console.error('获取类型失败', err);
+			  }
+			},
+			//获取体检套餐列表
+			getPhysicalExaminationPackageList() {
+				let data = {
+					locId: '484',
+				}
+				if (this.levelId) {
+					data.levelId = this.levelId
+				}
+				if (this.sex) {
+					data.sexDesc = this.sex;
+				}
+				physicalExamination.getPhysicalExaminationPackageList(data).then((res) => {
+					this.list = [];
+					if (res.data.code == 200 && res.data.data.ExaminationPackages.length) {
+						this.list = res.data.data.ExaminationPackages;
+					}
+				});
 			},
 		}
 	};
@@ -245,136 +246,48 @@
 			width: 100%;
 			position: absolute;
 			top: 32.7%;
-		}
-		
-		.filter {
-			background: #fff;
-		}
-		
-		.search-box {
-		  background-color: #fff;
-		  padding: 20rpx;
-		  border-radius: 10rpx;
-		  margin-bottom: 20rpx;
-		}
-		
-		.search-input {
-		  background-color: #f0f0f0;
-		  padding: 20rpx;
-		  border-radius: 40rpx;
-		  font-size: 28rpx;
-		}
-		
-		.tabs {
-		  display: flex;
-		  background-color: #fff;
-		  border-radius: 10rpx;
-		  overflow: hidden;
-		  margin-bottom: 20rpx;
-		}
-		
-		.tab {
-		  flex: 1;
-		  text-align: center;
-		  padding: 20rpx 0;
-		  font-size: 28rpx;
-		  color: #333;
-		}
-		
-		.tab.active {
-		  color: #4286FF;
-		  font-weight: bold;
-		}
-		
-		.filter-bar {
-		  display: flex;
-		  justify-content: space-around;
-		  background-color: #fff;
-		  padding: 20rpx 0;
-		  margin-bottom: 20rpx;
-		}
-		
-		.filter-item {
-		  display: flex;
-		  align-items: center;
-		  font-size: 28rpx;
-		  color: #333;
-		  gap: 10rpx;
-		}
-		
-		.card-list {
-		  display: flex;
-		  flex-direction: column;
-		  gap: 20rpx;
-			padding: 0 20rpx;
-		}
-		
-		.card {
-		  position: relative;
-		  background-color: #fff;
-		  padding: 30rpx;
-		  border-radius: 20rpx;
-		  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.05);
-		}
-		
-		.corner-tag {
-		  position: absolute;
-		  top: 0;
-		  left: 0;
-		  background-color: #4286FF;
-		  color: #fff;
-		  font-size: 22rpx;
-		  padding: 8rpx 20rpx;
-		  border-top-left-radius: 20rpx;
-		  border-bottom-right-radius: 20rpx;
-		}
-		
-		.content {
-		  margin-top: 20rpx;
-		}
-		
-		.title {
-		  font-size: 32rpx;
-		  font-weight: 600;
-		  margin-bottom: 20rpx;
-		}
-		
-		.price-box {
-		  display: flex;
-		  align-items: baseline;
-		  gap: 20rpx;
-		  margin-bottom: 20rpx;
-		}
-		
-		.price {
-		  font-size: 40rpx;
-		  color: #ff3b30;
-		  font-weight: bold;
-		}
-		
-		.old-price {
-		  font-size: 26rpx;
-		  color: #999;
-		  text-decoration: line-through;
-		}
-		
-		.tag-row {
-		  display: flex;
-		  gap: 20rpx;
-		  align-items: center;
-		}
-		
-		.orange-tag {
-		  background-color: #ff9900;
-		  color: #fff;
-		  font-size: 22rpx;
-		  padding: 4rpx 12rpx;
-		  border-radius: 8rpx;
-		}
-		
-		.red-tip {
-		  color: #ff3b30;
-		  font-size: 22rpx;
+			.filter {
+				margin-bottom: 10rpx;
+				padding-bottom: 15rpx;
+				.tabs {
+					display: flex;
+					background-color: #fff;
+					border-radius: 10rpx;
+					overflow: hidden;
+					padding-bottom: 20rpx;
+					padding-top: 5rpx;
+					.scroll-container {
+						width: 100%;
+						white-space: nowrap;
+						.scroll-item {
+							display: inline-block;
+							margin: 10rpx 20rpx;
+							border: 1px solid #ccc;
+							border-radius: 30rpx;
+							padding: 8rpx 25rpx;
+						}
+						.active {
+							color: #fff;
+							background: #4286FF;
+							border:1px solid #4286FF;
+							font-weight: bold;
+						}
+					}
+				}
+				.filter-bar {
+				  display: flex;
+					justify-content: space-around;
+					background-color: #fff;
+					padding-bottom: 20rpx;
+					.filter-item {
+					  display: flex;
+					  align-items: center;
+					  font-size: 28rpx;
+					  color: #333;
+					  gap: 10rpx;
+					}
+				}
+			}
 		}
 		
 		.vs-button {
@@ -400,7 +313,12 @@
 		.popup-option {
 		  font-size: 30rpx;
 		  padding: 20rpx;
+			text-align: center;
 		  border-bottom: 1px solid #eee;
+		}
+		
+		.selectedSex {
+			color: #4286FF;
 		}
 	}
 </style>

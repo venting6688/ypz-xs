@@ -188,7 +188,6 @@
 			clearTimeout(this.timer2)
 			clearInterval(this.timer3)
 			this.timer3 = null
-			
 		},
 		computed: {
 			...mapState(['footData','department']),

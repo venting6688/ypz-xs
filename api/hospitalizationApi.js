@@ -105,6 +105,19 @@ const patient = {
 		return res
 	},
 	
+	//药品查询
+	async drugQuery(data) {
+		const queryParams = Object.keys(data)
+		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+		.join('&');
+		
+		const res = await cjRequest({
+			url: `drugQuery?${queryParams}`,
+			method: "get",
+		}, 2)
+		return res
+	},
+	
 }
  
 export default patient

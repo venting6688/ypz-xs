@@ -21,20 +21,6 @@
 				</view>
 			</scroll-view>
 		</view>
-		<!-- <view class="head">
-			<view class="left">
-				<text class="time">
-				    {{timeObj.date}}
-			    </text>
-			    <text class="test">
-				    坐诊医生
-			    </text>
-			</view>
-			<view class="right">
-				<text>只看有号</text>
-				<van-switch :checked="checked" @change="onChange" size="19px" />
-			</view>
-		</view> -->
 		<view class="middle">
 			<view class="center" v-for="(item,index) in doctorList" :key="index">
 				<view class="datum">
