@@ -4,22 +4,28 @@
 		<view class="goBack" :style="{top: barHeight +'px'}" @click="goBack">
 			<uni-icons type="back" color="#fff" size="15"></uni-icons>
 		</view>
+		<view class="summary-card">
+			<view class="summary-item">
+				<text class="label">项目</text>
+				<text class="value">{{detailInfo.length}}个</text>
+			</view>
+			<view class="summary-item">
+				<text class="label">共计</text>
+				<text class="price">¥{{price}}</text>
+			</view>
+		</view>
 		<scroll-view scroll-y class="container">
 			<view class="content">
-				<view class="title">套餐内项目({{packageQuantity}})</view>
+				<view class="title">套餐内项目({{detailInfo.length}})</view>
 				<view class="detail" v-for="(val, index) in detailInfo" :key="index">
-					<view>{{val.}}</view>
-					<view></view>
+					<view class="detail-left">{{index+1}}.{{val.ArcimDesc}}</view>
+					<view class="detail-right">{{val.StationName}}</view>
 				</view>
 			</view>
 		</scroll-view>
 		
 		<view class="footer-fixed">
-			<view class="left-info">
-				<view class="total">共{{packageQuantity}}个项目</view>
-				<view class="pay">个人支付 <text class="price">¥{{price}}</text></view>
-			</view>
-			<view class="next-btn">下一步</view>
+			<view class="next-btn" @click="confirm()">确认预约</view>
 		</view>
 		
 	</view>
@@ -47,11 +53,10 @@
 				title: '',
 				price: 0.00,
 				ordSetsId: '',
-				detailInfo: {},
+				detailInfo: [],
 			}
 		},
 		onLoad(e) {
-			this.title = this.formatText(e.title);
 			this.ordSetsId = e.ordSetsId;
 			this.sex = e.sex;
 			this.price = parseFloat(e.price).toFixed(2)
@@ -81,11 +86,10 @@
 							v.PeOrdItemList.PeOrdItem.map(val => {
 								this.detailInfo.push({
 									ArcimDesc: val.ArcimDesc,
-									StationName: val.StationName,
+									StationName: v.StationName,
 								})
 							})
 						})
-						console.log(JSON.stringify(this.detailInfo),'===w222==');
 					}
 				} catch(err) {
 					console.error(err);
@@ -117,6 +121,43 @@
 	.inventory {
 		width: 100%;
 		background-color: #f5f5f5;
+		.summary-card {
+			display: flex;
+			gap: 20rpx;
+			justify-content: center;
+			background: #fff;
+			margin: 20rpx;
+			padding: 40rpx;
+			border-radius: 16rpx;
+			box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+			.summary-item {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			
+			.summary-item .label {
+				font-size: 26rpx;
+				color: #999;
+			}
+			
+			.summary-item .value {
+				font-size: 32rpx;
+				font-weight: bold;
+				color: #333;
+				margin-top: 8rpx;
+			}
+			
+			.summary-item .price {
+				font-size: 32rpx;
+				font-weight: bold;
+				color: #f44;
+				margin-top: 8rpx;
+			}
+		}
+		
+		
 		.container {
 			flex: 1;
 			overflow-y: auto;
@@ -127,13 +168,23 @@
 					border-bottom: 1px solid #ccc;
 					text-align: center;
 					font-size: 30rpx;
+					padding: 30rpx 0;
+					font-weight: bold;
 				}
 				.detail {
 					display: flex;
-					view {
-						display: flex;
-						justify-content: center;
-						align-items: center;
+					justify-content: space-between;
+					align-items: center;
+					padding: 10rpx 30rpx;
+					.detail-left {
+						flex: 1;
+						color: #666;
+						justify-content: flex-start;
+					}
+					.detail-right {
+						color: #c2c2c2;
+						margin-left: 30rpx;
+						justify-content: flex-end;
 					}
 				}
 			}
@@ -148,7 +199,7 @@
 			height: 120rpx;
 			background-color: #fff;
 			display: flex;
-			justify-content: space-between;
+			justify-content: flex-end; /* 按钮靠右 */
 			align-items: center;
 			padding: 0 30rpx;
 			box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.1);
@@ -156,32 +207,6 @@
 			z-index: 999;
 		}
 		
-		/* 左边上下布局 */
-		.left-info {
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			line-height: 1.4;
-		}
-		
-		.total {
-			font-size: 26rpx;
-			color: #666;
-		}
-		
-		.pay {
-			font-size: 28rpx;
-			color: #333;
-		}
-		
-		.price {
-			color: #e60012;
-			font-weight: bold;
-			font-size: 34rpx;
-			margin-left: 6rpx;
-		}
-		
-		/* 右边按钮 */
 		.next-btn {
 			background-color: #3b82f6;
 			color: #fff;
@@ -191,6 +216,7 @@
 			line-height: 80rpx;
 			border-radius: 40rpx;
 			white-space: nowrap;
+			margin-left: auto;
 		}
 		
 	}
