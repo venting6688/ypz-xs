@@ -1,6 +1,6 @@
 <template>
 	<view class="inventory ">
-		<customerNav :title="title" />
+		<customerNav :title="formatText(title)" />
 		<view class="goBack" :style="{top: barHeight +'px'}" @click="goBack">
 			<uni-icons type="back" color="#fff" size="15"></uni-icons>
 		</view>
@@ -138,7 +138,7 @@
 			}
 		},
 		onLoad(e) {
-			this.title = this.formatText(e.title);
+			this.title = e.title;
 			this.ordSetsId = e.ordSetsId;
 			this.sex = e.sex;
 			this.price = parseFloat(e.price).toFixed(2)
@@ -169,7 +169,7 @@
 			},
 			confirm() {
 				uni.navigateTo({
-					url: `/sub_packages/physicalExamination/confirm?count=${this.packageQuantity}&ordSetsId=${this.ordSetsId}&sex=${this.sex}&price=${this.price}`
+					url: `/sub_packages/physicalExamination/confirm?count=${this.packageQuantity}&ordSetsId=${this.ordSetsId}&sex=${this.sex}&price=${this.price}&title=${this.title}`
 				})
 			},
 			getScheduleDates(){

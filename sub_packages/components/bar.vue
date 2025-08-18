@@ -10,7 +10,18 @@
 			</view>
 		</view>
 		<uni-popup class="cutPatientDialog" @maskClick="cutPatientPopupClick" :safe-area="false"  ref="cutPatientPopup" type="bottom">
-		   <popupFamily v-if="cutPatientPopupState" :personageObj="personageObj" @handle="show" />
+			<view class="scroll">
+				<view class="middle">
+					<view class="li" v-for="(item,index) in personageObj.list" :key="index" @click="updateDefaultArchives(item)" :class="{blue:personageObj.sole.patientName==item.patientName}">
+						<view class="name">
+							<text>{{item.patientName}}</text>
+						</view>
+						<view class="img" >
+							<image v-if="personageObj.sole.patientName==item.patientName" src="@/static/image/right.png" mode="widthFix"></image>
+						</view>
+					</view>
+			 </view>
+			</view>
 		</uni-popup>
 	</view>
 </template>

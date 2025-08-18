@@ -57,8 +57,9 @@
 			}
 		},
 		onLoad(e) {
-			this.ordSetsId = e.ordSetsId;
 			this.sex = e.sex;
+			this.title = e.title;
+			this.ordSetsId = e.ordSetsId;
 			this.price = parseFloat(e.price).toFixed(2)
 			this.getPhysicalExaminationPackageDetail();
 		},
@@ -71,6 +72,11 @@
 							url:'/pages/home/index'
 						})
 					}
+				})
+			},
+			confirm() {
+				uni.navigateTo({
+					url: `/sub_packages/physicalExamination/order?packName=${this.title}&sex=${this.sex}&price=${this.price}`
 				})
 			},
 			async getPhysicalExaminationPackageDetail() {
@@ -199,7 +205,7 @@
 			height: 120rpx;
 			background-color: #fff;
 			display: flex;
-			justify-content: flex-end; /* 按钮靠右 */
+			justify-content: flex-end;
 			align-items: center;
 			padding: 0 30rpx;
 			box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.1);

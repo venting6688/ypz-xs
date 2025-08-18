@@ -359,6 +359,15 @@
 				}
 			},
 			{
+				//提交体检
+				"path" : "physicalExamination/order",
+				"style" : 
+				{
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			},
+			{
 				"path" : "olderVersion/index",
 				"style" : 
 				{

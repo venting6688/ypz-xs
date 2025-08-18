@@ -29,6 +29,23 @@ const patient = {
 		return res
 	},
 	
+	async addPhysicalExaminationRecord(data) {
+		const res = await cjRequest({
+			url: `addPhysicalExaminationRecord`,
+			method: "POST",
+			data
+		})
+		return res
+	},
+	
+	async physicalExaminationPersonList(openId) {
+		const res = await cjRequest({
+			url: `physicalExaminationPersonList?openId=${openId}`,
+			method: "get",
+		})
+		return res
+	},
+	
 	
 	
 }
