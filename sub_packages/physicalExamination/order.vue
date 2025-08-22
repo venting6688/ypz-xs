@@ -9,7 +9,7 @@
 			<view class="form-item">
 				<text class="label required">姓名</text>
 				<input class="input" placeholder="请输入" v-model="informationObj.PatientName" />
-				<view class="btn-select" @click="cutPatient">选择体检人</view>
+				<view class="btn-select" @click="cutPatient" v-if="physicalExaminer.length">选择体检人</view>
 			</view>
 			<view class="form-item">
 				<text class="label required">证件类型</text>
@@ -19,7 +19,13 @@
 			</view>
 			<view class="form-item">
 				<text class="label required">证件号</text>
-				<input type="idcard" class="input" placeholder="请输入" v-model="informationObj.CertificateNo" @input="parseIdCard" maxlength="18" />
+				<input 
+				type="idcard" 
+				class="input" 
+				placeholder="请输入" 
+				v-model="informationObj.CertificateNo" 
+				@input="parseIdCard" 
+				/>
 			</view>
 			<view class="form-item">
 				<text class="label required">性别</text>
@@ -71,31 +77,36 @@
 				<text class="pay-sub">(扫码支付)</text>
 			</view>
 		</view>
-		<uni-popup class="cutPatientDialog" @maskClick="cutPatientPopupClick" :safe-area="false"  ref="cutPatientPopup" type="bottom">
-		  <view class="center" >
-		  	<!-- <view class="top">
-		  		<view class="title">切换就诊人</view>
-		  		<view class="title" @click="recharge(2)" style="color: #0386FF;">添加就诊人</view>
-		  	</view> -->
+		<uni-popup class="cutPatientDialog" :safe-area="false"  ref="cutPatientPopup" type="bottom">
+		  <!-- <view class="center"> -->
+			 <scroll-view scroll-y="true" class="center">
 		  	<view class="scroll" >
 					<view class="middle">
-						<view class="li" v-for="(item,index) in physicalExaminer" :key="index" @click="updateDefaultArchives(item)" :class="{blue:personageObj.sole.patientName==item.patientName}">
-							<view class="name">
-								<text>{{item.patientName}}</text>
+						<view class="li" v-for="(item,index) in physicalExaminer" 
+						:key="index" 
+						@click="selectedPhysicalExaminer(item)"
+						:class="{blue: personageId == item.id}"
+						>
+							<view class="info">
+								<view class="title" :class="{blue: personageId == item.id}">{{item.name}} - {{item.sex}} - {{item.age}}</view>
+								<view class="name">手机号码: {{maskCNPhone(item.phone)}}</view>
+								<view class="name">身份证号: {{pixelateNumber(item.idNum)}}</view>
 							</view>
-							<view class="img" >
-								<image v-if="personageObj.sole.patientName==item.patientName" src="@/static/image/right.png" mode="widthFix"></image>
+							
+							<view class="img" v-if="personageId == item.id">
+								<image src="@/static/image/right.png" mode="widthFix"></image>
 							</view>
 						</view>
 					</view>
 		  	</view>
-		  	<!-- <button class="cu-btn" @click="recharge(1)">门诊充值</button>-->
-		  </view>
+			</scroll-view>
+		  <!-- </view> -->
 		</uni-popup>
 	</view>
 </template>
 <script>
 	import dayjs from "dayjs";
+	import mixin from '@/mixins/mixin.js'
 	import { getStatusBarHeight } from "@/utils/system.js";
 	import customerNav from '@/components/customerNav.vue';
 	import detailItem from './components/detailItem.vue';
@@ -103,6 +114,7 @@
 	import physicalExamination from '@/api/physicalExamination.js'
 
 	export default {
+		mixins: [mixin],
 		components: {
 			customerNav,
 			detailItem,
@@ -120,6 +132,7 @@
 				openid: '',
 				price: 0.00,
 				ordSetsId: '',
+				personageId: '',
 				detailInfo: [],
 				physicalExaminer: [],
 				selectedCardType: ['身份证'],
@@ -144,7 +157,7 @@
 					PatientDob: '0000-00-00',
 					TelephoneNo: '',
 					// marriage: '',
-				}
+				},
 			}
 		},
 		onLoad(e) {
@@ -175,6 +188,18 @@
 			// marriageChange(e) {
 			// 	this.informationObj.marriage = e.detail.value
 			// },
+			selectedPhysicalExaminer(val) {
+				this.informationObj = {
+					PatientName: val.name,
+					CertificateType: '01',
+					CertificateNo: val.idNum,
+					SexCode: val.sex,
+					PatientDob: val.dob,
+					TelephoneNo: val.phone,
+				}
+				this.personageId = val.id;
+				this.$refs.cutPatientPopup.close();
+			},
 			//通过身份证号获取出生日期+性别
 			parseIdCard() {
 				if (this.selectedCardType == '身份证') {
@@ -202,7 +227,7 @@
 			formatDate(dateStr) {
 				return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
 			},
-			cutPatient(){
+			cutPatient() {
 				this.$refs.cutPatientPopup.open('bottom')
 			},
 			goBack() {
@@ -225,15 +250,41 @@
 				}
 				return true;
 			},
+			getAgeFromIdCard(idCard) {
+				if (!idCard || idCard.length !== 18) {
+					return null; // 身份证号格式不对
+				}
+				// 提取出生年月日
+				const year = parseInt(idCard.substr(6, 4));
+				const month = parseInt(idCard.substr(10, 2));
+				const day = parseInt(idCard.substr(12, 2));
+		
+				const today = new Date();
+				let age = today.getFullYear() - year;
+		
+				// 如果还没过生日，减 1 岁
+				if (
+					today.getMonth() + 1 < month ||
+					(today.getMonth() + 1 === month && today.getDate() < day)
+				) {
+					age--;
+				}
+		
+				return age;
+			},
 			async getPhysicalExaminationPersonList() {
 				try {
 					let res = await physicalExamination.physicalExaminationPersonList(this.openid);
 					this.physicalExaminer = [];
 					if (res.data.list.length) {
 						res.data.list.map(v => {
+							let age = this.getAgeFromIdCard(v.CertificateNo);
 							this.physicalExaminer.push({
+								id: v.id,
 								name: v.PatientName,
 								sex: v.SexCode,
+								dob: v.PatientDob,
+								age,
 								idNum: v.CertificateNo,
 								phone: v.TelephoneNo,
 							})
@@ -244,7 +295,24 @@
 				}
 			},
 			confirm() {
-				console.log(JSON.stringify(this.informationObj));
+				if (this.informationObj.CertificateNo.length < 18) {
+					uni.showToast({
+						title: '身份证号错误，请输入至少18位数',
+						icon: 'none'
+					})
+					
+					return;
+				}
+				
+				if (this.informationObj.TelephoneNo.length < 11) {
+					uni.showToast({
+						title: '手机号错误，请输入至少11位数',
+						icon: 'none'
+					})
+					
+					return;
+				}
+				
 				if (!this.isInformationComplete()) {
 					uni.showToast({
 						title: '请填写完整信息',
@@ -398,9 +466,10 @@
 		.center {
 			width: 750rpx;
 			background-color: #ffffff;
+			margin-bottom: 75rpx;
 			border-radius: 30rpx 30rpx 0 0;
-			// height: 570rpx;
-			overflow: hidden;
+			height: 540rpx;
+			overflow-y: auto;
 			.top {
 				display: flex;
 				justify-content: space-between;
@@ -414,40 +483,31 @@
 			}
 			.scroll {
 				height: 55%;
-				margin-left: 20rpx;
 				padding-bottom: 30rpx;
 				.middle {
 						padding-top: 20rpx;
 						.li {
-							width: 96%;
-							min-height: 80rpx;
+							color: #666;
 							display: flex;
 							justify-content: space-between;
 							align-items: center;
+							// flex-direction: column;
 							margin: 20rpx 5rpx;
-							color: #92a1bb;
+							min-height: 80rpx;
 							padding:0 20rpx 0 40rpx;
-							background: #f0f7ff;
-							border-radius: 20rpx;
-							
+							border-bottom: 1px solid #ccc;
 							&:first-child{
 								margin-top: 10rpx;
 							}
+							.title {
+								font-size: 36rpx;
+								color: #333;
+								padding-bottom: 15rpx;
+							}
 							.name {
-								width: 20%;
 								font-size: 32rpx;
 								line-height: 32rpx;
-							}
-							.no {
-								width: 36%;
-								margin-left: 3%;
-								font-size: 32rpx;
-								line-height: 32rpx;
-							}
-							.price{
-								width: 29%;
-								font-size: 32rpx;
-								line-height: 32rpx;
+								padding-bottom: 20rpx;
 							}
 							.img {
 								width: 11%;
@@ -461,11 +521,8 @@
 								}
 							}
 						}
-						
-						.colour {
-							border: 2rpx dashed #797979;
-							// background: #479cff !important;
-							// color: #ffffff;
+						.blue {
+							color: #4286FF !important;
 						}
 					}
 			}

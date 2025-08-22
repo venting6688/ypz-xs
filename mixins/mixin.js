@@ -80,15 +80,9 @@ export default {
 			let firstFour = value.slice(0, 4);
 			let lastFour = value.slice(-4);
 			return `${value.slice(0, 4)}${'*'.repeat(value.length - 10)}${value.slice(-2)}`;
-			
-			// if (value) {
-			// 	// 判断括号
-			// 	if (value.length > 6) {
-			// 			return `${value[0]}${value[1]}${value[2]}*******${value[value.length - 3]}${value[value.length - 2]}${value[value.length - 1]}`
-			// 	}
-			// } else {
-			// 	return value
-			// }
+		},
+	  maskCNPhone(p) {
+			return String(p).replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2')
 		},
 		pixelate(value) {
 			if (value) {

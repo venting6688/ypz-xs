@@ -1,6 +1,5 @@
 <template>
 	<view class="virtual">
-		
 		<view class="" :animation="anData"  style="height:0rpx;"></view>
 		<image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	
 		<view class="head">您好！“安好”  为您服务 </view>
@@ -44,12 +43,12 @@
 							</view>
 						</view>
 						<!-- 推荐科室 -->
-						<view class="top2" v-if="x.type==2">
+						<view class="top2" v-if="x.type==2 && x.department">
 							<!-- <image src="@/static/image/department.png" mode="widthFix"></image> -->
 							<view class="top2-content">
 								<view class="department" v-for="(clinic,u) in x.department" :key="u">
 									<view class="title">
-										推荐科室{{u+1}}
+										推荐科室
 									</view>
 									<view class="top2-center">
 										<text>{{clinic.name}}</text>
@@ -57,11 +56,10 @@
 											<view class="top2-img">
 												<image src="@/static/image/plus.png" mode="widthFix"></image>
 											</view>
-											<view class="text" >挂号</view>
+											<view class="text">挂号</view>
 										</view>
 									</view>
 								</view>
-								
 								<view class="more">
 									<text @click="more">更多</text>
 									<image @click="tipsBtn(i)" src="../../static/image/question.png" mode="widthFix"></image>
@@ -74,8 +72,32 @@
 								</view>
 							</view>
 						</view>
+						<!-- 医生排班 -->
+						<view class="doctor" v-if="x.type==2 && x.scheduling">
+							<view class="top2-content">
+								<view class="title">医生排班</view>
+								<view class="scheduling" v-for="(item, index) in x.scheduling" :key="index" v-show="x.scheduling">
+									<view class="name">
+										<text>{{item.DoctorName}}({{item.SessionName}})</text>
+										<text>{{item.DoctorSessType}}({{item.DepartmentName}})</text>
+										<text>￥{{item.Fee}}</text>
+									</view>
+									<view class="desc">医生简介：{{item.DoctorSpec ? item.DoctorSpec : '暂无信息'}}</view>
+								</view>
+								<view class="noData" v-show="x.scheduling.length == 0">很抱歉，暂无当前科室排班</view>
+								<view class="ai-tips" v-if="!x.msgLoad">此内容由AI生成，仅供参考</view>
+							</view>
+						</view>
+						<!-- 地图导航 -->
+						<view class="doctor" v-if="x.type==2 && x.map">
+							<view class="top2-content">
+								<view class="title">科室导航</view>
+								<view class="noData">很抱歉，科室导航暂未开通，您可以查询科室排班，敬请期待。</view>
+								<view class="ai-tips" v-if="!x.msgLoad">此内容由AI生成，仅供参考</view>
+							</view>
+						</view>
 					</view>
-			       </view>
+				 </view>
 				</view>
 		    </scroll-view>
 			<!-- 选择症状、疾病 弹窗 -->
@@ -96,12 +118,6 @@
 			  </view>
 			</uni-popup>
 		    <view class="foot">
-				<view class="foot-bar">
-					<view :class="{blue:item.state===pattern}" class="test" v-for="item in footBar" :key="item" @click="footBarBtn(item)">
-						<image :src="item.image" class="barImg" />
-						<text>{{item.name}}</text>
-					</view>
-				</view>
 				<view v-if="voiceState" class="foot-center">
 					<view class="image">
 					<image @click="voiceState=false" src="@/static/image/keyword.png" mode=""></image>	
@@ -116,8 +132,17 @@
 					<image @click="voiceState=true" src="@/static/image/voice.png" mode=""></image>	
 					</view>
 					<view class="input" :class="{w:msg}">
-						<input v-if="inputState" :class="{ws:msg}" :focus="Focus" @blur="onblur" type="text" cursor-spacing="10" v-model="msg" style="background-color: #f0f0f0;"
-				 @confirm="sendMsg" confirm-type="send" />
+						<input v-if="inputState" 
+						:class="{ws:msg}" 
+						:focus="Focus" 
+						@blur="onblur" 
+						type="text" 
+						cursor-spacing="10" 
+						v-model="msg" 
+						style="background-color: #f0f0f0;"
+						@confirm="sendMsg" 
+						confirm-type="send" 
+						/>
 					</view>
 					<view class="sendMsg" @click="sendMsg" v-if="msg">
 						<text>发送</text>
@@ -205,22 +230,10 @@
 					  my:false,
 						type:1,
 						msg:'您可以向我询问以下问题：',
-						questionList:['感冒吃什么药','头孢的作用是什么'],
+						questionList:['儿科排班','如何进行退烧？','腹痛挂什么科？'],
 					}
 				],              //消息集合
 				DataList:{},    //底部弹窗
-				footBar:[
-					{
-						name:'智能导诊',
-						state:1,
-						image: '../../static/img/icon/daozhen.png',
-					},
-					{
-						name:'智能问答',
-						state:2,
-						image: '../../static/img/icon/wenda.png',
-					},
-				],
 				voiceState:false,        //底部切换状态
 				reply:[],
 				Focus:false,  //输入框聚焦
@@ -248,62 +261,6 @@
 				this.patient = JSON.parse(decodeURIComponent(options.patient))
 			}
 		},
-		onLoad(options) {
-			let loginData = uni.getStorageSync("loginData");
-			let defaultLogin = loginData ? JSON.parse(loginData) : {};
-			// if (!loginData || !defaultLogin.defaultArchives) {
-			// 	setTimeout(() => {
-			// 		uni.reLaunch({ url: `/sub_packages/login/index?title=山东第一医科大学第二附属医院`});
-			// 	}, 100)
-			// } else {
-				if (Object.keys(options).length > 0) {
-					this.pattern = Number(options.pattern)
-					let manifestation = options.manifestation
-					if(this.pattern===1){
-						uni.showToast({
-								title: '已为您切换到智能导诊',
-								icon: 'none',   
-								duration: 2000 
-						}) 
-						this.msgList = [
-							{
-									my:false,
-								type:1,
-								msg:'您可以详细描述症状，我将为您优先推荐科室去挂号：',
-								questionList:['感冒','恶心','上吐下泻'],
-							}
-						]
-							
-						}else{
-						if(options.shouldUpdate){
-							this.updateData()
-						}
-						if(manifestation){
-							this.answer(manifestation)
-						}else{
-							uni.showToast({
-									title: '已为您切换到智能问答',
-									icon: 'none',   
-									duration: 2000 
-							}) 
-							this.msgList = [
-								{
-										my:false,
-									type:1,
-									msg:'您可以向我询问以下问题：',
-									questionList:['感冒吃什么药','头孢的作用是什么'],
-								}
-							]
-						}
-						
-						}
-				} 
-			// }
-		},
-		computed: {
-		    parsedMarkdown() {
-		    }
-		},
 		methods: {
 			tipsBtn(index){
 				// 使用 this.$set 修改数组中某一项的属性
@@ -316,47 +273,6 @@
 				uni.navigateTo({
 					url: `/sub_packages/subscribe/departments`
 				})
-			},
-			footBarBtn(item){
-				if(!this.inputState){
-					// 数据流未完成不能切换
-					return
-				}
-				// 切换模式
-				if(item.name==='智能导诊'){
-					this.pattern = 1
-					uni.showToast({
-					    title: '已为您切换到智能导诊',
-					    icon: 'none',   
-					    duration: 2000 
-					}) 
-					this.conversation_id = ''
-					this.msgList = [
-						{
-						    my:false,
-							type:1,
-							msg:'您可以详细描述症状，我将为您优先推荐科室去挂号：',
-							questionList:['感冒','恶心','上吐下泻'],
-						}
-					]
-					
-				}else {
-					uni.showToast({
-					    title: '已为您切换到智能问答',
-					    icon: 'none',   
-					    duration: 2000 
-					}) 
-					this.pattern = 2
-					this.conversation_id = ''
-					this.msgList = [
-						{
-						    my:false,
-							type:1,
-							msg:'您可以向我询问以下问题：',
-							questionList:['感冒吃什么药','头孢的作用是什么'],
-						}
-					]
-				}
 			},
 			// 登录成功后重新渲染foot
 			updateData(){
@@ -450,24 +366,25 @@
 				  },
 				  enableChunked: true,
 				  header: {
-				    'Authorization': `Bearer ${this.pattern===1 ? this.patternList[0] : this.patternList[1]}`,
+						// 'Authorization': `Bearer ${this.pattern===1 ? this.patternList[0] : this.patternList[1]}`,
+				    'Authorization': `Bearer app-bn5rwLZrI6lW8uOlcH0OFDMq`,
 				    'content-type': 'application/json',
 				  },
 				  success: (res) => {
 					  if(this.pattern===1){
-						this.test1 = ''
-						if(!this.test2.is_complete){
-							this.mode = this.test2.mode
-							if(this.test2.option.length){
-								this.DataList.main = this.test2.option.map(item=> {
-								    return {value:item}
-								})
-								this.$refs.popup.open('bottom')   //弹框
+							this.test1 = ''
+							if(!this.test2.is_complete){
+								this.mode = this.test2.mode
+								if(this.test2.option.length){
+									this.DataList.main = this.test2.option.map(item=> {
+											return {value:item}
+									})
+									this.$refs.popup.open('bottom')   //弹框
+								}
+							}else {
+								this.conversation_id = ''
 							}
-						}else {
-							this.conversation_id = ''
-						}  
-					  }else {
+					  } else {
 						  this.test1 = ''
 					  }
 					  this.msgGo()
@@ -478,65 +395,174 @@
 					  this.inputState = true
 				  },
 				});
-				requestTask.onChunkReceived((response) => {
-					try {
-						// 收到流式数据，根据返回值进行相对应数据解码
-						const arrayBuffer = response.data;
-						const uint8Array = new Uint8Array(arrayBuffer);
-						let text = uni.arrayBufferToBase64(uint8Array)
-						text = new Buffer(text, 'base64')
-						let responseText = text.toString('utf-8')
-						let data = responseText.split('data: ')
-						let i 
-						for (let j = 0; j < data.length; j++) {
-							if(!j) continue;
-							if(!data[j].includes('message') || data[j].includes('message_end')){
-								break
+				let buffer = '';
+				requestTask.onChunkReceived((res) => {
+				  try {
+				    const decoder = new TextDecoder('utf-8')
+				    const responseText = decoder.decode(res.data)
+						//如果流式文件内容过长内容不全面，导致解析失败
+						buffer += responseText;
+						let lines = buffer.split('\n');
+						buffer = lines.pop();
+						
+						for (const line of lines) {
+							if (!line.startsWith('data:')) continue;
+					
+							const jsonStr = line.replace(/^data:\s*/, '').trim();
+							if (!jsonStr) continue;
+					
+							if (jsonStr === '[DONE]' || jsonStr.includes('message_end')) {
+							  break
 							}
-							i = JSON.parse(data[j])
-							this.conversation_id = i.conversation_id
-							// i.answer = i.answer&&i.answer.replace(/[ \r\n\u21B5]/g,'')
-							if(i.answer){
-								this.test1 += i.answer
-								if(this.pattern===1){
-									this.test2 = parse(this.test1)
-									if(!this.test2.is_complete){
-										if(this.test2.response){
-											const content = {
-												my:false,
-												msgLoad:false,
-												msg:this.test2.response?this.test2.response.replace(/\[.*?\]/, ''):'',
-											}
-											this.msgList.splice(this.msgList.length-1,1,content)		  
-										}
-									}else {
-										const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState;
-										const content = {
-											my:false,
-											type:2,
-											msgLoad:false,
-											department:this.test2.option?this.test2.option:[],
-											tips:this.test2.reason?this.test2.reason:'',
-											tipsState: originalTipsState
-										}
-										this.msgList.splice(this.msgList.length-1,1,content)
-									}
-								}else {
-									const content = {
+					
+							let obj;
+							try {
+								obj = JSON.parse(jsonStr);
+							} catch (e) {
+								console.warn('解析失败, 跳过:', jsonStr);
+							}
+							
+							if (obj.event == 'error') {
+								this.msgList.splice(this.msgList.length - 1, 1, {
+								  my: false,
+								  msgLoad: false,
+								  msg: "很抱歉，您的问题暂时没查询到，我还在努力学习中...",
+								})
+							}
+							
+							this.conversation_id = obj.conversation_id || this.conversation_id
+							let answer = obj.answer || obj.data?.outputs?.answer
+							
+							if (!answer) continue
+							const isStart = answer.trim().startsWith('{')
+							const isEnd = answer.trim().endsWith('}')
+							if (!isStart && !isEnd) {
+							  this.test1 += answer
+							  this.msgList.splice(this.msgList.length - 1, 1, {
+							    my: false,
+							    msgLoad: false,
+							    msg: this.test1,
+							  })
+							  continue
+							}
+							
+							if (typeof answer === 'string' && answer.trim().startsWith('{') && answer.trim().endsWith('}')) {
+								answer = answer.replace(/[\r\n]+/g, '\\n')
+								console.log(answer,'+++++++++++++++++++++');
+								answer = JSON.parse(answer);
+								let content = answer.content;
+								let type = answer.intent;
+								if (type == 'A001') {
+									const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState;
+									this.msgList.splice(this.msgList.length-1,1,{
 										my:false,
+										type:2,
 										msgLoad:false,
-										msg:this.test1?this.test1.replace(/\[.*?\]/, ''):'',
-									}
-									this.msgList.splice(this.msgList.length-1,1,content)
+										department: answer.content.option,
+										tips: answer.content.reason,
+										tipsState: originalTipsState
+									})
+								} 
+								if (type == 'A002') {
+									this.msgList.splice(this.msgList.length-1,1,{
+										my:false,
+										type: 2,
+										msgLoad:false,
+										scheduling: content,
+									})
+								} 
+								if (type == 'A003') {
+									this.msgList.splice(this.msgList.length-1,1,{
+										my:false,
+										type: 2,
+										msgLoad:false,
+										map: answer.slots.department,
+									})
+								} 
+								if (type == 'A005' || type == 'A999') {
+									this.msgList.splice(this.msgList.length - 1, 1, {
+										my: false,
+										msgLoad: false,
+										msg: content,
+									})
 								}
+								// else {
+								// 	this.msgList.splice(this.msgList.length - 1, 1, {
+								// 	  my: false,
+								// 	  msgLoad: false,
+								// 	  msg: '您要查询的内容暂时不存在，您可以尝试问我“医生排班”、“挂号”、“医疗知识问答”、“时间问题”。',
+								// 	})
+								// }
+								
 							}
 						}
-					} catch (error) {
-						console.log('error',error)
-						//TODO handle the exception
-					}
-				  
+						
+				  } catch (e) {
+				    console.error('解析流式返回数据异常:', e)
+				  }
 				});
+
+
+				// requestTask.onChunkReceived((response) => {
+				// 	try {
+				// 		// 收到流式数据，根据返回值进行相对应数据解码
+				// 		const arrayBuffer = response.data;
+				// 		const uint8Array = new Uint8Array(arrayBuffer);
+				// 		let text = uni.arrayBufferToBase64(uint8Array)
+				// 		text = new Buffer(text, 'base64')
+				// 		let responseText = text.toString('utf-8')
+				// 		let data = responseText.split('data: ')
+				// 		let i 
+				// 		for (let j = 0; j < data.length; j++) {
+				// 			if(!j) continue;
+				// 			if(!data[j].includes('message') || data[j].includes('message_end')){
+				// 				break
+				// 			}
+				// 			i = JSON.parse(data[j])
+				// 			this.conversation_id = i.conversation_id
+				// 			// i.answer = i.answer&&i.answer.replace(/[ \r\n\u21B5]/g,'')
+				// 			if(i.answer){
+				// 				this.test1 += i.answer
+				// 				if(this.pattern===1){
+				// 					this.test2 = parse(this.test1)
+				// 					if(!this.test2.is_complete){
+				// 						if(this.test2.response){
+				// 							const content = {
+				// 								my:false,
+				// 								msgLoad:false,
+				// 								msg:this.test2.response?this.test2.response.replace(/\[.*?\]/, ''):'',
+				// 							}
+				// 							console.log(JSON.stringify(content),'======222===');
+				// 							this.msgList.splice(this.msgList.length-1,1,content)		  
+				// 						}
+				// 					}else {
+				// 						const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState;
+				// 						const content = {
+				// 							my:false,
+				// 							type:2,
+				// 							msgLoad:false,
+				// 							department:this.test2.option?this.test2.option:[],
+				// 							tips:this.test2.reason?this.test2.reason:'',
+				// 							tipsState: originalTipsState
+				// 						}
+				// 						console.log(JSON.stringify(content),'======111111===');
+				// 						this.msgList.splice(this.msgList.length-1,1,content)
+				// 					}
+				// 				}else {
+				// 					const content = {
+				// 						my:false,
+				// 						msgLoad:false,
+				// 						msg:this.test1?this.test1.replace(/\[.*?\]/, ''):'',
+				// 					}
+				// 					this.msgList.splice(this.msgList.length-1,1,content)
+				// 				}
+				// 			}
+				// 		}
+				// 	} catch (error) {
+				// 		console.log('error',error)
+				// 		//TODO handle the exception
+				// 	}
+				// });
 			},
 			//弹窗事件
 			choice(index){
@@ -766,32 +792,27 @@
 						justify-content: flex-start;
 						align-items: flex-start;
 						
-						
 						.robot-box {
-						display: flex;
-						justify-content: flex-start;
-						align-items: center;
-						width: 680rpx;
-						margin: 20rpx 0 20rpx 25rpx;
-						
-						.triangle {
-						    width: 0;
-						 	height: 0;
-						 	border-style: solid;
-						 	border-width: 15rpx 18rpx 15rpx 0;
-						 	border-color: transparent rgba(255,255,255,0.80) transparent transparent;
-						}
-							
+							display: flex;
+							justify-content: flex-start;
+							align-items: center;
+							width: 680rpx;
+							margin: 20rpx 0 20rpx 25rpx;
+							.triangle {
+									width: 0;
+								height: 0;
+								border-style: solid;
+								border-width: 15rpx 18rpx 15rpx 0;
+								border-color: transparent rgba(255,255,255,0.80) transparent transparent;
+							}
 							.center{
 								color: #000000;
 							    padding:20rpx 24rpx;
 							    background: rgba(255,255,255,0.80);
 							    border-radius: 12rpx;
 								font-size: 34rpx;
-								
 								.msg {
 									text-align: left;
-									
 								}
 								.top1 {
 									margin-top: 10rpx;
@@ -799,7 +820,6 @@
 									color: #1A66C2;
 									display: flex;
 									flex-wrap: wrap;
-									
 									view {
 										margin: 20rpx 14rpx 0 14rpx;
 										text{
@@ -813,10 +833,7 @@
 									font-size: 26rpx;
 									color: #919191;
 								}
-								
 							}
-							
-							
 						}
 						.top2 {
 							display: flex;
@@ -837,9 +854,6 @@
 							.top2-content {
 								position: relative;
 								width: 560rpx;
-								// height: 380rpx;
-								
-								
 								.department {
 									width: 100%;
 									height: 190rpx;
@@ -861,7 +875,6 @@
 										align-items: center;
 										font-size: 38rpx;
 										overflow: hidden;
-										
 										.img {
 											transform: translate(16rpx,0);
 											width: 52rpx;
@@ -872,8 +885,6 @@
 											    height: 52rpx;
 											}
 										}
-										
-										
 										text {
 											font-size: 32rpx;
 											text-align: left;
@@ -936,6 +947,59 @@
 								color: #919191;
 							}
 						}
+						
+						.doctor {
+							display: flex;
+							justify-content: flex-start;
+							align-items: center;
+							min-width: 560rpx;
+							max-width: 660rpx;
+							margin: 20rpx 0 20rpx 25rpx;
+							position: relative;
+							padding-bottom:20rpx;
+							background: rgba(255,255,255,0.80);
+							border-radius: 12rpx;
+							.top2-content {
+								width: 100%;
+								position: relative;
+								.title {
+									color: #333;
+									padding: 15rpx 20rpx;
+									background: #C6E0FF;
+									border-radius: 15rpx 15rpx 0 0;
+								}
+								.noData {
+									font-size: 32rpx;
+									padding: 15rpx 20rpx;
+									color: #666;
+								}
+								.scheduling {
+									color: #333;
+									width: 100%;
+									padding: 10rpx 20rpx;
+									border-bottom: 1px solid #ccc;
+									.name {
+										display: flex;
+										color: #4286FF;
+										font-size: 30rpx;
+										justify-content: space-between;
+									}
+									.desc {
+										color: #666;
+										font-size: 28rpx;
+										margin-top: 20rpx;
+									}
+								}
+							}
+							.ai-tips {
+								margin-top: 20rpx;
+								text-align: center;
+								font-size: 26rpx;
+								color: #919191;
+							}
+						}
+						
+						
 					}
 					
 				}
@@ -981,7 +1045,6 @@
 							}
 						}
 					}
-					
 				.foot-choice {
 					background-color: #ffffff;
 					// height: 120rpx;
@@ -992,8 +1055,6 @@
 					align-items: center;
 					border-top: 2rpx solid #DDDDDD;
 					position: relative;
-					
-					
 						view{
 							color: #0085FF;
 							display: flex;
@@ -1003,56 +1064,16 @@
 							width: 50%;
 							height: 80rpx;
 							border:none;
-							
 							&:nth-of-type(1){
 								color: #797979;
 								border-right: 2rpx solid #e7e7e7;
 							}
-							
 						}
-						
-						
 				}
-				
 			}
-		
-		    .foot {
-			   
+		  .foot {
 				margin-bottom:24rpx;   //带着footbar
-				// margin-bottom:50rpx;
-			    width: 750rpx;
-				
-				.foot-bar {
-					margin-left: 12rpx;
-					width: 726rpx;
-					display: flex;
-					margin: 20rpx 12rpx;
-					.barImg {
-						width: 30rpx;
-						height: 30rpx;
-						margin-right: 10rpx;
-					}
-					>view {
-						width: 200rpx;
-						height: 60rpx;
-						background: rgba(255,255,255,0.90);
-						border-radius: 30rpx;
-						line-height: 28rpx;
-						margin-right: 24rpx;
-						color: #000000;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						font-size: 30rpx;
-					}
-					
-					.blue {
-						color: #0066ff;
-						font-weight: bold;
-						border: 2px solid #0066ff;
-					}
-				}
-				
+				width: 750rpx;
 				.foot-center {
 					margin-left: 12rpx;
 					width: 726rpx;
