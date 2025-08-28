@@ -41,15 +41,6 @@ const baseUrl = "https://www.chinzsoft.com/api/mobile/";
 
 function request(parmas,state){
 	let token = store.state.loginToken;
-	
-	// if (!token) {
-	// 	uni.showToast({
-	// 		title: '请先登录',
-	// 		icon: 'none'
-	// 	});
-	// 	return Promise.reject({ message: '未登录' });
-	// }
-	
 	let header = { "Authorization": token };
 	
 	return new Promise((resolve, reject) => {

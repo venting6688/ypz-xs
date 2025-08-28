@@ -5,7 +5,10 @@
 			<uni-icons type="back" color="#fff" size="15"></uni-icons>
 		</view>
 		<scroll-view scroll-y class="container">
-			<view class="guide"><image src="../static/image/banner.png"  mode="aspectFit" /></view>
+			<view class="guide">
+				<image src="../static/image/banner.png"  mode="aspectFit" v-if="locId == '484'" />
+				<image src="../static/image/banner1.png"  mode="aspectFit" v-else />
+			</view>
 			<view class="timeCard">
 				<view class="title">预约日期</view>
 				<view class="tipMsg">温馨提示：日期仅供参考，会因检查项目变化，实际可约日期以下单页为准</view>
@@ -20,7 +23,7 @@
 						:key="index" 
 						class="scroll-item"
 						:class="{back:timeObj.date===item.date}"
-						@click="getScheduleDetail(item,index)"
+						@click="getPhysicalExaminationDate(item)"
 					>
 						<view>{{item.week}}</view>
 						<view>{{item.date.substring(item.date.indexOf("-") + 1)}}</view>
@@ -104,6 +107,7 @@
 </template>
 <script>
 	import dayjs from "dayjs";
+	import { mapState } from 'vuex'
 	import { getStatusBarHeight } from "@/utils/system.js";
 	import customerNav from '@/components/customerNav.vue';
 	import detailItem from './components/detailItem.vue';
@@ -115,6 +119,7 @@
 			detailItem
 		},
 		computed: {
+			...mapState(['locId']),
 			barHeight() {
 				return getStatusBarHeight()+5
 			},
@@ -138,9 +143,9 @@
 			}
 		},
 		onLoad(e) {
+			this.sex = e.sex;
 			this.title = e.title;
 			this.ordSetsId = e.ordSetsId;
-			this.sex = e.sex;
 			this.price = parseFloat(e.price).toFixed(2)
 			this.timeObj = {
 				week: this.days[dayjs().day()],
@@ -167,9 +172,15 @@
 				if (!str) return '';
 				return str.length > 14 ? str.slice(0, 14) + '...' : str;
 			},
+			getPhysicalExaminationDate(item) {
+				this.timeObj = {
+					week: item.week,
+					date: item.date,
+				};
+			},
 			confirm() {
 				uni.navigateTo({
-					url: `/sub_packages/physicalExamination/confirm?count=${this.packageQuantity}&ordSetsId=${this.ordSetsId}&sex=${this.sex}&price=${this.price}&title=${this.title}`
+					url: `/sub_packages/physicalExamination/addProject?count=${this.packageQuantity}&ordSetsId=${this.ordSetsId}&sex=${this.sex}&price=${this.price}&title=${this.title}&selectDate=${this.timeObj.date}`
 				})
 			},
 			getScheduleDates(){
@@ -186,11 +197,15 @@
 						status: "余200"
 					});
 				}
+				this.timeObj = {
+					week: this.timeList[0].week,
+					date: this.timeList[0].date,
+				};
 			},
 			async getPhysicalExaminationPackageDetail() {
 				try {
 					let data = {
-						locId: '484',
+						locId: this.locId,
 						OrdSetsId: this.ordSetsId,
 					}
 					const res = await physicalExamination.getPhysicalExaminationPackageDetail(data);

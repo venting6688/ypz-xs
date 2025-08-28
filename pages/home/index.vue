@@ -100,7 +100,7 @@
 					[
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/yyjl.png', name: '预约记录' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/ttyy.png', name: '团体预约' },
-						{ img: 'https://aiwz.sdtyfy.com:8099/img/gryy.png', name: '个人预约', url: '/sub_packages/physicalExamination/index' },
+						{ img: 'https://aiwz.sdtyfy.com:8099/img/gryy.png', name: '个人预约', url: '/sub_packages/physicalExamination/campus' },
 						{ img: 'https://aiwz.sdtyfy.com:8099/img/bgcx.png', name: '报告查询' }
 					],
 					[

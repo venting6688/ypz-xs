@@ -32,6 +32,7 @@
 </template>
 <script>
 	import dayjs from "dayjs";
+	import { mapState } from 'vuex'
 	import { getStatusBarHeight } from "@/utils/system.js";
 	import customerNav from '@/components/customerNav.vue';
 	import detailItem from './components/detailItem.vue';
@@ -43,6 +44,7 @@
 			detailItem
 		},
 		computed: {
+			...mapState(['locId']),
 			barHeight() {
 				return getStatusBarHeight()+5
 			},
@@ -53,6 +55,7 @@
 				title: '',
 				price: 0.00,
 				ordSetsId: '',
+				selectedDate: '',
 				detailInfo: [],
 			}
 		},
@@ -60,6 +63,7 @@
 			this.sex = e.sex;
 			this.title = e.title;
 			this.ordSetsId = e.ordSetsId;
+			this.selectedDate = e.selectDate;
 			this.price = parseFloat(e.price).toFixed(2)
 			this.getPhysicalExaminationPackageDetail();
 		},
@@ -76,13 +80,13 @@
 			},
 			confirm() {
 				uni.navigateTo({
-					url: `/sub_packages/physicalExamination/order?packName=${this.title}&sex=${this.sex}&price=${this.price}`
+					url: `/sub_packages/physicalExamination/order?packName=${this.title}&sex=${this.sex}&price=${this.price}&ordSetsId=${this.ordSetsId}&selectedDate=${this.selectedDate}`
 				})
 			},
 			async getPhysicalExaminationPackageDetail() {
 				try {
 					let data = {
-						locId: '484',
+						locId: this.locId,
 						OrdSetsId: this.ordSetsId,
 					}
 					const res = await physicalExamination.getPhysicalExaminationPackageDetail(data);

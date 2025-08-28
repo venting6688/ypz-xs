@@ -53,7 +53,7 @@
 		</view>
 		<view class="checkDate">
 			<text class="label">检查日期</text>
-			<view class="btn-select">请选择</view>
+			<view class="btn-select">{{selectedDate}}</view>
 		</view>
 		<view class="total">
 			<view class="section-title">费用明细</view>
@@ -106,6 +106,7 @@
 </template>
 <script>
 	import dayjs from "dayjs";
+	import { mapState } from 'vuex'
 	import mixin from '@/mixins/mixin.js'
 	import { getStatusBarHeight } from "@/utils/system.js";
 	import customerNav from '@/components/customerNav.vue';
@@ -121,6 +122,7 @@
 			popupFamily
 		},
 		computed: {
+			...mapState(['locId']),
 			barHeight() {
 				return getStatusBarHeight()+5
 			},
@@ -133,6 +135,7 @@
 				price: 0.00,
 				ordSetsId: '',
 				personageId: '',
+				selectedDate: '',
 				detailInfo: [],
 				physicalExaminer: [],
 				selectedCardType: ['身份证'],
@@ -164,11 +167,13 @@
 			this.sex = e.sex;
 			this.packName = e.packName;
 			this.ordSetsId = e.ordSetsId;
+			this.selectedDate = e.selectedDate;
 			this.price = parseFloat(e.price).toFixed(2);
-			let login = uni.getStorageSync("loginData");
+			let login = uni.getStorageSync('loginData');
 			login = JSON.parse(login)
 			this.openid = login.xcxOpenId;
 			this.getPhysicalExaminationPersonList();
+			this.getPhysicalExaminationPackageDetail();
 		},
 		methods: {
 			//选择日期
@@ -183,21 +188,29 @@
 				this.informationObj.CertificateType = index < 10 ? '0'+index : index;
 			},
 			sexChange(e) {
-				this.informationObj.SexCode = e.detail.value
+				this.informationObj.SexCode = e.detail.value;
 			},
 			// marriageChange(e) {
 			// 	this.informationObj.marriage = e.detail.value
 			// },
 			selectedPhysicalExaminer(val) {
-				this.informationObj = {
-					PatientName: val.name,
-					CertificateType: '01',
-					CertificateNo: val.idNum,
-					SexCode: val.sex,
-					PatientDob: val.dob,
-					TelephoneNo: val.phone,
+				if (this.sex != '不限' && this.sex != val.sex) {
+					uni.showToast({
+						title: '当前套餐仅针对'+this.sex,
+						icon: 'none'
+					})
+				} else {
+					this.informationObj = {
+						PatientName: val.name,
+						CertificateType: '01',
+						CertificateNo: val.idNum,
+						SexCode: val.sex,
+						PatientDob: val.dob,
+						TelephoneNo: val.phone,
+					}
+					this.personageId = val.id;
 				}
-				this.personageId = val.id;
+				
 				this.$refs.cutPatientPopup.close();
 			},
 			//通过身份证号获取出生日期+性别
@@ -294,25 +307,36 @@
 					console.error(err);
 				}
 			},
+			async getPhysicalExaminationPackageDetail() {
+				try {
+					let data = {
+						locId: this.locId,
+						OrdSetsId: this.ordSetsId,
+					}
+					const res = await physicalExamination.getPhysicalExaminationPackageDetail(data);
+					if (res.data.code == 200) {
+						let item = res.data.data.StationItem;
+						this.detailInfo = item;
+					}
+				} catch(err) {
+					console.error(err);
+				}
+			},
 			confirm() {
 				if (this.informationObj.CertificateNo.length < 18) {
 					uni.showToast({
 						title: '身份证号错误，请输入至少18位数',
 						icon: 'none'
 					})
-					
 					return;
 				}
-				
 				if (this.informationObj.TelephoneNo.length < 11) {
 					uni.showToast({
 						title: '手机号错误，请输入至少11位数',
 						icon: 'none'
 					})
-					
 					return;
 				}
-				
 				if (!this.isInformationComplete()) {
 					uni.showToast({
 						title: '请填写完整信息',
@@ -320,13 +344,36 @@
 					});
 					return;
 				} else {
+					this.informationObj.SexCode = this.informationObj.SexCode == '男' ? 'M' : 'F';
+					this.informationObj.LocID = this.locId;
+					this.informationObj.ExamDate = '2025-08-07';//this.selectedDate;
 					this.informationObj.openId = this.openid;
-					let data = {
-						physicalExaminationPerson: this.informationObj
+					// let endDate = 
+					let extGroupInfo = {
+						ExtGDesc: "",
+						ExtGEndDate: "2026-02-03",//this.selectedDate,
+						ExtGBaseId: "",
+						ExtTeamId: "",
+						ExtTeamDesc: "",
+						ExtGid: "",
+						ExtGBeginDate: "2025-08-07",//this.selectedDate,
 					}
+					let physicalExaminationPerson = this.informationObj;
+					
+					let data = {
+						StationItem: this.detailInfo,
+						extGroupInfo,
+						physicalExaminationPerson: this.informationObj,
+						PreType:"ADD", //PRE: 公费
+						pmType:"I", //G: 团体
+						amountPayable: this.price,
+						actualAmountPaid: this.price
+					}
+					console.log(JSON.stringify(data),'++++++++++++++++');
 					physicalExamination.addPhysicalExaminationRecord(data).then(res => {
+						console.log(JSON.stringify(res),'=s=s=s=s=s=s=s=s');
 						if (res.data.code == 200) {
-							this.getPhysicalExaminationPersonList();
+							// this.getPhysicalExaminationPersonList();
 						}
 					});
 				}
