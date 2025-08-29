@@ -11,9 +11,18 @@
 				:itemsMap="itemsMap"
 				:detailInfo="detailInfo"
 				@fetchItems="fetchItems"
+				@updateStats="handleStats"
 				/>
 			</view>
 		</scroll-view>
+		
+		<view class="footer-fixed">
+			<view class="left-info">
+				<view class="total">共{{totalCount}}个项目</view>
+				<view class="pay">个人支付 <text class="price">¥{{price}}</text></view>
+			</view>
+			<view class="next-btn" @click="confirm()">确认</view>
+		</view>
 	</view>
 </template>
 <script>
@@ -37,6 +46,9 @@
 		},
 		data() {
 			return {
+				count: 0,
+				totalCount: 0,
+				typeCount: 0,
 				ordSetsId: '',
 				detailInfo: [],
 			  categories: [],
@@ -44,6 +56,7 @@
 			}
 		},
 		onLoad(e) {
+			this.count = e.count;
 			this.ordSetsId = e.ordSetsId;
 			this.getAllMedicalExamStations()
 			this.getPhysicalExaminationPackageDetail()
@@ -58,6 +71,12 @@
 						})
 					}
 				})
+			},
+			
+			handleStats(stats) {
+				this.totalCount = Number(stats.userSelectedCount)+Number(this.count)
+				this.userSelectedPrice = stats.userSelectedPrice
+				this.categoryCounts = stats.categoryCounts
 			},
 			
 			async getAllMedicalExamStations() {
@@ -146,5 +165,33 @@
 				margin-top: 20rpx;
 			}
 		}
+		
+		.footer-fixed {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			height: 120rpx;
+			background-color: #fff;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 0 30rpx;
+			box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.1);
+			border-top: 1rpx solid #eee;
+			z-index: 999;
+		}
+		
+		.next-btn {
+			background-color: #3b82f6;
+			color: #fff;
+			font-size: 32rpx;
+			padding: 0 40rpx;
+			height: 80rpx;
+			line-height: 80rpx;
+			border-radius: 40rpx;
+			white-space: nowrap;
+		}
+		
 	}
 </style>

@@ -14,21 +14,14 @@
 		<scroll-view class="category-right" scroll-y>
 			<transition name="fade">
 				<view v-if="currentItems.length > 0" class="category-section">
-					<view class="section-title">{{ categories[currentIndex] }}</view>
-					<view v-for="(item, i) in currentItems" :key="item.hisItemId" class="section-item">
-						<uni-data-checkbox
-							multiple
-						  v-model="selectedValue"
-						  :localdata="[
-						    {
-						      text: item.itemDesc,
-						      value: item.hisItemId,
-						    }
-						  ]"
-						  :disabled="detailInfoIds.includes(item.hisItemId) ? false : false" 
-						  @change="handleChange"
-						/>
-					</view>
+					<view class="section-title">{{ categories[currentIndex] }}(已选{{currentCategorySelectedCount}})</view>
+					<uni-data-checkbox
+						mode="list"
+						multiple
+						v-model="selectedValue"
+						:localdata="checkboxOptions"
+						@change="handleChange"
+					/>
 				</view>
 			</transition>
 		</scroll-view>
@@ -45,7 +38,8 @@ export default {
   data() {
     return {
       currentIndex: 0,
-			selectedValue: [], // 当前选中的值
+			selectedValue: [],      // 显示在UI上的，包含detailInfo + 用户选择
+			userSelectedIds: []     // 仅用户新增的id
     }
   },
   computed: {
@@ -59,50 +53,95 @@ export default {
 			return this.detailInfo.map(x => x.ArcimDr)
 		},
 		checkboxOptions() {
-			return this.currentItems.map(item => {
-				const isChecked = this.detailInfo.includes(item.itemDesc) // 如果在 detailInfo 里，就默认选中
-				return {
-					text: item.itemDesc,
-					value: item.itemDesc,
-					disable: isChecked, // 已选中的不能取消
-				}
-			})
+			return this.currentItems.map(item => ({
+				text: item.itemDesc,
+				value: item.hisItemId,
+				disable: this.detailInfoIds.includes(item.hisItemId)
+			}))
+		},
+		currentCategorySelectedCount() {
+			return this.currentItems.filter(item =>
+				this.selectedValue.includes(item.hisItemId)
+			).length
 		}
 	},
 	watch: {
-	  detailInfo: {
-	    handler(newVal) {
-	      this.setDefaultSelected()
-	    },
-	    immediate: true
-	  },
-	  currentItems(newItems) {
-	    this.setDefaultSelected()
-	  },
-		categories(newVal) {
-			if (newVal.length > 0) {
-				this.clickCategory(newVal[0], 0) // 默认加载第一个分类
-			}
-		}
+	  categories(newVal) {
+			if (newVal.length) this.clickCategory(newVal[0], 0)
+		},
+		detailInfo: {
+			handler(newVal) {
+				if (newVal && newVal.length) {
+					// 初始化 selectedValue，但不影响 userSelectedIds
+					this.selectedValue = Array.from(new Set([
+						...this.selectedValue,
+						...newVal.map(item => item.ArcimDr)
+					]))
+					this.emitStats()
+				}
+			},
+			immediate: true
+		},
+		selectedValue: {
+			handler() {
+				this.emitStats()
+			},
+			deep: true
+		},
 	},
   methods: {
-		setDefaultSelected() {
-			if (!this.currentItems || !this.detailInfo || !this.detailInfo.length) return;
-				const selected = this.currentItems.find(item => this.detailInfo.map(x => x.ArcimDr).includes(item.hisItemId)
-			)
-			if (selected) {
-				this.selectedValue.push(selected.hisItemId)
-			}
-		},
 		clickCategory(item, index) {
 			this.currentIndex = index
-			if (!this.itemsMap[item]) {
-				this.$emit("fetchItems", item)
-			}
+			if (!this.itemsMap[item]) this.$emit("fetchItems", item)
+		},
+		emitStats() {
+			const allItems = Object.values(this.itemsMap).flat()
+	
+			// 仅统计用户新增的
+			const userSelectedItems = allItems.filter(item =>
+				this.userSelectedIds.includes(item.hisItemId)
+			)
+			const totalUserSelectedCount = userSelectedItems.length
+			const totalUserSelectedPrice = userSelectedItems.reduce((sum, item) => sum + (item.price || 0), 0)
+	
+			// 每个分类下的选中数量（包含已选）
+			const categoryCounts = {}
+			this.categories.forEach(cat => {
+				const catItems = this.itemsMap[cat] || []
+				categoryCounts[cat] = catItems.filter(item => this.selectedValue.includes(item.hisItemId)).length
+			})
+	
+			this.$emit('updateStats', {
+				userSelectedCount: totalUserSelectedCount,
+				userSelectedPrice: totalUserSelectedPrice,
+				categoryCounts
+			})
 		},
 		handleChange(e) {
-			// 选中变化，通知父级
-			this.$emit("updateSelection", e.detail.value)
+			const newVal = e.detail.value
+	
+			// 保留已选项不可取消逻辑
+			this.detailInfoIds.forEach(id => {
+				if (!newVal.includes(id)) newVal.push(id)
+			})
+	
+			// 更新UI选中
+			this.selectedValue = newVal
+	
+			// === 关键修改 ===
+			// 当前分类下所有items
+			const catItems = this.currentItems.map(item => item.hisItemId)
+	
+			// 当前分类下用户新选的（排除detailInfo里的）
+			const currentUserSelected = newVal.filter(
+				id => catItems.includes(id) && !this.detailInfoIds.includes(id)
+			)
+	
+			// 全局合并（把其他分类之前选的保留）
+			const otherSelected = this.userSelectedIds.filter(
+				id => !catItems.includes(id)
+			)
+			this.userSelectedIds = [...new Set([...otherSelected, ...currentUserSelected])]
 		}
 	}
 }
