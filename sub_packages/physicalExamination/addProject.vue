@@ -10,6 +10,7 @@
 				:categories="categories"
 				:itemsMap="itemsMap"
 				:detailInfo="detailInfo"
+				:sex="sex"
 				@fetchItems="fetchItems"
 				@updateStats="handleStats"
 				/>
@@ -18,8 +19,8 @@
 		
 		<view class="footer-fixed">
 			<view class="left-info">
-				<view class="total">共{{totalCount}}个项目</view>
-				<view class="pay">个人支付 <text class="price">¥{{price}}</text></view>
+				<view>共<text class="total">{{totalCount}}</text>个项目</view>
+				<view class="pay">个人支付： <text class="price">¥{{userSelectedPrice}}</text></view>
 			</view>
 			<view class="next-btn" @click="confirm()">确认</view>
 		</view>
@@ -46,9 +47,13 @@
 		},
 		data() {
 			return {
+				sex: '',
+				price: 0,
 				count: 0,
+				title: '',
 				totalCount: 0,
-				typeCount: 0,
+				userSelectedPrice: 0,
+				selectedType: [],
 				ordSetsId: '',
 				detailInfo: [],
 			  categories: [],
@@ -56,8 +61,12 @@
 			}
 		},
 		onLoad(e) {
+			this.sex = e.sex;
+			this.title = e.title;
 			this.count = e.count;
+			this.price = e.price;
 			this.ordSetsId = e.ordSetsId;
+			this.selectDate = e.selectDate;
 			this.getAllMedicalExamStations()
 			this.getPhysicalExaminationPackageDetail()
 		},
@@ -73,12 +82,18 @@
 				})
 			},
 			
-			handleStats(stats) {
-				this.totalCount = Number(stats.userSelectedCount)+Number(this.count)
-				this.userSelectedPrice = stats.userSelectedPrice
-				this.categoryCounts = stats.categoryCounts
+			handleStats(val) {
+				this.totalCount = Number(val.userSelectedCount)+Number(this.count)
+				this.userSelectedPrice = Number(val.userSelectedPrice)+Number(this.price)
+				this.categoryCounts = val.categoryCounts;
+				this.selectedType = val.userSelectedType;
 			},
-			
+			confirm () {
+				let query = `ordSetsId=${this.ordSetsId}&sex=${this.sex}&price=${this.userSelectedPrice}&title=${this.title}&selectDate=${this.selectDate}&selectedType=${JSON.stringify(this.selectedType)}`;
+				uni.navigateTo({
+					url: `/sub_packages/physicalExamination/confirm?${query}`
+				})
+			},
 			async getAllMedicalExamStations() {
 				try {
 					let data = {
@@ -167,11 +182,12 @@
 		}
 		
 		.footer-fixed {
+			font-size: 34rpx;
 			position: fixed;
 			bottom: 0;
 			left: 0;
 			width: 100%;
-			height: 120rpx;
+			height: 150rpx;
 			background-color: #fff;
 			display: flex;
 			justify-content: space-between;
@@ -180,6 +196,12 @@
 			box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.1);
 			border-top: 1rpx solid #eee;
 			z-index: 999;
+			.left-info view {
+				margin-bottom: 15rpx;
+			}
+			.price, .total {
+				color: red;
+			}
 		}
 		
 		.next-btn {

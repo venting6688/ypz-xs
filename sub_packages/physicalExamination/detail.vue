@@ -97,8 +97,8 @@
 		
 		<view class="footer-fixed">
 			<view class="left-info">
-				<view class="total">共{{packageQuantity}}个项目</view>
-				<view class="pay">个人支付 <text class="price">¥{{price}}</text></view>
+				<view>共<text class="total">{{packageQuantity}}</text>个项目</view>
+				<view class="pay">个人支付： <text class="price">¥{{price}}</text></view>
 			</view>
 			<view class="next-btn" @click="confirm()">下一步</view>
 		</view>
@@ -339,11 +339,12 @@
 		}
 		
 		.footer-fixed {
+			font-size: 34rpx;
 			position: fixed;
 			bottom: 0;
 			left: 0;
 			width: 100%;
-			height: 120rpx;
+			height: 150rpx;
 			background-color: #fff;
 			display: flex;
 			justify-content: space-between;
@@ -352,6 +353,12 @@
 			box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.1);
 			border-top: 1rpx solid #eee;
 			z-index: 999;
+			.left-info view {
+				margin-bottom: 15rpx;
+			}
+			.price, .total {
+				color: red;
+			}
 		}
 		
 		/* 左边上下布局 */
