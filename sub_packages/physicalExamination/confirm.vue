@@ -7,11 +7,15 @@
 		<view class="summary-card">
 			<view class="summary-item">
 				<text class="label">项目</text>
-				<text class="value">{{detailInfo.length}}个</text>
+				<text class="value">{{totalType}}个</text>
 			</view>
 			<view class="summary-item">
 				<text class="label">共计</text>
 				<text class="price">¥{{price}}</text>
+			</view>
+			<view class="summary-item">
+				<text class="label">预约时间</text>
+				<text class="value">{{selectedDate}}</text>
 			</view>
 		</view>
 		<scroll-view scroll-y class="container">
@@ -20,6 +24,13 @@
 				<view class="detail" v-for="(val, index) in detailInfo" :key="index">
 					<view class="detail-left">{{index+1}}.{{val.ArcimDesc}}</view>
 					<view class="detail-right">{{val.StationName}}</view>
+				</view>
+			</view>
+			<view class="content" v-if="selectedType.length">
+				<view class="title">套餐外自选项目({{selectedType.length}})</view>
+				<view class="detail" v-for="(val, index) in selectedType" :key="index">
+					<view class="detail-left">{{index+1}}.{{val.itemDesc}}</view>
+					<view class="detail-right">{{val.stationDesc}} <text class="price">(￥{{val.price}})</text></view>
 				</view>
 			</view>
 		</scroll-view>
@@ -32,6 +43,7 @@
 </template>
 <script>
 	import dayjs from "dayjs";
+	import { mapState } from 'vuex'
 	import { getStatusBarHeight } from "@/utils/system.js";
 	import customerNav from '@/components/customerNav.vue';
 	import detailItem from './components/detailItem.vue';
@@ -43,16 +55,23 @@
 			detailItem
 		},
 		computed: {
+			...mapState(['locId']),
 			barHeight() {
 				return getStatusBarHeight()+5
 			},
+			totalType() {
+				return Number(this.selectedType.length)+Number(this.detailInfo.length)
+			}
 		},
 		data() {
 			return {
 				sex: '',
 				title: '',
+				count: 0,
 				price: 0.00,
 				ordSetsId: '',
+				selectedDate: '',
+				selectedType: [],
 				detailInfo: [],
 			}
 		},
@@ -60,6 +79,8 @@
 			this.sex = e.sex;
 			this.title = e.title;
 			this.ordSetsId = e.ordSetsId;
+			this.selectedDate = e.selectDate;
+			this.selectedType = JSON.parse(e.selectedType);
 			this.price = parseFloat(e.price).toFixed(2)
 			this.getPhysicalExaminationPackageDetail();
 		},
@@ -76,13 +97,13 @@
 			},
 			confirm() {
 				uni.navigateTo({
-					url: `/sub_packages/physicalExamination/order?packName=${this.title}&sex=${this.sex}&price=${this.price}`
+					url: `/sub_packages/physicalExamination/order?packName=${this.title}&sex=${this.sex}&price=${this.price}&ordSetsId=${this.ordSetsId}&selectedDate=${this.selectedDate}&selectedType=${JSON.stringify(this.selectedType)}`
 				})
 			},
 			async getPhysicalExaminationPackageDetail() {
 				try {
 					let data = {
-						locId: '484',
+						locId: this.locId,
 						OrdSetsId: this.ordSetsId,
 					}
 					const res = await physicalExamination.getPhysicalExaminationPackageDetail(data);
@@ -138,13 +159,14 @@
 			box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
 			.summary-item {
 				flex: 1;
+				gap: 15rpx;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 			}
 			
 			.summary-item .label {
-				font-size: 26rpx;
+				font-size: 36rpx;
 				color: #999;
 			}
 			
@@ -156,9 +178,9 @@
 			}
 			
 			.summary-item .price {
+				color: #f44;
 				font-size: 32rpx;
 				font-weight: bold;
-				color: #f44;
 				margin-top: 8rpx;
 			}
 		}
@@ -179,6 +201,7 @@
 				}
 				.detail {
 					display: flex;
+					font-size: 32rpx;
 					justify-content: space-between;
 					align-items: center;
 					padding: 10rpx 30rpx;
@@ -191,6 +214,10 @@
 						color: #c2c2c2;
 						margin-left: 30rpx;
 						justify-content: flex-end;
+						.price {
+							color: #555;
+							margin-left: 15rpx;
+						}
 					}
 				}
 			}

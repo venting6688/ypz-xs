@@ -28,10 +28,15 @@
 <script>
 	export default {
 		props: {
-			lists: Array,
-			default: [],
+			lists: {
+				type: Array,
+				default: () => []
+			},
+			locId: {
+				type: String,
+				default: () => ''
+			},
 		},
-		
 		methods: {
 			detail(item) {
 				let title = item.packageDesc;
@@ -39,7 +44,7 @@
 				let sex = item.sexDesc;
 				let price = item.packageAmt;
 				uni.navigateTo({
-					url: `/sub_packages/physicalExamination/detail?title=${title}&ordSetsId=${id}&sex=${sex}&price=${price}`
+					url: `/sub_packages/physicalExamination/detail?title=${title}&ordSetsId=${id}&sex=${sex}&price=${price}&locId=${this.locId}`
 				})
 			}
 		}

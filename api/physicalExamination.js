@@ -2,8 +2,9 @@ import { cjRequest } from '@/utils/service.js'
 
 const patient = {
 	async getPhysicalExaminationPackageType(data) {
+		const queryParams = Object.keys(data).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`).join('&');
 		const res = await cjRequest({
-			url: "getPhysicalExaminationPackageType?locId=484",
+			url: `getPhysicalExaminationPackageType?${queryParams}`,
 			method: "get",
 		})
 		return res
@@ -46,8 +47,24 @@ const patient = {
 		return res
 	},
 	
+	async getAllMedicalExamStations(data) {
+		const queryParams = Object.keys(data).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`).join('&');
+		const res = await cjRequest({
+			url: `getAllMedicalExamStations?${queryParams}`,
+			method: "get",
+		})
+		return res
+	},
 	
-	
+	async getAllMedicalExamItems(data) {
+		const queryParams = Object.keys(data).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`).join('&');
+		const res = await cjRequest({
+			url: `getAllMedicalExamItems?${queryParams}`,
+			method: "get",
+		})
+		return res
+	},
+
 }
 
 export default patient

@@ -32,7 +32,6 @@
 						</view>
 					</scroll-view>
 				</view>
-				
 				<view class="filter-bar">
 					<view class="filter-item" @click="onGenderClick">
 						性别 
@@ -44,7 +43,10 @@
 					</view>
 				</view>
 			</view>
-			<list :lists="filteredList" />
+			<list 
+			:lists="filteredList"
+			:locId="locId"
+			/>
 			
 			<!-- VS 对比按钮 -->
 			<!-- <view class="vs-button">VS对比</view> -->
@@ -63,6 +65,7 @@
 	</view>
 </template>
 <script>
+	import { mapState } from 'vuex'
 	import list from './components/list.vue';
 	import { getStatusBarHeight } from "@/utils/system.js";
 	import customerNav from '@/components/customerNav.vue';
@@ -74,6 +77,7 @@
 			list
 		},
 		computed: {
+			...mapState(['locId']),
 			barHeight() {
 				return getStatusBarHeight()+5
 			},
@@ -102,7 +106,7 @@
 				list: [],
 			}
 		},
-		onLoad() {
+		onLoad(e) {
 			let loginValue = uni.getStorageSync("loginData");
 			this.loginData = loginValue ? JSON.parse(loginValue) : {};
 			this.getPhysicalExaminationPackageList();
@@ -141,8 +145,10 @@
 			//获取体检套餐类型
 			async getPhysicalExaminationPackageType() {
 				try {
-					const res = await physicalExamination.getPhysicalExaminationPackageType();
-					console.log(JSON.stringify(res.data),'==111==');
+					let data = {
+						locId: this.locId,
+					}
+					const res = await physicalExamination.getPhysicalExaminationPackageType(data);
 					if (res.data.code == 200) {
 						let type = res.data.data.ExamPackagesLevel;
 						type.map(v => {
@@ -156,7 +162,7 @@
 			//获取体检套餐列表
 			getPhysicalExaminationPackageList() {
 				let data = {
-					locId: '484',
+					locId: this.locId,
 				}
 				if (this.levelId) {
 					data.levelId = this.levelId

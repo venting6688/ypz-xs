@@ -332,7 +332,16 @@
 				}
 			},
 			{
-				//体检中心
+				//个人体检预约
+				"path" : "physicalExamination/campus",
+				"style" : 
+				{
+					"navigationBarTitleText": "选择院区",
+					"disableScroll": true
+				}
+			},
+			{
+				//个人体检预约
 				"path" : "physicalExamination/index",
 				"style" : 
 				{
@@ -343,6 +352,15 @@
 			{
 				//体检详情
 				"path" : "physicalExamination/detail",
+				"style" : 
+				{
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			},
+			{
+				//体检加项
+				"path" : "physicalExamination/addProject",
 				"style" : 
 				{
 					"navigationBarTitleText": "",

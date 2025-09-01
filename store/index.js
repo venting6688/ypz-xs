@@ -14,6 +14,7 @@ export default new Vuex.Store({
 		loginValue:false, //登录、绑卡数据
 		loginStatus: uni.getStorageSync('loginStatus') || '',
 		loginToken: uni.getStorageSync('loginToken') || '',
+		locId: uni.getStorageSync('locId') || '',
   },
   mutations: {
 		SET_LOGIN_VALUE(state, newValue) {
@@ -38,6 +39,10 @@ export default new Vuex.Store({
 		SET_LOGINTOKEN(state, value) {
 			state.loginToken = value
 			uni.setStorageSync('loginToken', value)
+		},
+		SET_LOCID(state, value) {
+			state.locId = value
+			uni.setStorageSync('locId', value)
 		}
   },
   actions: {

@@ -53,7 +53,7 @@
 		</view>
 		<view class="checkDate">
 			<text class="label">检查日期</text>
-			<view class="btn-select">请选择</view>
+			<view class="btn-select">{{selectedDate}}</view>
 		</view>
 		<view class="total">
 			<view class="section-title">费用明细</view>
@@ -106,6 +106,7 @@
 </template>
 <script>
 	import dayjs from "dayjs";
+	import { mapState } from 'vuex'
 	import mixin from '@/mixins/mixin.js'
 	import { getStatusBarHeight } from "@/utils/system.js";
 	import customerNav from '@/components/customerNav.vue';
@@ -121,6 +122,7 @@
 			popupFamily
 		},
 		computed: {
+			...mapState(['locId']),
 			barHeight() {
 				return getStatusBarHeight()+5
 			},
@@ -133,6 +135,8 @@
 				price: 0.00,
 				ordSetsId: '',
 				personageId: '',
+				selectedDate: '',
+				selectedType: [],
 				detailInfo: [],
 				physicalExaminer: [],
 				selectedCardType: ['身份证'],
@@ -164,11 +168,14 @@
 			this.sex = e.sex;
 			this.packName = e.packName;
 			this.ordSetsId = e.ordSetsId;
+			this.selectedDate = e.selectedDate;
+			this.selectedType = JSON.parse(e.selectedType);
 			this.price = parseFloat(e.price).toFixed(2);
-			let login = uni.getStorageSync("loginData");
+			let login = uni.getStorageSync('loginData');
 			login = JSON.parse(login)
 			this.openid = login.xcxOpenId;
 			this.getPhysicalExaminationPersonList();
+			this.getPhysicalExaminationPackageDetail();
 		},
 		methods: {
 			//选择日期
@@ -183,21 +190,29 @@
 				this.informationObj.CertificateType = index < 10 ? '0'+index : index;
 			},
 			sexChange(e) {
-				this.informationObj.SexCode = e.detail.value
+				this.informationObj.SexCode = e.detail.value;
 			},
 			// marriageChange(e) {
 			// 	this.informationObj.marriage = e.detail.value
 			// },
 			selectedPhysicalExaminer(val) {
-				this.informationObj = {
-					PatientName: val.name,
-					CertificateType: '01',
-					CertificateNo: val.idNum,
-					SexCode: val.sex,
-					PatientDob: val.dob,
-					TelephoneNo: val.phone,
+				if (this.sex != '不限' && this.sex != val.sex) {
+					uni.showToast({
+						title: '当前套餐仅针对'+this.sex+"性检查，请重新选择体检人。",
+						icon: 'none'
+					})
+				} else {
+					this.informationObj = {
+						PatientName: val.name,
+						CertificateType: '01',
+						CertificateNo: val.idNum,
+						SexCode: val.sex,
+						PatientDob: val.dob,
+						TelephoneNo: val.phone,
+					}
+					this.personageId = val.id;
 				}
-				this.personageId = val.id;
+				
 				this.$refs.cutPatientPopup.close();
 			},
 			//通过身份证号获取出生日期+性别
@@ -294,25 +309,121 @@
 					console.error(err);
 				}
 			},
+			async getPhysicalExaminationPackageDetail() {
+				try {
+					let data = {
+						locId: this.locId,
+						OrdSetsId: this.ordSetsId,
+					}
+					const res = await physicalExamination.getPhysicalExaminationPackageDetail(data);
+					if (res.data.code == 200) {
+						let item = res.data.data.StationItem;
+						let itemName = [];
+						item.map(v => {
+							itemName.push(v.StationName)
+						})
+						let formatDatas = this.formatData(this.selectedType);
+						let filterItem = formatDatas.filter(x => itemName.includes(x.stationDesc));
+						let other = formatDatas.filter(x => !itemName.includes(x.stationDesc));
+						item.map(v => {
+							if (filterItem.length) {
+								filterItem.forEach(val => {
+									if (val.stationDesc == v.StationName && val.children && val.children.length) {
+										val.children.forEach(vc => {
+											v.PeOrdItemList.PeOrdItem.push({
+												ArcimDr: vc.hisItemId,
+												Price: vc.price,
+												AlertMsg: "",
+												Qty: 1,
+												Amount: vc.price,
+												ArcimDesc: vc.itemDesc
+											});
+										});
+									}
+								});
+							} 
+						})
+						let addProject = [];
+						if (other.length){
+							// 处理未找到匹配项的情况 - 从所有数据中获取
+							let addPro = {
+								StationName: '',
+								StationCode: '',
+								PeOrdItemList: { PeOrdItem: [] }, // 确保 PeOrdItemList 有 PeOrdItem 数组
+							};
+							// 遍历 formatDatas 中的所有项目
+							other.forEach(pro => {
+								if (pro.children && pro.children.length) {
+									let detailPro = [];
+									
+									pro.children.forEach(v => {
+										detailPro.push({
+											ArcimDr: v.hisItemId,
+											Price: v.price,
+											AlertMsg: "",
+											Qty: 1,
+											Amount: v.price,
+											ArcimDesc: v.itemDesc
+										});
+									});
+									
+									addPro = {
+										StationName: pro.stationDesc,
+										StationCode: '', // 你可以根据需要设置 StationCode
+										PeOrdItemList: { PeOrdItem: detailPro },
+									};
+									
+									addProject.push(addPro);
+								}
+							});
+						}
+						
+						this.detailInfo = [...item, ...addProject].flat();
+					}
+				} catch(err) {
+					console.error(err);
+				}
+			},
+			
+			formatData(data) {
+				const groupedData = data.reduce((acc, item) => {
+					const { 
+							"@type": type,
+							itemCategoryDesc, 
+							stationDesc, 
+							...childItem 
+					} = item;
+					const existingGroup = acc.find(group => group.stationDesc === stationDesc);
+					if (existingGroup) {
+							existingGroup.children.push(childItem);
+					} else {
+							acc.push({
+									"@type": "java.util.HashMap",
+									itemCategoryDesc,
+									stationDesc,
+									children: [childItem]
+							});
+					}
+					return acc;
+				}, []);
+				return groupedData;
+			},
+			
 			confirm() {
 				if (this.informationObj.CertificateNo.length < 18) {
 					uni.showToast({
 						title: '身份证号错误，请输入至少18位数',
 						icon: 'none'
 					})
-					
 					return;
 				}
-				
 				if (this.informationObj.TelephoneNo.length < 11) {
 					uni.showToast({
 						title: '手机号错误，请输入至少11位数',
 						icon: 'none'
 					})
-					
 					return;
 				}
-				
 				if (!this.isInformationComplete()) {
 					uni.showToast({
 						title: '请填写完整信息',
@@ -320,13 +431,42 @@
 					});
 					return;
 				} else {
+					this.informationObj.SexCode = this.informationObj.SexCode == '男' ? '‘' : '‘';//'M' : 'F';
+					this.informationObj.LocID = this.locId;
+					this.informationObj.ExamDate = this.selectedDate;
 					this.informationObj.openId = this.openid;
+					// let endDate = 
+					let extGroupInfo = {
+						ExtGDesc: "",
+						ExtGEndDate: this.selectedDate,
+						ExtGBaseId: "",
+						ExtTeamId: "",
+						ExtTeamDesc: "",
+						ExtGid: "",
+						ExtGBeginDate: this.selectedDate,
+					}
+					let physicalExaminationPerson = this.informationObj;
+					
 					let data = {
-						physicalExaminationPerson: this.informationObj
+						StationItem: this.detailInfo,
+						extGroupInfo,
+						physicalExaminationPerson: this.informationObj,
+						PreType:"ADD", //PRE: 公费
+						pmType:"I", //G: 团体
+						amountPayable: this.price,
+						actualAmountPaid: this.price
 					}
 					physicalExamination.addPhysicalExaminationRecord(data).then(res => {
 						if (res.data.code == 200) {
-							this.getPhysicalExaminationPersonList();
+							uni.showToast({
+								title: '预约成功！',
+								icon: 'success'
+							})
+						} else {
+							uni.showToast({
+								title: '预约失败！',
+								icon: 'none'
+							})
 						}
 					});
 				}
