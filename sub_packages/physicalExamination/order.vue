@@ -528,6 +528,7 @@
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
+			font-size: 30rpx;
 			padding: 20rpx;
 			border-bottom: 1px solid #f0f0f0;
 		}

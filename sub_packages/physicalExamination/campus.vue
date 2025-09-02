@@ -64,8 +64,8 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			padding-top: 20rpx;
-			font-size: 30rpx;
+			padding: 20rpx 0 15rpx;
+			font-size: 34rpx;
 		}
 		.content {
 			display: flex;
