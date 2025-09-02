@@ -154,7 +154,7 @@
 			justify-content: center;
 			background: #fff;
 			margin: 20rpx;
-			padding: 40rpx;
+			padding: 40rpx 25rpx 40rpx 0;
 			border-radius: 16rpx;
 			box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
 			.summary-item {
@@ -166,7 +166,7 @@
 			}
 			
 			.summary-item .label {
-				font-size: 36rpx;
+				font-size: 32rpx;
 				color: #999;
 			}
 			

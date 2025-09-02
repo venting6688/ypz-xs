@@ -177,6 +177,7 @@ export default {
 }
 .category-left {
   width: 200rpx;
+	font-size: 30rpx;
   background: #f5f5f5;
 }
 .category-item {
@@ -200,7 +201,7 @@ export default {
 	background: #4286FF;
 	padding: 15rpx;
 	color: #fff;
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: bold;
   margin-bottom: 10rpx;
 }
