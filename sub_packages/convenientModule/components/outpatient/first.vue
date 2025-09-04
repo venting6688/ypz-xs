@@ -102,7 +102,7 @@
 					</ul>
 					<view class="btn">
 						<view>
-							<button v-if="subscribeObj.days >= '0'" class="btnStyle bigBtn" @click="cancelAppointmentRegister(subscribeObj.orderCode)">取消预约</button>
+							<button v-if="subscribeObj.days >= '0'" class="btnStyle bigBtn" @click="cancelAppointmentRegister(subscribeObj)">取消预约</button>
 							<button v-if="subscribeObj.days === '0'" class="btnStyle bigBtn" @click="takeANumberPrePay(subscribeObj)">预约取号</button>
 						</view>
 					</view>
@@ -114,11 +114,12 @@
 </template>
 
 <script>
+	import { mapState } from 'vuex'
 	import guideApi from '@/api/guideApi.js'
 	import mixin from '@/mixins/mixin'
 	import bus from '@/utils/bus.js'
+	import subMessage from '@/utils/subscribe.js'
 	import Toast from '../../../components/toast.vue'
-	import { mapState } from 'vuex'
 	export default {
 		components:{ Toast },
 		mixins: [mixin],
@@ -214,65 +215,80 @@
 			},
 			
 			// 退号
-			async cancelRegistration() {
-				try{
-					const res= await guideApi.cancelRegistration(this.firstContent.visitNumber).then((res) => {
-						if(res.data.code === 200){ 
-							if (res.data.data && res.data.data.cancelRegistrationResponse.returnFee !== '0') {
-								res.data.data.patientID = this.footData.patientUniquelyIdentifies;
-								res.data.data.cardNo = this.footData.patientCard;
-								res.data.data.cardType = this.footData.cardTypeCode;
-								
-								this.callApiWithRetry(res.data.data).then((r) => {
-									this.toastObj = {
-										state:true,
-										message:'退号成功',
-									}
-									
-									this.timer2 = setTimeout(()=>{
-										let msg = {
-											callingInterface:true,   //调用接口
-											firstState:true,     //初诊组件
-											effectState:false,   //动态效果
-										}
-										bus.$emit('refreshGetFirstVisit',msg)
-										clearTimeout(this.timer2)
-									},4000)
-								});
-								
-							} else {
-								this.toastObj = {
-									state:true,
-									message:'退号成功',
-								}
-								
-								this.timer2 = setTimeout(()=>{
-									let msg = {
-										callingInterface:true,   //调用接口
-										firstState:true,     //初诊组件
-										effectState:false,   //动态效果
-									}
-									bus.$emit('refreshGetFirstVisit',msg)
-									clearTimeout(this.timer2)
-									
-								},4000)
-							}
-							
-						}else {
-							this.toastObj = {
-								state:true,
-								type:'fail',
-								message:res.data.msg,
-							}
+			cancelRegistration() {
+			  try {
+					let loginValue = uni.getStorageSync("loginData");
+					loginValue = JSON.parse(loginValue);
+					
+					let refundTmplIds = [
+					  'Fiv9HSnHU_-AKIECUvwuCS1SSBq9hsiUctlPuboV95Q', // 退号成功
+					];
+			    const cancelParams = {
+			      doctor: this.firstContent.doctorName,
+			      department: this.firstContent.queueName,
+			      admitDate: this.firstContent.admitDate,
+			      patName: this.firstContent.patientName,
+						visitNum: this.firstContent.visitNumber,
+			      openId: loginValue.xcxOpenId,
+			    };
+			    subMessage.subscribeRegisterNotice(
+			      refundTmplIds,
+			      { [refundTmplIds[0]]: guideApi.cancelRegistration }, 
+			      { [refundTmplIds[0]]: cancelParams },
+			      cancelParams
+			    ).then((res) => {
+						const templateId = refundTmplIds[0];
+						let resData = res.responses?.[templateId]?.result?.data;
+						if (resData.data.cancelRegistrationResponse.returnFee != '0') {
+							resData.data.patientID = this.footData.patientUniquelyIdentifies;
+							resData.data.cardNo = this.footData.patientCard;
+							resData.data.cardType = this.footData.cardTypeCode;
+							this.callApiWithRetry(resData.data);
+						  // 退费订阅消息
+							// let refundFee = {
+							// 	...data.data,
+							// 	patientID: this.footData.patientUniquelyIdentifies,
+							// 	cardNo: this.footData.patientCard,
+							// 	cardType: this.footData.cardTypeCode,
+							// 	openid: this.loginData.xcxOpenId
+							// }
+							// console.log(JSON.stringify(refundFee),'refundFee===============');
+						 //  subMessage.subscribeRegisterNotice(
+						 //    refundTmplIds,
+						 //    { [refundTmplIds[1]]: guideApi.queryRefundResult },
+						 //    { [refundTmplIds[1]]: refundFee },
+						 //    refundFee
+						 //  ).then((feeRes) => {
+							// 	console.log(JSON.stringify(feeRes),'++++++++++++++++');
+							// 	this.toastObj = {
+							// 	  state: true,
+							// 	  message: '退号成功',
+							// 	};
+							// 	this.getVisitRecord();
+							// });
 						}
-				  })
-				}catch(e){
-					this.toastObj = {
-						state:true,
-						type:'fail',
-						message:e.toString(),
-					}
-				}
+						
+						this.toastObj = {
+							state:true,
+							message:'退号成功',
+						}
+						this.timer2 = setTimeout(()=>{
+							let msg = {
+								callingInterface:true,   //调用接口
+								firstState:true,     //初诊组件
+								effectState:false,   //动态效果
+							}
+							bus.$emit('refreshGetFirstVisit',msg)
+							clearTimeout(this.timer2)
+						},4000)
+					});
+			  } catch (err) {
+			    this.toastObj = {
+			      state: true,
+			      type: 'fail',
+			      message: '退号失败，请稍后重试',
+			    };
+			  }
 			},
 			
 			//退号查询
@@ -305,10 +321,29 @@
 			},
 			
 			// 取消预约
-			async cancelAppointmentRegister(orderCode) {
+			async cancelAppointmentRegister(obj) {
 				try{
-					const res= await guideApi.cancelAppointmentRegister(orderCode).then((res) => {
-						if(res.data.code===200){ 
+					let loginValue = uni.getStorageSync("loginData");
+					loginValue = JSON.parse(loginValue);
+					
+					let data = {
+						doctor: obj.doctor,
+						department: obj.department,
+						admitDate: obj.admitDate,
+						orderApptUser: obj.orderApptUser,
+						orderCode: obj.orderCode,
+						openId: loginValue.xcxOpenId,
+					}
+					let tmplIds = [
+						'lbnDdyJ69_PcTcHyGTkjAeH0lZkNetrRsLp-ZpGm6Y4', //预约成功
+						'0p0XRL-OapRVNW1zkHRjYu5MchIIDfpjSMYLctmNuFg', //预约取消
+					];
+					subMessage.subscribeRegisterNotice(
+						tmplIds,
+						guideApi.cancelAppointmentRegister, 
+						data
+					).then((res) => {
+						if (res.response.data.code == 200) {
 							this.toastObj = {
 								state:true,
 								message:'取消预约成功',
@@ -322,14 +357,15 @@
 								bus.$emit('refreshGetFirstVisit',msg)
 								clearTimeout(this.timer2)
 							},4000)
-						}else {
+						} else {
 							this.toastObj = {
 								state:true,
 								type:'fail',
-								message:res.data.msg,
+								message: res.response.data.msg,
 							}
 						}
-						
+					}).catch(err => {
+						console.error('消息处理失败', err)
 					})
 				}catch(e){
 					this.toastObj = {

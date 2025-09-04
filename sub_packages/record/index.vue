@@ -30,7 +30,7 @@
 					</view>
 					<view class="bottom">
 						<view @click="information(item)" >查看详情</view>
-						<view v-if="item.returnFlag == 'Y'" @click="cancelRegistration(item.visitNumber)">申请退号</view>
+						<view v-if="item.returnFlag == 'Y'" @click="cancelRegistration(item)">申请退号</view>
 						<view v-else style="color: #de9552;">{{item.returnMsg}}</view>
 					</view>
 				</li>
@@ -51,6 +51,8 @@
 	import Toast from '../components/toast.vue'
 	import elseApi from '@/api/elseApi.js'
 	import guideApi from '@/api/guideApi.js'
+	import subMessage from '@/utils/subscribe.js'
+	
 	export default {
 		components:{
 			bar,
@@ -129,50 +131,84 @@
 				}
 			},
 			
-			// 退号
-			async cancelRegistration(visitNumber) {
-				try{
-					const res= await guideApi.cancelRegistration(visitNumber).then((res) => {
-						if(res.data.code === 200){ 
-							if (res.data.data && res.data.data.cancelRegistrationResponse.returnFee !== '0') {
-								res.data.data.patientID = this.footData.patientUniquelyIdentifies;
-								res.data.data.cardNo = this.footData.patientCard;
-								res.data.data.cardType = this.footData.cardTypeCode;
-								this.callApiWithRetry(res.data.data).then((r) => {
-									this.toastObj = {
-										state:true,
-										message:'退号成功',
-									}
-									this.getVisitRecord();
-								});
-							} else {
+			// 退号 & 退费 + 订阅消息
+			cancelRegistration(val) {
+			  try {
+					let refundTmplIds = [
+					  'Fiv9HSnHU_-AKIECUvwuCS1SSBq9hsiUctlPuboV95Q', // 退号成功
+					];
+			    const cancelParams = {
+			      doctor: val.doctorName,
+			      department: val.queueName,
+			      admitDate: val.admitDate,
+			      patName: val.patientName,
+						visitNum: val.visitNumber,
+			      openId: this.loginData.xcxOpenId,
+			    };
+			    // 退号接口 + 退号订阅消息一起触发
+			    subMessage.subscribeRegisterNotice(
+			      refundTmplIds,
+			      { [refundTmplIds[0]]: guideApi.cancelRegistration }, 
+			      { [refundTmplIds[0]]: cancelParams },
+			      cancelParams
+			    ).then((res) => {
+						const templateId = refundTmplIds[0];
+						let resData = res.responses?.[templateId]?.result?.data;
+						if (resData.data.cancelRegistrationResponse.returnFee != '0') {
+							resData.data.patientID = this.footData.patientUniquelyIdentifies;
+							resData.data.cardNo = this.footData.patientCard;
+							resData.data.cardType = this.footData.cardTypeCode;
+							resData.data.openid = this.loginData.xcxOpenId;
+							this.callApiWithRetry(resData.data).then((r) => {
 								this.toastObj = {
 									state:true,
 									message:'退号成功',
 								}
 								this.getVisitRecord();
-							}
-						}else {
+							});
+						  // 退费订阅消息
+							// let refundFee = {
+							// 	...data.data,
+							// 	patientID: this.footData.patientUniquelyIdentifies,
+							// 	cardNo: this.footData.patientCard,
+							// 	cardType: this.footData.cardTypeCode,
+							// 	openid: this.loginData.xcxOpenId
+							// }
+							// console.log(JSON.stringify(refundFee),'refundFee===============');
+						 //  subMessage.subscribeRegisterNotice(
+						 //    refundTmplIds,
+						 //    { [refundTmplIds[1]]: guideApi.queryRefundResult },
+						 //    { [refundTmplIds[1]]: refundFee },
+						 //    refundFee
+						 //  ).then((feeRes) => {
+							// 	console.log(JSON.stringify(feeRes),'++++++++++++++++');
+							// 	this.toastObj = {
+							// 	  state: true,
+							// 	  message: '退号成功',
+							// 	};
+							// 	this.getVisitRecord();
+							// });
+						} else {
 							this.toastObj = {
 								state:true,
-								type:'fail',
-								message:res.data.msg,
+								message:'退号成功',
 							}
+							this.getVisitRecord();
 						}
-				  })
-				}catch(e){
-					this.toastObj = {
-						state:true,
-						type:'fail',
-						message:e.toString(),
-					}
-				}
+					});
+			  } catch (err) {
+			    console.error('退号/退费异常', err);
+			    this.toastObj = {
+			      state: true,
+			      type: 'fail',
+			      message: '退号失败，请稍后重试',
+			    };
+			  }
 			},
 			
 			//退号查询
 			async callApiWithRetry(data, maxRetry = 5) {
 			  let retryCount = 0;
-			  
 			  while (retryCount < maxRetry) {
 			    try {
 			      const res = await guideApi.queryRefundResult(data);

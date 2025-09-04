@@ -87,8 +87,10 @@
 	import login from '@/utils/login.js'
 	import bar from '../components/bar.vue'
 	import Toast from '../components/toast.vue'
-	import registrationApi from '@/api/registrationApi.js'
 	import healthCard from '@/api/healthCard.js'
+	import registrationApi from '@/api/registrationApi.js'
+	import subMessage from '@/utils/subscribe.js'
+	
 	export default {
 		components:{
 			Toast,
@@ -193,6 +195,7 @@
 					
 				}
 			},
+			
 			today(data){
 				if (this.doctor.Fee === '') {
 					let msg = {
@@ -223,7 +226,7 @@
 						startTime:this.doctor.StartTime,
 						endTime:this.doctor.EndTime,
 						amount: this.doctor.Fee,
-						patientOpenid:data.xcxOpenId,
+						patientOpenid: data.xcxOpenId,
 					}
 					registrationApi.registrationPreOrder(msg).then(res => {
 						if(res.data.code===200) {
@@ -231,6 +234,7 @@
 							let registrationPrePayResponse = res.data.data
 							registrationPrePayResponse.patientCard = data.defaultArchives.patientCard
 							registrationPrePayResponse.cardType = data.defaultArchives.cardTypeCode
+							registrationPrePayResponse.openid = data.xcxOpenId;
 							uni.requestPayment({
 								provider: 'wxpay', // 服务提提供商
 								timeStamp: obj.body.miniPayRequest.timeStamp, // 时间戳
@@ -239,16 +243,24 @@
 								signType: obj.body.miniPayRequest.signType, // 签名算法
 								paySign: obj.body.miniPayRequest.paySign, // 签名
 								success:(result)=> {
-									registrationApi.queryPayResult(registrationPrePayResponse).then(r => {
+									let tmplIds = [
+										'I41PJiwUKpovpXxitt6p7jy4zVgWB2xe4KofzBPxpzA', //挂号成功
+										'Fiv9HSnHU_-AKIECUvwuCS1SSBq9hsiUctlPuboV95Q', //挂号取消
+									];
+									subMessage.subscribeRegisterNotice(
+										tmplIds,
+										registrationApi.queryPayResult, 
+										registrationPrePayResponse
+									).then((res) => {
+										console.log(JSON.stringify(res),'=r=r=r=r=r=r=r=r=r=r');
 										this.toastObj = {
-											state:true,
-											message:'预约成功',
-											url:'/pages/convenient/index',
-											tips:'秒自动为您切换便捷导引',
+											state: true,
+											message: '预约成功',
+											url: '/pages/convenient/index',
+											tips: '秒自动为您切换便捷导引',
 										}
-									})
-									.catch(err => {
-										console.log('errrrrr：', err);
+									}).catch(err => {
+										console.error('消息处理失败', err)
 									})
 								},
 								fail:(err)=> {
@@ -291,25 +303,27 @@
 				    cardType: data.defaultArchives.cardTypeCode,
 				    scheduleItemCode:this.doctor.scheduleItemCode,
 				    timeFrame: `${this.doctor.StartTime}-${this.doctor.EndTime}`,
+						openId: data.xcxOpenId,
 				}
-				registrationApi.appointmentRegister(obj).then(res => {
-					if(res.data.code===200){
-						this.toastObj = {
-							state:true,
-							message:'预约成功',
-							url:'/pages/convenient/index',
-							tips:'秒自动为您切换便捷导引',
-						}
-					}else {
-						this.toastObj = {
-							state:true,
-							type:'fail',
-							message:res.data.msg?res.data.msg:'',
-						}
+				
+				let tmplIds = [
+					'lbnDdyJ69_PcTcHyGTkjAeH0lZkNetrRsLp-ZpGm6Y4', //预约成功
+					'0p0XRL-OapRVNW1zkHRjYu5MchIIDfpjSMYLctmNuFg', //预约取消
+				];
+				console.log(JSON.stringify(obj),'wwwwwwwwwwwww');
+				subMessage.subscribeRegisterNotice(
+					tmplIds,
+					registrationApi.appointmentRegister, 
+					obj
+				).then((res) => {
+					this.toastObj = {
+						state: true,
+						message: '预约成功',
+						url: '/pages/convenient/index',
+						tips: '秒自动为您切换便捷导引',
 					}
-				})
-				.catch(err => {
-					console.log('2：', err);
+				}).catch(err => {
+					console.error('订阅消息处理失败', err)
 				})
 			},
 			timeBtn(item){

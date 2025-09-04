@@ -1,5 +1,11 @@
 <template>
 	<view class="virtual">
+		<aiNotice
+		ref="notice" 
+		:tipMsg="tipMsg" 
+		@confirmed="handleConfirm" 
+		/>
+		
 		<view class="" :animation="anData"  style="height:0rpx;"></view>
 		<image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	
 		<view class="head">您好！“安好”  为您服务 </view>
@@ -77,12 +83,19 @@
 							<view class="top2-content">
 								<view class="title">医生排班</view>
 								<view class="scheduling" v-for="(item, index) in x.scheduling" :key="index" v-show="x.scheduling">
-									<view class="name">
-										<text>{{item.DoctorName}}({{item.SessionName}})</text>
-										<text>{{item.DoctorSessType}}({{item.DepartmentName}})</text>
-										<text>￥{{item.Fee}}</text>
+									<view class="img">
+										<image :src="item.DoctorImg" v-if="item.DoctorImg" mode="aspectFit"></image>
+										<image src="../../static/image/doctor.png" mode="" v-else></image>
 									</view>
-									<view class="desc">医生简介：{{item.DoctorSpec ? item.DoctorSpec : '暂无信息'}}</view>
+									<view class="name">
+										<view class="price">
+											<view>{{item.DoctorName}} ({{item.SessionName}})</view>
+											<view class="fee">￥{{item.Fee}}</view>
+										</view>
+										<view>{{item.DoctorSessType}}</view>
+										<view>{{item.DepartmentName}}</view>
+										<view></view>
+									</view>
 								</view>
 								<view class="noData" v-show="x.scheduling.length == 0">很抱歉，暂无当前科室排班</view>
 								<view class="ai-tips" v-if="!x.msgLoad">此内容由AI生成，仅供参考</view>
@@ -202,14 +215,24 @@
 	// 顶部空盒子的高度
 	var mgUpHeight
 	
-	import MarkdownIt from 'markdown-it';
+	import {mapActions} from 'vuex';
 	import bus from "@/utils/bus";
+	import MarkdownIt from 'markdown-it';
+	import mixin from '@/mixins/mixin.js'
 	import login from '@/utils/login.js'
 	import { parse } from 'best-effort-json-parser'
-	import {mapActions} from 'vuex'
+	import aiNotice from '@/components/aiNotice.vue';
+	
 	export default {
+		mixins: [mixin],
+		components: {
+			aiNotice
+		},
 		data() {
 			return {
+				siginVal: {},
+				tipMsg: 'normal',
+				showMsg: false,
 				md: new MarkdownIt(),
 				pattern:2,
 				patternList:[
@@ -261,7 +284,23 @@
 				this.patient = JSON.parse(decodeURIComponent(options.patient))
 			}
 		},
+		onLoad() {
+			this.$nextTick(() => {
+				this.$refs.notice.open(); // 每次进入页面都提醒
+			});
+		 //  const confirmed = uni.getStorageSync('aiTipMsg');
+			// if (!confirmed) {
+			// 	this.$nextTick(() => {
+			// 		this.$refs.notice.open();
+			// 	});
+			// } else {
+			// 	this.showMsg = true;
+			// }
+		},
 		methods: {
+			handleConfirm() {
+				this.showMsg = true;
+			},
 			tipsBtn(index){
 				// 使用 this.$set 修改数组中某一项的属性
 				this.$set(this.msgList[index], 'tipsState', !this.msgList[index].tipsState);
@@ -324,9 +363,9 @@
 			},
 			// 回答问题
 			answer(msg){
-				let loginValue = uni.getStorageSync("loginData");
-				let data = JSON.parse(loginValue)
-				if(loginValue && data.defaultArchives){
+				// let loginValue = uni.getStorageSync("loginData");
+				// let data = JSON.parse(loginValue)
+				if(loginValue && this.siginVal){
 					this.msg = msg
 					this.sendMsg()
 				}else {
@@ -347,6 +386,7 @@
 				// 清除消息
 				this.msg=""
 			},
+			
 			msgKf(msg){
 				// 必须建档
 				this.msgList.push({msgLoad:true})
@@ -357,16 +397,15 @@
 				  data: {
 				    query: msg,
 						inputs: {
-				     sex: this.patient.sex?this.patient.sex:'男',
-				     age: this.patient.age?this.patient.age:24,
+				     sex: this.siginVal.sex,
+				     age: this.calculateAge(this.siginVal.idNum),
 						},
 				    response_mode: "streaming",
 				    conversation_id: this.conversation_id,
-				    user: "abc-123"
+				    user: this.siginVal.patientName,//"abc-123"
 				  },
 				  enableChunked: true,
 				  header: {
-						// 'Authorization': `Bearer ${this.pattern===1 ? this.patternList[0] : this.patternList[1]}`,
 				    'Authorization': `Bearer app-bn5rwLZrI6lW8uOlcH0OFDMq`,
 				    'content-type': 'application/json',
 				  },
@@ -404,24 +443,19 @@
 						buffer += responseText;
 						let lines = buffer.split('\n');
 						buffer = lines.pop();
-						
 						for (const line of lines) {
 							if (!line.startsWith('data:')) continue;
-					
 							const jsonStr = line.replace(/^data:\s*/, '').trim();
 							if (!jsonStr) continue;
-					
 							if (jsonStr === '[DONE]' || jsonStr.includes('message_end')) {
 							  break
 							}
-					
 							let obj;
 							try {
 								obj = JSON.parse(jsonStr);
 							} catch (e) {
 								console.warn('解析失败, 跳过:', jsonStr);
 							}
-							
 							if (obj.event == 'error') {
 								this.msgList.splice(this.msgList.length - 1, 1, {
 								  my: false,
@@ -429,7 +463,7 @@
 								  msg: "很抱歉，您的问题暂时没查询到，我还在努力学习中...",
 								})
 							}
-							
+							console.log(JSON.stringify(obj),'=s=s=s=s=s==s=s=s=s=s');
 							this.conversation_id = obj.conversation_id || this.conversation_id
 							let answer = obj.answer || obj.data?.outputs?.answer
 							
@@ -448,7 +482,6 @@
 							
 							if (typeof answer === 'string' && answer.trim().startsWith('{') && answer.trim().endsWith('}')) {
 								answer = answer.replace(/[\r\n]+/g, '\\n')
-								console.log(answer,'+++++++++++++++++++++');
 								answer = JSON.parse(answer);
 								let content = answer.content;
 								let type = answer.intent;
@@ -660,7 +693,10 @@
 			  	}
 			  },
 		},
-		 mounted() {
+		mounted() {
+			let loginValue = uni.getStorageSync("loginData");
+			let data = JSON.parse(loginValue)
+			this.siginVal = data ? data.defaultArchives : {};
 			uni.onKeyboardHeightChange(res => {
 				const query = uni.createSelectorQuery().in(this);
 				query.select('#okk').boundingClientRect(data => {
@@ -675,9 +711,8 @@
 				}).exec();
 			 })
 			var query=uni.getSystemInfoSync()
-						
-			l=query.screenWidth/750		
-			wh=query.windowHeight								
+			l = query.screenWidth/750		
+			wh = query.windowHeight
 			
 			// 同声传译
 			var plugin = requirePlugin("WechatSI")
@@ -977,17 +1012,39 @@
 									color: #333;
 									width: 100%;
 									padding: 10rpx 20rpx;
+									display: flex;
+									justify-content: space-between;
+									flex: 1;
+										gap: 10rpx;
 									border-bottom: 1px solid #ccc;
-									.name {
-										display: flex;
-										color: #4286FF;
-										font-size: 30rpx;
-										justify-content: space-between;
+									// .scheduling view {
+									// 	display: flex;
+									// 	gap: 10rpx;
+									// }
+									.img {
+										width: 122.14rpx;
+										height: 152.67rpx;
+										border-radius: 9.54rpx;
+										image{
+											width: 122.14rpx;
+											height: 152.67rpx;
+											border-radius: 9.54rpx;
+										}
 									}
-									.desc {
-										color: #666;
-										font-size: 28rpx;
-										margin-top: 20rpx;
+									.name {
+										flex: 1;
+										gap: 5rpx;
+										display: flex;
+										font-size: 30rpx;
+										flex-direction: column;
+										padding-top: 15rpx;
+										.price {
+											display: flex;
+											justify-content: space-between;
+											.fee {
+												color: #1A66C2;
+											}
+										}
 									}
 								}
 							}
@@ -1008,10 +1065,6 @@
 			/* 选择症状、疾病 弹窗 */
 			.Dialog {
 				width: 750rpx;
-	   //          background-color: #ffffff;
-	   //          border-radius: 30rpx 30rpx 0 0;
-				// height: 380rpx;
-	
 				.center {
 					width: 750rpx;
 					background-color: #ffffff;

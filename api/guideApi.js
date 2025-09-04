@@ -30,9 +30,12 @@ const patient = {
 	/**
 		 * 取消预约
 	*/
-		async cancelAppointmentRegister(orderCode) {
+		async cancelAppointmentRegister(data) {
+			const queryParams = Object.keys(data)
+			.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+			.join('&');
 			const res = await cjRequest({
-				url: `cancelAppointmentRegister?orderCode=${encodeURIComponent(orderCode)}`,
+				url: `cancelAppointmentRegister?${queryParams}`,
 				method: "post",
 			})
 			return res
@@ -41,13 +44,16 @@ const patient = {
 	/**
 		 * 退号
 	*/
-		async cancelRegistration(visitNum) {
-			const res = await cjRequest({
-				url: `cancelRegistration?visitNum=${encodeURIComponent(visitNum)}`,
-				method: "post",
-			})
-			return res
-		},
+	async cancelRegistration(data) {
+		const queryParams = Object.keys(data)
+		.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+		.join('&');
+		const res = await cjRequest({
+			url: `cancelRegistration?${queryParams}`,
+			method: "post",
+		})
+		return res
+	},
 		
 		/**
 			 * 查询退款状态

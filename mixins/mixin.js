@@ -22,28 +22,28 @@ export default {
 		},
 		// 根据身份证计算年龄
 		calculateAge(idCard) {
-		    if (idCard.length === 18) {
-		        const birthYear = parseInt(idCard.slice(6, 10), 10);
-		        const birthMonth = parseInt(idCard.slice(10, 12), 10);
-		        const birthDay = parseInt(idCard.slice(12, 14), 10);
-		    		
-		        const now = new Date();
-		        const currentYear = now.getFullYear();
-		        const currentMonth = now.getMonth() + 1;
-		        const currentDay = now.getDate();
-		    		
-		        let age = currentYear - birthYear;
-		        // 如果当前月份小于出生月份，或者当前月份等于出生月份但当前日期小于出生日期，年龄减 1
-		        if (
-		            currentMonth < birthMonth ||
-		            (currentMonth === birthMonth && currentDay < birthDay)
-		        ) {
-		            age--;
-		        }
-		        return age;
-		    } else {
-		        return null;
-		    }
+			if (idCard.length === 18) {
+				const birthYear = parseInt(idCard.slice(6, 10), 10);
+				const birthMonth = parseInt(idCard.slice(10, 12), 10);
+				const birthDay = parseInt(idCard.slice(12, 14), 10);
+				
+				const now = new Date();
+				const currentYear = now.getFullYear();
+				const currentMonth = now.getMonth() + 1;
+				const currentDay = now.getDate();
+				
+				let age = currentYear - birthYear;
+				// 如果当前月份小于出生月份，或者当前月份等于出生月份但当前日期小于出生日期，年龄减 1
+				if (
+						currentMonth < birthMonth ||
+						(currentMonth === birthMonth && currentDay < birthDay)
+				) {
+						age--;
+				}
+				return age;
+			} else {
+					return null;
+			}
 		},
 		// 获取近一周的时间
 		getWeek(type) { 

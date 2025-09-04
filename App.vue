@@ -4,12 +4,6 @@
 			uni.removeStorageSync('popupConfirmed')
 		},
 		
-		onShow() {
-		 //  const isConfirmed = uni.getStorageSync('popupConfirmed');
-			// if (!isConfirmed) {
-			// 	this.showNotice = true;
-			// }
-		},
 		onHide: function() {
 			console.log('App Hide')
 		}

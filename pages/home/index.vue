@@ -18,7 +18,10 @@
 			/>
 			<patients />
 		</view>
-		
+		<view class="video" @click="onAiClick">
+			<image src="../../static/image/wenzhen.png" mode="aspectFit" @click=""></image>
+			<image src="../../static/image/kaiyao.png" mode="aspectFit"></image>
+		</view>
 		<view class="ai" @click="onAiClick">
 			<image src="https://aiwz.sdtyfy.com:8099/img/ai.png" mode="aspectFit"></image>
 		</view>
@@ -179,9 +182,20 @@
 				height: 220rpx;
 			}
 		}
+		.video {
+			width: 100%;
+			height: 180rpx;
+			display: flex;
+			justify-content: space-between;
+			gap: 20rpx;
+			image {
+				width: 100%;
+				height: 100%;
+			}
+		}
 		.ai {
 			width: 100%;
-			height: 258rpx;
+			height: 220rpx;
 			margin-top: 15rpx;
 			image {
 				height: 100%;
@@ -192,7 +206,7 @@
 			background: #fff;
 			border-radius: 15rpx;
 			padding: 15rpx;
-			margin-top: 30rpx;
+			margin-top: 20rpx;
 			.tabContent {
 				.van-grid-item__content {
 					display: flex;
