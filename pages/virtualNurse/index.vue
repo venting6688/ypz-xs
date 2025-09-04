@@ -221,13 +221,11 @@
 	import mixin from '@/mixins/mixin.js'
 	import login from '@/utils/login.js'
 	import { parse } from 'best-effort-json-parser'
-	import aiNotice from '@/components/aiNotice.vue';
+	import aiNotice from '@/components/aiNotice.vue'
 	
 	export default {
 		mixins: [mixin],
-		components: {
-			aiNotice
-		},
+	  components: { aiNotice },
 		data() {
 			return {
 				siginVal: {},
@@ -284,18 +282,12 @@
 				this.patient = JSON.parse(decodeURIComponent(options.patient))
 			}
 		},
-		onLoad() {
-			this.$nextTick(() => {
-				this.$refs.notice.open(); // 每次进入页面都提醒
-			});
-		 //  const confirmed = uni.getStorageSync('aiTipMsg');
-			// if (!confirmed) {
-			// 	this.$nextTick(() => {
-			// 		this.$refs.notice.open();
-			// 	});
-			// } else {
-			// 	this.showMsg = true;
-			// }
+		onReady() {
+		  this.$nextTick(() => {
+		    if (this.$refs.notice && this.$refs.notice.open) {
+		      this.$refs.notice.open();
+		    }
+		  });
 		},
 		methods: {
 			handleConfirm() {
@@ -363,9 +355,7 @@
 			},
 			// 回答问题
 			answer(msg){
-				// let loginValue = uni.getStorageSync("loginData");
-				// let data = JSON.parse(loginValue)
-				if(loginValue && this.siginVal){
+				if(this.siginVal){
 					this.msg = msg
 					this.sendMsg()
 				}else {
@@ -382,7 +372,11 @@
 				// 保证消息可见
 				this.msgGo()
 				//发送消息
-				this.msgKf(this.msg)
+				if(this.siginVal){
+					this.msgKf(this.msg)
+				}else {
+					login.loginData().catch((error) => {});
+				}
 				// 清除消息
 				this.msg=""
 			},
@@ -402,7 +396,7 @@
 						},
 				    response_mode: "streaming",
 				    conversation_id: this.conversation_id,
-				    user: this.siginVal.patientName,//"abc-123"
+				    user: this.siginVal.patientName,
 				  },
 				  enableChunked: true,
 				  header: {
@@ -437,8 +431,7 @@
 				let buffer = '';
 				requestTask.onChunkReceived((res) => {
 				  try {
-				    const decoder = new TextDecoder('utf-8')
-				    const responseText = decoder.decode(res.data)
+						const responseText = this.arrayBufferToString(res.data)
 						//如果流式文件内容过长内容不全面，导致解析失败
 						buffer += responseText;
 						let lines = buffer.split('\n');
@@ -463,7 +456,6 @@
 								  msg: "很抱歉，您的问题暂时没查询到，我还在努力学习中...",
 								})
 							}
-							console.log(JSON.stringify(obj),'=s=s=s=s=s==s=s=s=s=s');
 							this.conversation_id = obj.conversation_id || this.conversation_id
 							let answer = obj.answer || obj.data?.outputs?.answer
 							
@@ -534,68 +526,41 @@
 				    console.error('解析流式返回数据异常:', e)
 				  }
 				});
-
-
-				// requestTask.onChunkReceived((response) => {
-				// 	try {
-				// 		// 收到流式数据，根据返回值进行相对应数据解码
-				// 		const arrayBuffer = response.data;
-				// 		const uint8Array = new Uint8Array(arrayBuffer);
-				// 		let text = uni.arrayBufferToBase64(uint8Array)
-				// 		text = new Buffer(text, 'base64')
-				// 		let responseText = text.toString('utf-8')
-				// 		let data = responseText.split('data: ')
-				// 		let i 
-				// 		for (let j = 0; j < data.length; j++) {
-				// 			if(!j) continue;
-				// 			if(!data[j].includes('message') || data[j].includes('message_end')){
-				// 				break
-				// 			}
-				// 			i = JSON.parse(data[j])
-				// 			this.conversation_id = i.conversation_id
-				// 			// i.answer = i.answer&&i.answer.replace(/[ \r\n\u21B5]/g,'')
-				// 			if(i.answer){
-				// 				this.test1 += i.answer
-				// 				if(this.pattern===1){
-				// 					this.test2 = parse(this.test1)
-				// 					if(!this.test2.is_complete){
-				// 						if(this.test2.response){
-				// 							const content = {
-				// 								my:false,
-				// 								msgLoad:false,
-				// 								msg:this.test2.response?this.test2.response.replace(/\[.*?\]/, ''):'',
-				// 							}
-				// 							console.log(JSON.stringify(content),'======222===');
-				// 							this.msgList.splice(this.msgList.length-1,1,content)		  
-				// 						}
-				// 					}else {
-				// 						const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState;
-				// 						const content = {
-				// 							my:false,
-				// 							type:2,
-				// 							msgLoad:false,
-				// 							department:this.test2.option?this.test2.option:[],
-				// 							tips:this.test2.reason?this.test2.reason:'',
-				// 							tipsState: originalTipsState
-				// 						}
-				// 						console.log(JSON.stringify(content),'======111111===');
-				// 						this.msgList.splice(this.msgList.length-1,1,content)
-				// 					}
-				// 				}else {
-				// 					const content = {
-				// 						my:false,
-				// 						msgLoad:false,
-				// 						msg:this.test1?this.test1.replace(/\[.*?\]/, ''):'',
-				// 					}
-				// 					this.msgList.splice(this.msgList.length-1,1,content)
-				// 				}
-				// 			}
-				// 		}
-				// 	} catch (error) {
-				// 		console.log('error',error)
-				// 		//TODO handle the exception
-				// 	}
-				// });
+			},
+			arrayBufferToString(buffer) {
+			  const bytes = new Uint8Array(buffer);
+			  let out = '', i = 0, len = bytes.length;
+			  while (i < len) {
+			    let c = bytes[i++];
+			    if (c >> 7 === 0) {
+			      // 单字节
+			      out += String.fromCharCode(c);
+			    } else if (c >> 5 === 0b110) {
+			      // 双字节
+			      let c2 = bytes[i++];
+			      out += String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
+			    } else if (c >> 4 === 0b1110) {
+			      // 三字节
+			      let c2 = bytes[i++];
+			      let c3 = bytes[i++];
+			      out += String.fromCharCode(((c & 0x0F) << 12) |
+			                                 ((c2 & 0x3F) << 6) |
+			                                 (c3 & 0x3F));
+			    } else {
+			      // 四字节 (surrogate pair)
+			      let c2 = bytes[i++];
+			      let c3 = bytes[i++];
+			      let c4 = bytes[i++];
+			      let codepoint = ((c & 0x07) << 18) |
+			                      ((c2 & 0x3F) << 12) |
+			                      ((c3 & 0x3F) << 6) |
+			                      (c4 & 0x3F);
+			      codepoint -= 0x10000;
+			      out += String.fromCharCode(0xD800 + (codepoint >> 10));
+			      out += String.fromCharCode(0xDC00 + (codepoint & 0x3FF));
+			    }
+			  }
+			  return out;
 			},
 			//弹窗事件
 			choice(index){
@@ -695,7 +660,7 @@
 		},
 		mounted() {
 			let loginValue = uni.getStorageSync("loginData");
-			let data = JSON.parse(loginValue)
+			let data = loginValue ? JSON.parse(loginValue) : {}
 			this.siginVal = data ? data.defaultArchives : {};
 			uni.onKeyboardHeightChange(res => {
 				const query = uni.createSelectorQuery().in(this);
@@ -874,13 +839,13 @@
 							display: flex;
 							justify-content: flex-start;
 							align-items: center;
-							min-width: 560rpx;
-							max-width: 660rpx;
+							width: 680rpx;
 							margin: 20rpx 0 20rpx 25rpx;
 							position: relative;
 							padding:20rpx 24rpx;
 							background: rgba(255,255,255,0.80);
 							border-radius: 12rpx;
+							opacity: 0.9;
 							>image {
 								position: absolute;
 								width: 560rpx;
@@ -987,8 +952,7 @@
 							display: flex;
 							justify-content: flex-start;
 							align-items: center;
-							min-width: 560rpx;
-							max-width: 660rpx;
+							width: 680rpx;
 							margin: 20rpx 0 20rpx 25rpx;
 							position: relative;
 							padding-bottom:20rpx;
@@ -1015,12 +979,8 @@
 									display: flex;
 									justify-content: space-between;
 									flex: 1;
-										gap: 10rpx;
+									gap: 10rpx;
 									border-bottom: 1px solid #ccc;
-									// .scheduling view {
-									// 	display: flex;
-									// 	gap: 10rpx;
-									// }
 									.img {
 										width: 122.14rpx;
 										height: 152.67rpx;
@@ -1042,7 +1002,8 @@
 											display: flex;
 											justify-content: space-between;
 											.fee {
-												color: #1A66C2;
+												font-size: 34rpx;
+												color: #4286FF;
 											}
 										}
 									}
