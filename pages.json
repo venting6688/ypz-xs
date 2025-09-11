@@ -123,6 +123,27 @@
       ]
     },
 		{
+			"root": "sub_packages_im",
+			"pages": [
+				{
+					"path" : "im/index",
+					"style" : 
+					{
+						"navigationBarTitleText": "问诊医生",
+						"disableScroll": true
+					}
+				},
+				{
+					"path" : "im/doctor",
+					"style" : 
+					{
+						"navigationBarTitleText": "",
+						"navigationStyle": "custom"
+					}
+				}
+			]
+		},
+		{
   	"root": "sub_packages",
   	"pages": [
 			{

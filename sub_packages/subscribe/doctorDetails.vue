@@ -252,7 +252,6 @@
 										registrationApi.queryPayResult, 
 										registrationPrePayResponse
 									).then((res) => {
-										console.log(JSON.stringify(res),'=r=r=r=r=r=r=r=r=r=r');
 										this.toastObj = {
 											state: true,
 											message: '预约成功',
@@ -310,7 +309,6 @@
 					'lbnDdyJ69_PcTcHyGTkjAeH0lZkNetrRsLp-ZpGm6Y4', //预约成功
 					'0p0XRL-OapRVNW1zkHRjYu5MchIIDfpjSMYLctmNuFg', //预约取消
 				];
-				console.log(JSON.stringify(obj),'wwwwwwwwwwwww');
 				subMessage.subscribeRegisterNotice(
 					tmplIds,
 					registrationApi.appointmentRegister, 

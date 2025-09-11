@@ -18,8 +18,8 @@
 			/>
 			<patients />
 		</view>
-		<view class="video" @click="onAiClick">
-			<image src="../../static/image/wenzhen.png" mode="aspectFit" @click=""></image>
+		<view class="video">
+			<image src="../../static/image/wenzhen.png" mode="aspectFit" @click="inquiry"></image>
 			<image src="../../static/image/kaiyao.png" mode="aspectFit"></image>
 		</view>
 		<view class="ai" @click="onAiClick">
@@ -159,6 +159,11 @@
 			},
 			onAiClick() {
 				wx.reLaunch({ url: '/pages/virtualNurse/index' })
+			},
+			inquiry() {
+				uni.navigateTo({
+					url: '/sub_packages_im/im/index'
+				})
 			},
 			onJumpClick(item) {
 				if (item.url) {
