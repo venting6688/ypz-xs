@@ -1,17 +1,10 @@
 <template>
   <view class="chat-page">
-    <!-- 顶部服务状态 -->
-    <view class="chat-header" v-if="serviceStatus !== 'ended'">
-      <text>问诊服务已开始，本次最多 {{ maxMessages }} 条</text>
-      <text class="end-btn" @click="endService">结束服务</text>
-    </view>
-    <view class="chat-header ended" v-else>
-      <text>服务已结束，不能再发送消息</text>
-    </view>
-
-    <!-- 剩余条数提示 -->
-    <view class="remain-tip" v-if="serviceStatus === 'active'">
-      还可以发送 {{ maxMessages - messageCount }} 条消息
+    <!-- 顶部提示 -->
+    <view class="chat-header">
+      <text>IM服务已开始，患者可随时结束服务</text>
+      <text v-if="!serviceEnded">还剩 {{ remainingCount }} 条消息</text>
+      <button v-if="!serviceEnded" class="end-btn" @click="endService">结束服务</button>
     </view>
 
     <!-- 消息列表 -->
@@ -27,37 +20,22 @@
         </view>
 
         <!-- 患者卡片 -->
-        <patientCard v-if="msg.type === 'patientCard'" :info="msg.info" class="patient-card-container" />
+        <patientCard v-if="msg.type === 'patientCard'" :info="msg.info" class="patient-card-container"/>
 
-        <!-- 消息气泡 -->
-        <view
-          class="msg-item"
-          :class="{ self: msg.from === userId }"
-          :id="msg.id"
-          v-if="msg.type !== 'patientCard'"
-        >
-          <!-- 头像 -->
-          <image
-            class="msg-avatar"
-            :src="msg.from === userId ? patient.avatar : doctor.avatar"
-          />
-          <!-- 文本 -->
-          <view v-if="msg.type === 'text'" class="bubble">
-            {{ msg.content }}
-          </view>
-          <!-- 图片 -->
-          <image
-            v-if="msg.type === 'image'"
-            class="bubble-img"
-            :src="msg.content"
-            mode="widthFix"
-          />
+        <!-- 普通消息 -->
+        <view v-if="msg.type !== 'patientCard'" class="msg-item" :class="{ self: msg.from === userId }" :id="msg.id">
+          <!-- 左侧头像（医生） -->
+          <image v-if="msg.from !== userId" class="msg-avatar" :src="doctor.avatar" />
+          <!-- 气泡 -->
+          <view class="bubble">{{ msg.content }}</view>
+          <!-- 右侧头像（自己） -->
+          <image v-if="msg.from === userId" class="msg-avatar" :src="patient.avatar" />
         </view>
       </block>
     </scroll-view>
 
     <!-- 输入框 -->
-    <view class="input-area" v-if="serviceStatus === 'active'">
+    <view class="input-area" v-if="!serviceEnded">
       <input
         class="input-box"
         v-model="inputText"
@@ -73,59 +51,54 @@
         发送
       </button>
     </view>
+
+    <!-- 服务结束提示 -->
+    <view v-else class="ended-tip">
+      <text>服务已结束，不能发送消息</text>
+    </view>
   </view>
 </template>
 
 <script>
-import TIM from "tim-wx-sdk";
-import tim from "../common/im.js";
-import imService from "../common/imService.js";
-import patientCard from "../components/patientCard.vue";
+import TIM from 'tim-wx-sdk';
+import tim from '../common/im.js';
+import imService from '../common/imService.js';
+import patientCard from '../components/patientCard.vue';
 
 export default {
   components: { patientCard },
   data() {
     return {
-      orderId: "",
       doctor: {},
       patient: {},
-      userId: "",
-      conversationID: "",
+      userId: '',
+      conversationID: '',
       messageList: [],
-      inputText: "",
-      lastMsgId: "",
+      inputText: '',
+      lastMsgId: '',
       lastMessageTime: 0,
-
-      // 服务限制
-      maxMessages: 5,
-      messageCount: 0, // 当前订单已使用条数
-      serviceStatus: "active", // active | ended
+      serviceEnded: false,
+      remainingCount: 5,
+      currentSessionCount: 0,
     };
   },
   async onLoad(options) {
     const params = JSON.parse(decodeURIComponent(options.data));
-    this.orderId = params.orderId;
+
     this.doctor = params.doctor;
     this.patient = params.patient;
     this.userId = this.patient.id;
-    this.conversationID = "C2C" + this.doctor.id;
+    this.conversationID = 'C2C' + this.doctor.id;
 
-    // 恢复订单计数
-    this.messageCount =
-      uni.getStorageSync(`order_${this.orderId}_count`) || 0;
-    if (this.messageCount >= this.maxMessages) {
-      this.serviceStatus = "ended";
-    }
-
-    // 初始展示患者卡片
+    // 初始化患者卡片
     const cardInfo = {
       patient: this.patient,
-      diseaseDesc: params.diseaseDesc || "",
+      diseaseDesc: params.diseaseDesc || '',
       images: params.images || [],
     };
     this.addMessage({
-      id: "init-card",
-      type: "patientCard",
+      id: 'init-card',
+      type: 'patientCard',
       info: cardInfo,
       from: this.userId,
       time: Date.now(),
@@ -138,27 +111,27 @@ export default {
       try {
         await imService.login(this.userId);
 
-        // 拉取历史消息
+        // 拉历史消息
         const historyList = await imService.getHistoryMsg(this.conversationID);
-        historyList.reverse().forEach((msg) => {
+        historyList.reverse().forEach(msg => {
           const parsedMsg = this.parseMsg(msg);
-          if (parsedMsg) this.addMessage(parsedMsg, false); // 历史消息不计数
+          if (parsedMsg) this.addMessage(parsedMsg, false);
         });
 
-        // 监听实时消息
+        // 实时监听
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, (event) => {
-          event.data.forEach((msg) => {
+          event.data.forEach(msg => {
             if (msg.conversationID === this.conversationID) {
               const parsedMsg = this.parseMsg(msg);
               if (parsedMsg) {
-                this.addMessage(parsedMsg);
+                this.addMessage(parsedMsg, true);
                 this.lastMsgId = msg.ID;
               }
             }
           });
         });
       } catch (err) {
-        console.error("聊天初始化失败:", err);
+        console.error('聊天初始化失败:', err);
       }
     },
 
@@ -168,7 +141,7 @@ export default {
       if (msg.type === TIM.TYPES.MSG_TEXT) {
         parsedMsg = {
           id: msg.ID,
-          type: "text",
+          type: 'text',
           content: msg.payload.text,
           from: msg.from,
           time,
@@ -176,7 +149,7 @@ export default {
       } else if (msg.type === TIM.TYPES.MSG_IMAGE) {
         parsedMsg = {
           id: msg.ID,
-          type: "image",
+          type: 'image',
           content: msg.payload.imageInfoArray[0].url,
           from: msg.from,
           time,
@@ -184,76 +157,80 @@ export default {
       } else if (msg.type === TIM.TYPES.MSG_CUSTOM) {
         try {
           const data = JSON.parse(msg.payload.data);
-          if (data.type === "patientCard") {
+          if (data.type === 'patientCard') {
             parsedMsg = {
               id: msg.ID,
-              type: "patientCard",
+              type: 'patientCard',
               info: data.content,
               from: msg.from,
               time,
             };
           }
         } catch (e) {
-          console.error("自定义消息解析失败", e);
+          console.error('自定义消息解析失败', e);
         }
       }
       return parsedMsg;
     },
 
-    addMessage(msg, countFlag = true) {
+    addMessage(msg, countThisSession = false) {
       msg.showTime = false;
-      if (
-        !this.lastMessageTime ||
-        msg.time - this.lastMessageTime > 5 * 60 * 1000
-      ) {
+      if (!this.lastMessageTime || msg.time - this.lastMessageTime > 5 * 60 * 1000) {
         msg.showTime = true;
         this.lastMessageTime = msg.time;
       }
       this.messageList.push(msg);
+      this.lastMsgId = msg.id;
 
-      // 计数逻辑
-      if (
-        this.serviceStatus === "active" &&
-        countFlag &&
-        (msg.from === this.userId || msg.from === this.doctor.id)
-      ) {
-        this.messageCount++;
-        uni.setStorageSync(`order_${this.orderId}_count`, this.messageCount);
-        if (this.messageCount >= this.maxMessages) {
-          this.serviceStatus = "ended";
-          uni.showToast({ title: "已达到最大条数，本次服务结束", icon: "none" });
-        }
+      // 只计算普通消息
+      if (!this.serviceEnded && countThisSession && msg.type !== 'patientCard' && msg.from !== 'system') {
+        this.currentSessionCount += 1;
+        this.remainingCount = 5 - this.currentSessionCount;
+        if (this.currentSessionCount >= 5) this.endService();
       }
+
+      // 自动滚动到底部
+      this.$nextTick(() => {
+        const query = uni.createSelectorQuery().in(this);
+        query.select('.msg-list').scrollOffset(res => {
+          uni.pageScrollTo({
+            scrollTop: res.scrollHeight,
+            duration: 100
+          });
+        }).exec();
+      });
     },
 
-    // 发送文本消息
     async sendTextMsg() {
-      if (!this.inputText || this.serviceStatus === "ended") return;
+      if (!this.inputText || this.serviceEnded) return;
       try {
-        const timMsg = await imService.sendText(
-          this.doctor.id,
-          this.inputText
-        );
+        const timMsg = await imService.sendText(this.doctor.id, this.inputText);
         const parsedMsg = this.parseMsg(timMsg);
-        if (parsedMsg) {
-          this.addMessage(parsedMsg);
-          this.lastMsgId = parsedMsg.id;
-        }
-        this.inputText = "";
+        if (parsedMsg) this.addMessage(parsedMsg, true);
+        this.inputText = '';
       } catch (e) {
-        console.error("发送失败", e);
+        console.error('发送失败', e);
       }
     },
 
     endService() {
-      this.serviceStatus = "ended";
-      uni.showToast({ title: "服务已结束", icon: "none" });
+      if (this.serviceEnded) return;
+      this.serviceEnded = true;
+      const systemMsg = {
+        id: 'end-service-' + Date.now(),
+        type: 'text',
+        content: '服务已结束，不能再发送消息',
+        from: 'system',
+        time: Date.now(),
+        showTime: true,
+      };
+      this.addMessage(systemMsg, false);
     },
 
     formatTime(time) {
       const date = new Date(time);
-      const h = String(date.getHours()).padStart(2, "0");
-      const m = String(date.getMinutes()).padStart(2, "0");
+      const h = String(date.getHours()).padStart(2, '0');
+      const m = String(date.getMinutes()).padStart(2, '0');
       return `${h}:${m}`;
     },
   },
@@ -266,33 +243,20 @@ export default {
   flex-direction: column;
   height: 100vh;
 }
-
-/* 顶部状态条 */
 .chat-header {
-  background: #e6f7ff;
-  padding: 20rpx;
   display: flex;
   justify-content: space-between;
-  font-size: 26rpx;
-  color: #333;
-}
-.chat-header.ended {
-  background: #f5f5f5;
-  color: #999;
+  align-items: center;
+  padding: 10rpx;
+  background: #f7f7f7;
+  font-size: 24rpx;
 }
 .end-btn {
-  color: #f00;
-  font-weight: bold;
+  padding: 4rpx 12rpx;
+  background: #ff4d4f;
+  color: #fff;
+  border-radius: 8rpx;
 }
-
-/* 剩余提示 */
-.remain-tip {
-  text-align: center;
-  font-size: 24rpx;
-  color: #666;
-  margin: 10rpx 0;
-}
-
 .msg-list {
   flex: 1;
   height: 80vh;
@@ -312,7 +276,7 @@ export default {
   gap: 12rpx;
 }
 .msg-item.self {
-  flex-direction: row-reverse; /* 自己的消息反向排列 */
+  flex-direction: row-reverse;
 }
 .msg-avatar {
   width: 60rpx;
@@ -371,5 +335,11 @@ export default {
 .patient-card-container > * {
   min-width: 400rpx;
   max-width: 90%;
+}
+.ended-tip {
+  text-align: center;
+  padding: 20rpx;
+  color: #ff4d4f;
+  font-size: 28rpx;
 }
 </style>
