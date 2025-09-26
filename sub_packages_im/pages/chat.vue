@@ -11,33 +11,44 @@
         <view v-if="msg.showTime" class="time-tip">
           {{ formatTime(msg.time) }}
         </view>
-
+				<!-- 患者卡片 -->
+				<patientCard v-if="msg.type === 'patientCard'" :info="msg.info" class="patient-card-container" />
+				
         <!-- 消息内容 -->
-        <view
+				<view class="msg-item" :class="{ self: msg.from === userId }" :id="msg.id">
+				  <!-- 左侧头像 -->
+				  <image v-if="msg.from !== userId && msg.type !== 'patientCard'" class="msg-avatar" :src="doctor.avatar" />
+				  
+				  <!-- 消息内容 -->
+				  <view v-if="msg.type !== 'patientCard'" class="bubble">
+				    {{ msg.content }} -- {{userId}} ++++ {{msg.from}}
+				  </view>
+				
+				  <!-- 右侧头像 -->
+				  <image v-if="msg.from === userId && msg.type !== 'patientCard'" class="msg-avatar" :src="patient.avatar" />
+					
+				</view>
+        <!-- <view
           class="msg-item"
           :class="{ self: msg.from === userId }"
           :id="msg.id"
         >
-          <!-- 左侧头像（医生） -->
           <image
             v-if="msg.from !== userId && msg.type !== 'patientCard'"
             class="msg-avatar"
             :src="doctor.avatar"
           />
 
-          <!-- 患者信息卡片 -->
           <patientCard
             v-if="msg.type === 'patientCard'"
             :info="msg.info"
             class="patient-card-container"
           />
 
-          <!-- 文本消息 -->
           <view v-else-if="msg.type === 'text'" class="bubble">
             {{ msg.content }}
           </view>
 
-          <!-- 图片消息 -->
           <image
             v-else-if="msg.type === 'image'"
             class="bubble-img"
@@ -45,13 +56,12 @@
             mode="widthFix"
           />
 
-          <!-- 右侧头像（患者） -->
           <image
             v-if="msg.from === userId && msg.type !== 'patientCard'"
             class="msg-avatar"
             :src="patient.avatar"
           />
-        </view>
+        </view> -->
       </block>
     </scroll-view>
 
@@ -122,19 +132,17 @@ export default {
   methods: {
     async initTIM() {
       try {
+        // 等待 SDK_READY
         await imService.login(this.userId);
     
-        // 先拉取历史消息
+        // SDK_READY 后再拉历史消息
         const historyList = await imService.getHistoryMsg(this.conversationID);
         historyList.reverse().forEach((msg) => {
           const parsedMsg = this.parseMsg(msg);
           if (parsedMsg) this.addMessage(parsedMsg);
         });
-        if (historyList.length > 0) {
-          this.lastMsgId = historyList[historyList.length - 1].ID;
-        }
     
-        // 监听实时消息
+        // 监听实时消息（READY 后才能保证收得到）
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, (event) => {
           event.data.forEach((msg) => {
             if (msg.conversationID === this.conversationID) {
@@ -238,6 +246,7 @@ export default {
 }
 .msg-list {
   flex: 1;
+	height: 80vh;
   padding: 20rpx;
   background: #f5f5f5;
 }
@@ -251,15 +260,18 @@ export default {
   margin-bottom: 20rpx;
   display: flex;
   align-items: flex-end;
+  gap: 12rpx; /* 头像与气泡间距 */
 }
+
 .msg-item.self {
   flex-direction: row-reverse;
 }
+
 .msg-avatar {
   width: 60rpx;
   height: 60rpx;
   border-radius: 50%;
-  margin: 0 12rpx;
+  flex-shrink: 0;
 }
 .bubble {
   max-width: 60%;
@@ -267,14 +279,17 @@ export default {
   border-radius: 12rpx;
   background: #fff;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-  word-break: break-all;
+  word-break: break-word;
 }
+
 .msg-item.self .bubble {
   background: #95ec69;
 }
+
 .bubble-img {
   max-width: 40%;
   border-radius: 12rpx;
+  object-fit: cover; /* 保证图片自适应 */
 }
 .input-area {
   display: flex;

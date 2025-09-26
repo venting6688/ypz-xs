@@ -20,7 +20,7 @@ const imService = {
 	
 	    // 等待 SDK_READY 事件再继续
 	    await new Promise((resolve) => {
-	      tim.once(TIM.EVENT.SDK_READY, () => {
+	      tim.on(TIM.EVENT.SDK_READY, () => {
 	        console.log('SDK_READY: SDK 已准备好');
 	        resolve();
 	      });
