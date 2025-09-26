@@ -44,8 +44,8 @@ export default {
   data() {
     return {
 			desc: '',
-      userID: 'qinze1',
-			doctorId: 'qinze2',
+      userID: 'qinze2',
+			doctorId: 'qinze1',
 			loginData: {},
 			defaultData: {},
 			patientInfo: {},

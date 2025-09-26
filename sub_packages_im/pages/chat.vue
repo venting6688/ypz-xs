@@ -13,55 +13,17 @@
         </view>
 				<!-- 患者卡片 -->
 				<patientCard v-if="msg.type === 'patientCard'" :info="msg.info" class="patient-card-container" />
-				
         <!-- 消息内容 -->
 				<view class="msg-item" :class="{ self: msg.from === userId }" :id="msg.id">
 				  <!-- 左侧头像 -->
 				  <image v-if="msg.from !== userId && msg.type !== 'patientCard'" class="msg-avatar" :src="doctor.avatar" />
-				  
 				  <!-- 消息内容 -->
 				  <view v-if="msg.type !== 'patientCard'" class="bubble">
-				    {{ msg.content }} -- {{userId}} ++++ {{msg.from}}
+				    {{ msg.content }}
 				  </view>
-				
 				  <!-- 右侧头像 -->
 				  <image v-if="msg.from === userId && msg.type !== 'patientCard'" class="msg-avatar" :src="patient.avatar" />
-					
 				</view>
-        <!-- <view
-          class="msg-item"
-          :class="{ self: msg.from === userId }"
-          :id="msg.id"
-        >
-          <image
-            v-if="msg.from !== userId && msg.type !== 'patientCard'"
-            class="msg-avatar"
-            :src="doctor.avatar"
-          />
-
-          <patientCard
-            v-if="msg.type === 'patientCard'"
-            :info="msg.info"
-            class="patient-card-container"
-          />
-
-          <view v-else-if="msg.type === 'text'" class="bubble">
-            {{ msg.content }}
-          </view>
-
-          <image
-            v-else-if="msg.type === 'image'"
-            class="bubble-img"
-            :src="msg.content"
-            mode="widthFix"
-          />
-
-          <image
-            v-if="msg.from === userId && msg.type !== 'patientCard'"
-            class="msg-avatar"
-            :src="patient.avatar"
-          />
-        </view> -->
       </block>
     </scroll-view>
 

@@ -11,9 +11,7 @@ const imService = {
 	async login(userID) {
 	  try {
       // ⚠️ 正式项目应该从后端获取 userSig，这里演示写死
-      // const userSig = await this.getUserSig(userID);
-	    // const userSig = 'eJwtzc0KwjAQBOB3yVWpa0hoLHjoQRDxog0WwYuatW5bY2yDVMV31-4c5xuY*TC9ToInVixiPAA27jIZtJ4u1PGD7Bv50NSmODpHhkVTAaC4UEL1DTaOKvy7lJIDQK*ebq2FMpRyxgUfVihr-zRtUzpMYnP1paLXvd4no5XOM1jaU1O4FBdnW7pil*Nmzr4-p2wzTQ__';
-			const userSig = 'eJyrVgrxCdYrSy1SslIy0jNQ0gHzM1NS80oy0zLBwoWZeVWphlCZ4pTsxIKCzBQlK0MTAwMLIxMLEwuITGpFQWZRKlDc1NTUyMDAACJakpkLEjM3NTc1NTexMIeakpkOss8z3MkkpyK7OMyrMtUrvMjUK807ySDC2NMx38LFzdfSIMTVICnMJTAxRt-CVqkWAISuMQM_';
+      const userSig = await this.getUserSig(userID);
 	
 	    await tim.login({ userID, userSig });
 	    console.log('IM 登录成功');
@@ -112,7 +110,7 @@ const imService = {
   async getUserSig(userID) {
     // TODO: 这里要替换成接口请求
     //当前使用写死的 userSig，仅用于测试，正式环境请调用后端接口获取！
-    return "";
+    return "eJwtzc0KwjAQBOB3yVWpa0hoLHjoQRDxog0WwYuatW5bY2yDVMV31-4c5xuY*TC9ToInVixiPAA27jIZtJ4u1PGD7Bv50NSmODpHhkVTAaC4UEL1DTaOKvy7lJIDQK*ebq2FMpRyxgUfVihr-zRtUzpMYnP1paLXvd4no5XOM1jaU1O4FBdnW7pil*Nmzr4-p2wzTQ__";
   }
 };
 
