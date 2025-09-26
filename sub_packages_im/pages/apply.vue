@@ -93,7 +93,8 @@ export default {
 					age: this.calculateAge(this.defaultData.idNum),
 				},
 				diseaseDesc: this.desc,
-				images: this.imgList
+				images: this.imgList,
+				orderId: '123456'
 			};
 			try {
 	//         const res = await uni.request({
