@@ -40,12 +40,12 @@
 			<!-- 医生服务 -->
 			<view class="service-card">
 				<view class="title">医生服务</view>
-				<view class="service-item">
+				<view class="service-item" @click="openInquiry">
 					<view class="left">
 						<view class="title">在线问诊 <text class="price">¥5</text></view>
 						<view class="tips">图文、视频、语音均可选择，当日24点医生未回复将自动退诊</view>
 					</view>
-					<button class="btn blue">去问诊</button>
+					<view class="btn blue">去问诊</view>
 				</view>
 	
 				<view class="service-item">
@@ -53,7 +53,7 @@
 						<view class="guahao">在线挂号</view>
 						<view class="tips">图文、视频、语音均可选择，当日24点医生未回复将自动退诊</view>
 					</view>
-					<button class="btn green">去挂号</button>
+					<view class="btn green">去挂号</view>
 				</view>
 			</view>
 	
@@ -79,6 +79,40 @@
 			</view>
 		</view>
 		<view class="fill" :style="{ height: barHeight + 'px' }"></view>
+		
+		<!-- 弹窗 -->
+		<view class="popup">
+		  <uni-popup ref="inquiry" type="bottom" background-color="#fff">
+		    <view class="popup-container">
+		      <view class="popup-title">请选择问诊方式</view>
+		      <view class="service-list">
+		        <view
+		          class="popup-service-item"
+		          v-for="(item, index) in services"
+		          :key="index"
+		          :class="{ active: selectedIndex === index }"
+		          :style="{ backgroundImage: 'url(' + item.icon + ')' }"
+		          @click="selectService(index)"
+		        >
+		          <view class="label">{{ item.label }}</view>
+		          <view class="price">￥{{ item.price }}</view>
+		        </view>
+		      </view>
+		
+		      <!-- 提示语（根据选择动态切换） -->
+		      <view class="tips">
+		        <rich-text :nodes="services[selectedIndex].tips"></rich-text>
+		      </view>
+		
+		      <!-- 底部按钮 -->
+		      <view class="btn-group">
+		        <view class="btn cancel" @click="close">取消</view>
+		        <view class="btn confirm" @click="confirm">确认问诊</view>
+		      </view>
+		    </view>
+		  </uni-popup>
+		</view>
+		
 	</view>
 </template>
 
@@ -90,7 +124,7 @@
 	
 	export default {
 	  components: {
-	    customerNav
+	    customerNav,
 	  },
 		computed: {
 			barHeight() {
@@ -100,6 +134,7 @@
 		},
 		data() {
 			return {
+				selectedIndex: 0,
 				comments: [
 					{
 						user: "王***",
@@ -122,6 +157,26 @@
 						content: "非常专业，解答详细，推荐！",
 					},
 				],
+				services: [
+					{
+						label: "图文问诊",
+						price: 5,
+						icon: "../static/images/tuwen.png",
+						tips: "采用图文方式，每个订单<span style='color: #ff6600'>限20条</span>，实时对接，若当日24点前医生未接诊将自动退单，未接诊前患者可随时申请退单"
+					},
+					{
+						label: "语音问诊",
+						price: 5,
+						icon: "../static/images/yuyin.png",
+						tips: "采用语音方式，单次限时<span style='color: #ff6600'>10分钟</span>，实时对接，若医生未接听，订单将自动退单"
+					},
+					{
+						label: "视频问诊",
+						price: 5,
+						icon: "../static/images/shipin.png",
+						tips: "采用视频方式，单次限时<span style='color: #ff6600'>15分钟</span>，实时对接，若医生未接听，订单将自动退单"
+					}
+				]
 			}
 		},
 		methods: {
@@ -136,6 +191,16 @@
 					}
 				})
 			},
+			openInquiry() {
+				this.$refs.inquiry.open();
+			},
+			selectService(index) {
+				this.selectedIndex = index;
+				const conversationID = 'C2Chaimianbaobao';
+				uni.navigateTo({
+				  url: `/sub_packages_im/pages/apply?doctorID=${conversationID}`
+				});
+			}
 		}
 	}
 </script>
@@ -255,21 +320,21 @@
 		  border-radius: 16rpx;
 		  padding: 30rpx 20rpx;
 		  margin-bottom: 20rpx;
-			background: linear-gradient(to bottom, #E3EDFF, #ffffff);
+			background: linear-gradient(180deg,#e3edff, #ffffff 22%);
 			.title {
 				font-size: 36rpx;
 				font-weight: bold;
 			}
 		  .service-item {
 		    display: flex;
-		    align-items: center;
-		    justify-content: space-between;
 				gap: 30rpx;
 		    padding: 20rpx;
 				border-radius: 30rpx;
+		    align-items: center;
+		    justify-content: space-between;
 				
-				&:first {
-				  background-color: rgba(66,134,255,0.06);
+				&:first-of-type {
+					background: rgba(66,134,255,0.06);
 				}
 				
 		    &:last-child {
@@ -281,10 +346,8 @@
 					color: #3CD0AA;
 					font-size: 30rpx;
 				}
-				
 		    .left {
 		      flex: 1;
-		
 		      .title {
 		        font-size: 28rpx;
 		        font-weight: bold;
@@ -295,7 +358,6 @@
 		          margin-left: 10rpx;
 		        }
 		      }
-		
 		      .tips {
 		        font-size: 24rpx;
 		        color: #999;
@@ -304,7 +366,7 @@
 		
 		    .btn {
 		      font-size: 24rpx;
-		      padding: 3rpx 28rpx;
+		      padding: 15rpx 28rpx;
 		      border-radius: 30rpx;
 		      color: #fff;
 		
@@ -377,6 +439,84 @@
 		      line-height: 1.6;
 		    }
 		  }
+		}
+		.popup {
+			.popup-container {
+			  width: 100%;
+			  border-top-left-radius: 20rpx;
+			  border-top-right-radius: 20rpx;
+			  padding: 30rpx;
+			  background-color: #fff;
+			}
+			.popup-title {
+			  text-align: center;
+			  font-size: 32rpx;
+			  font-weight: bold;
+			  margin-bottom: 30rpx;
+			}
+			.service-list {
+			  display: flex;
+			  justify-content: space-between;
+			  margin-bottom: 30rpx;
+			}
+			.popup-service-item {
+			  width: 225rpx;
+			  height: 240rpx;
+			  border-radius: 20rpx;
+			  background-repeat: no-repeat;
+			  background-position: center;
+			  background-size: 100% 100%;
+			
+			  display: flex;
+			  flex-direction: column;
+			  justify-content: flex-end;  /* 文字和价格放到底部 */
+			  align-items: center;
+			  padding-bottom: 20rpx;       /* 离底部留点空间 */
+			}
+			
+			.popup-service-item .label {
+			  font-size: 30rpx;
+			  color: #333;
+			  margin-bottom: 6rpx;
+			}
+			
+			.popup-service-item .price {
+			  font-size: 30rpx;
+				font-weight: bold;
+			  color: #FAAA03;
+			}
+			
+			.popup-service-item.active {
+			  border: 2rpx solid #4286ff;
+			  background-color: rgba(66, 134, 255, 0.06);
+			}
+			.tips {
+			  font-size: 28rpx;
+			  color: #666;
+			  line-height: 1.6;
+			  margin-bottom: 40rpx;
+			}
+			.btn-group {
+			  display: flex;
+			  justify-content: space-between;
+			  gap: 20rpx;
+			}
+			.btn {
+			  flex: 1;
+			  text-align: center;
+			  padding: 20rpx 0;
+			  border-radius: 40rpx;
+			  font-size: 28rpx;
+			}
+			.cancel {
+			  border: 2rpx solid #4286ff;
+			  color: #4286ff;
+			  background: #fff;
+			}
+			.confirm {
+			  background: #4286ff;
+			  color: #fff;
+			}
 		}
 	}
 </style>

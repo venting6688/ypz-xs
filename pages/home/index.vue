@@ -162,7 +162,7 @@
 			},
 			inquiry() {
 				uni.navigateTo({
-					url: '/sub_packages_im/im/index'
+					url: '/sub_packages_im/pages/index'
 				})
 			},
 			onJumpClick(item) {

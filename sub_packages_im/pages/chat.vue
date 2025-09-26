@@ -87,7 +87,7 @@ export default {
     return {
       doctor: {},
       patient: {},
-      userId: "",
+      userId: "", // 患者ID
       conversationID: "",
       messageList: [],
       inputText: "",
@@ -101,19 +101,18 @@ export default {
     this.doctor = params.doctor;
     this.patient = params.patient;
     this.userId = this.patient.id;
-    this.conversationID = "C2C" + this.doctor.id;
+    this.conversationID = "C2C" + this.doctor.id; // 患者端跟医生聊天
 
-    // 初始卡片消息（仅展示，不发送）
+    // 初始展示患者卡片
     const cardInfo = {
       patient: this.patient,
       diseaseDesc: params.diseaseDesc || "",
       images: params.images || [],
     };
-
     this.addMessage({
       id: "init-card",
       type: "patientCard",
-      info: cardInfo, // ✅ 保持字段一致
+      info: cardInfo,
       from: this.userId,
       time: Date.now(),
     });
@@ -124,7 +123,18 @@ export default {
     async initTIM() {
       try {
         await imService.login(this.userId);
-        // 消息接收监听
+    
+        // 先拉取历史消息
+        const historyList = await imService.getHistoryMsg(this.conversationID);
+        historyList.reverse().forEach((msg) => {
+          const parsedMsg = this.parseMsg(msg);
+          if (parsedMsg) this.addMessage(parsedMsg);
+        });
+        if (historyList.length > 0) {
+          this.lastMsgId = historyList[historyList.length - 1].ID;
+        }
+    
+        // 监听实时消息
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, (event) => {
           event.data.forEach((msg) => {
             if (msg.conversationID === this.conversationID) {
@@ -167,7 +177,7 @@ export default {
             parsedMsg = {
               id: msg.ID,
               type: "patientCard",
-              info: data.content, // ✅ 改成 info，和模板一致
+              info: data.content,
               from: msg.from,
               time,
             };
@@ -195,10 +205,13 @@ export default {
     async sendTextMsg() {
       if (!this.inputText) return;
       try {
-        const timMsg = await imService.sendText(this.doctor.id, this.inputText);
-        const parsedMsg = this.parseMsg(timMsg); // ✅ 统一走 parseMsg
+        const timMsg = await imService.sendText(
+          this.doctor.id,
+          this.inputText
+        );
+        const parsedMsg = this.parseMsg(timMsg); // 统一转结构
         if (parsedMsg) {
-          this.addMessage(parsedMsg);
+          this.messageList.push(parsedMsg);
           this.lastMsgId = parsedMsg.id;
         }
         this.inputText = "";

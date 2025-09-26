@@ -160,7 +160,7 @@
 			},
 			askDoctor() {
 				uni.navigateTo({
-					url: '/sub_packages_im/im/doctor'
+					url: '/sub_packages_im/pages/doctor'
 				})
 			},
 			async getList() {
