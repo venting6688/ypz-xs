@@ -89,15 +89,14 @@ const imService = {
   /**
    * 发送自定义消息（例如处方单）
    */
-  async sendCustom(to, data, arr) {
-		console.log(to,'=====');
+  async sendCustom(to, data) {
     const message = tim.createCustomMessage({
       to,
       conversationType: TIM.TYPES.CONV_C2C,
       payload: {
         data: JSON.stringify(data), // 自定义数据
-        description: arr.description,
-        extension: arr.extension
+        description: data.chiefComplaint,
+        extension: "patientCard"
       }
     });
     const res = await tim.sendMessage(message);

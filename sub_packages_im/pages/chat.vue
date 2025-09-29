@@ -67,6 +67,13 @@
       >
         发送
       </button>
+			<button
+				class="send-btn send-card-btn"
+				:disabled="sessionEnded"
+				@click="sendPatientCard"
+			>
+				发送病历卡
+			</button>
     </view>
   </view>
 </template>
@@ -145,72 +152,6 @@ export default {
         console.error("聊天初始化失败:", err);
       }
     },
-
-    parseMsg(msg) {
-      if (!TIM.TYPES) return null; // 防止 undefined
-      let parsedMsg = null;
-      const time = msg.time * 1000;
-      if (msg.type === TIM.TYPES.MSG_TEXT) {
-        parsedMsg = {
-          id: msg.ID,
-          type: "text",
-          content: msg.payload.text,
-          from: msg.from,
-          time,
-        };
-      } else if (msg.type === TIM.TYPES.MSG_IMAGE) {
-        parsedMsg = {
-          id: msg.ID,
-          type: "image",
-          content: msg.payload.imageInfoArray[0].url,
-          from: msg.from,
-          time,
-        };
-      } else if (msg.type === TIM.TYPES.MSG_CUSTOM) {
-        try {
-          const data = JSON.parse(msg.payload.data);
-          if (data.type === "patientCard") {
-            parsedMsg = {
-              id: msg.ID,
-              type: "patientCard",
-              info: data.content,
-              from: msg.from,
-              time,
-            };
-          }
-        } catch (e) {
-          console.error("自定义消息解析失败", e);
-        }
-      }
-      return parsedMsg;
-    },
-
-    addMessage(msg, isHistory = false) {
-      msg.showTime = false;
-      if (!this.lastMessageTime || msg.time - this.lastMessageTime > 5 * 60 * 1000) {
-        msg.showTime = true;
-        this.lastMessageTime = msg.time;
-      }
-      this.messageList.push(msg);
-
-      this.$nextTick(() => {
-        this.scrollToBottom();
-      });
-
-      // 只计算新发送的患者消息
-      if (!isHistory && msg.from === this.userId) {
-        this.remainingMsg = Math.max(0, this.remainingMsg - 1);
-        if (this.remainingMsg === 0) this.sessionEnded = true;
-      }
-    },
-
-    scrollToBottom() {
-      const query = uni.createSelectorQuery().in(this);
-      query.select('.msg-list').scrollOffset(offset => {
-        offset.scrollTop = offset.scrollHeight;
-      }).exec();
-    },
-
     async sendTextMsg() {
       if (!this.inputText) return;
       if (this.sessionEnded) {
@@ -227,6 +168,105 @@ export default {
         console.error("发送失败", e);
       }
     },
+		//自定义消息
+		async sendPatientCard() {
+		  if (this.sessionEnded) {
+		    uni.showToast({ title: "服务已结束，不能发送消息", icon: "none" });
+		    return;
+		  }
+			let customerData = {
+				biz: "internet_hospital",
+				ver: 2,
+				msgType:"system_tip",
+				serviceId: "987654",
+				doctorId: this.doctor.id,
+				patientId: "8888",
+				payload: { desc: "服务已开始，您的问诊条数剩余2条，请描述详细信息。" }
+				// payload: {
+				// 	name: '李四',
+				// 	gender: 'F',
+				// 	age: '20',
+				// 	chiefComplaint: '我现在是服务开始了',
+				// 	images: [],
+				// }
+			}
+		  try {
+		    const timMsg = await imService.sendCustom(this.doctor.id, customerData);
+				console.log(JSON.stringify(timMsg));
+		    const parsedMsg = this.parseMsg(timMsg);
+		    if (parsedMsg) this.addMessage(parsedMsg);
+		    this.lastMsgId = parsedMsg.id;
+		  } catch (e) {
+		    console.error("发送病历卡失败", e);
+		  }
+		},
+		
+		parseMsg(msg) {
+		  if (!TIM.TYPES) return null; // 防止 undefined
+		  let parsedMsg = null;
+		  const time = msg.time * 1000;
+		  if (msg.type === TIM.TYPES.MSG_TEXT) {
+		    parsedMsg = {
+		      id: msg.ID,
+		      type: "text",
+		      content: msg.payload.text,
+		      from: msg.from,
+		      time,
+		    };
+		  } else if (msg.type === TIM.TYPES.MSG_IMAGE) {
+		    parsedMsg = {
+		      id: msg.ID,
+		      type: "image",
+		      content: msg.payload.imageInfoArray[0].url,
+		      from: msg.from,
+		      time,
+		    };
+		  } else if (msg.type === TIM.TYPES.MSG_CUSTOM) {
+		    try {
+					const data = JSON.parse(msg.payload.data);
+					// if (data.msgType === "patientCard") {
+						parsedMsg = {
+							id: msg.ID,
+							type: "patientCard",
+							info: data.payload, // 这里就是 diseaseDesc/images/patient
+							from: msg.from,
+							time,
+						};
+						console.log(JSON.stringify(parsedMsg),'======sss');
+					// }
+				} catch (e) {
+					console.error("自定义消息解析失败", e);
+				}
+		  }
+		  return parsedMsg;
+		},
+		
+		addMessage(msg, isHistory = false) {
+		  msg.showTime = false;
+		  if (!this.lastMessageTime || msg.time - this.lastMessageTime > 5 * 60 * 1000) {
+		    msg.showTime = true;
+		    this.lastMessageTime = msg.time;
+		  }
+		  this.messageList.push(msg);
+		
+		  this.$nextTick(() => {
+		    this.scrollToBottom();
+		  });
+		
+		  // 只计算新发送的患者消息
+		  if (!isHistory && msg.from === this.userId) {
+		    this.remainingMsg = Math.max(0, this.remainingMsg - 1);
+		    if (this.remainingMsg === 0) this.sessionEnded = true;
+		  }
+		},
+		
+		scrollToBottom() {
+		  const query = uni.createSelectorQuery().in(this);
+		  query.select('.msg-list').scrollOffset(offset => {
+		    offset.scrollTop = offset.scrollHeight;
+		  }).exec();
+		},
+		
     formatTime(time) {
       const date = new Date(time);
       const h = String(date.getHours()).padStart(2, "0");
