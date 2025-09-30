@@ -45,7 +45,7 @@ export default {
     return {
 			desc: '',
       userID: 'qinze2',
-			doctorId: 'qinze1',
+			doctorId: 'qinze3',
 			loginData: {},
 			defaultData: {},
 			patientInfo: {},
@@ -91,10 +91,10 @@ export default {
 					gender: this.defaultData.sex,
 					avatar: "../../static/image/doctor.png",
 					age: this.calculateAge(this.defaultData.idNum),
+					chiefComplaint: this.desc,
+					images: this.imgList,
 				},
-				diseaseDesc: this.desc,
-				images: this.imgList,
-				orderId: '123456'
+				orderId: '654123'
 			};
 			try {
 	//         const res = await uni.request({

@@ -2,7 +2,7 @@ import TIM from 'tim-wx-sdk';
 import TIMUploadPlugin from 'tim-upload-plugin';
 
 const tim = TIM.create({
-  SDKAppID: 1400824848 // 替换为你的 SDKAppID
+  SDKAppID: 1400824848
 });
 tim.registerPlugin({ 'tim-upload-plugin': TIMUploadPlugin });
 

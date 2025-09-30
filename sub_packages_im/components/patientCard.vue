@@ -4,14 +4,14 @@
     <view class="info">
       <view class="row">
         <view class="label">患者信息：</view>
-        <view class="value">{{ info.patient.name }} {{ info.patient.age }} {{ info.patient.gender }}</view>
+        <view class="value">{{ info.name }}   {{ info.age }}   {{ info.gender }}</view>
       </view>
     </view>
 
     <!-- 病情描述 -->
     <view class="description row">
       <view class="label">病情描述：</view>
-      <view class="value">{{ info.diseaseDesc }}</view>
+      <view class="value">{{ info.chiefComplaint }}</view>
     </view>
 
     <!-- 上传图片 -->

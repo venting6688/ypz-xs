@@ -14,19 +14,17 @@
       class="msg-list"
       :scroll-into-view="lastMsgId"
       scroll-with-animation
-      ref="msgScroll"
     >
       <block v-for="(msg, index) in messageList" :key="msg.id">
         <!-- 时间分隔 -->
         <view v-if="msg.showTime" class="time-tip">
           {{ formatTime(msg.time) }}
         </view>
-
         <!-- 患者卡片 -->
-        <view v-if="msg.type === 'patientCard'" class="patient-card-container">
+        <view v-if="msg.type === 'patientCard' && msg.msgType == 'patient_info'" class="patient-card-container">
           <patientCard :info="msg.info" />
         </view>
-
+				<systemMsg v-else-if="msg.type === 'patientCard' && (msg.msgType == 'system_tip')" :content="msg.info.desc" />
         <!-- 文本/图片消息 -->
         <view
           v-else
@@ -38,7 +36,6 @@
           <image v-if="msg.from !== userId" class="msg-avatar" :src="doctor.avatar" />
           <!-- 患者头像 -->
           <image v-if="msg.from === userId" class="msg-avatar" :src="patient.avatar" />
-
           <!-- 消息气泡 -->
           <view class="bubble">
             <template v-if="msg.type === 'text'">{{ msg.content }}</template>
@@ -49,7 +46,6 @@
         </view>
       </block>
     </scroll-view>
-
     <!-- 输入区 -->
     <view class="input-area">
       <input
@@ -82,10 +78,14 @@
 import TIM from 'tim-wx-sdk';
 import tim from '../common/im.js';
 import imService from '../common/imService.js';
+import systemMsg from '../components/systemMsg.vue';
 import patientCard from '../components/patientCard.vue';
 
 export default {
-  components: { patientCard },
+  components: { 
+		patientCard, 
+		systemMsg 
+	},
   data() {
     return {
       doctor: {},
@@ -127,31 +127,39 @@ export default {
   methods: {
     async initTIM() {
       try {
-        // 登录 IM 并等待 SDK_READY
         await imService.login(this.userId);
-
-        // 拉历史消息
+    
+        // 拉取历史消息（TIM 默认是倒序：最新 → 最旧）
         const historyList = await imService.getHistoryMsg(this.conversationID);
-        historyList.reverse().forEach(msg => {
+    
+        // 转换成正序（最旧 → 最新）
+        const orderedList = historyList.sort((a, b) => a.time - b.time);
+    
+        this.messageList = []; // 清空，避免二次进入时乱序
+        orderedList.forEach(msg => {
           const parsedMsg = this.parseMsg(msg);
           if (parsedMsg) this.addMessage(parsedMsg, true); // 历史消息不计数
         });
-
+    
+        this.$nextTick(() => {
+          this.scrollToBottom(); // 进来后自动滚到最后一条
+        });
+    
         // 监听实时消息
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, event => {
           event.data.forEach(msg => {
             if (msg.conversationID === this.conversationID) {
               const parsedMsg = this.parseMsg(msg);
-              if (parsedMsg) this.addMessage(parsedMsg); // 新消息计数
-              this.lastMsgId = msg.ID;
+              if (parsedMsg) this.addMessage(parsedMsg);
+              this.lastMsgId = parsedMsg?.id;
             }
           });
         });
-
       } catch (err) {
         console.error("聊天初始化失败:", err);
       }
     },
+		
     async sendTextMsg() {
       if (!this.inputText) return;
       if (this.sessionEnded) {
@@ -177,23 +185,17 @@ export default {
 			let customerData = {
 				biz: "internet_hospital",
 				ver: 2,
-				msgType:"system_tip",
+				msgType:"patient_info",
 				serviceId: "987654",
 				doctorId: this.doctor.id,
 				patientId: "8888",
-				payload: { desc: "服务已开始，您的问诊条数剩余2条，请描述详细信息。" }
-				// payload: {
-				// 	name: '李四',
-				// 	gender: 'F',
-				// 	age: '20',
-				// 	chiefComplaint: '我现在是服务开始了',
-				// 	images: [],
-				// }
+				// payload: { desc: "服务已开始，请您详细描述信息。" }
+				payload: this.patient
 			}
 		  try {
 		    const timMsg = await imService.sendCustom(this.doctor.id, customerData);
-				console.log(JSON.stringify(timMsg));
 		    const parsedMsg = this.parseMsg(timMsg);
+				
 		    if (parsedMsg) this.addMessage(parsedMsg);
 		    this.lastMsgId = parsedMsg.id;
 		  } catch (e) {
@@ -202,7 +204,7 @@ export default {
 		},
 		
 		parseMsg(msg) {
-		  if (!TIM.TYPES) return null; // 防止 undefined
+		  if (!TIM.TYPES) return null;
 		  let parsedMsg = null;
 		  const time = msg.time * 1000;
 		  if (msg.type === TIM.TYPES.MSG_TEXT) {
@@ -224,16 +226,14 @@ export default {
 		  } else if (msg.type === TIM.TYPES.MSG_CUSTOM) {
 		    try {
 					const data = JSON.parse(msg.payload.data);
-					// if (data.msgType === "patientCard") {
-						parsedMsg = {
-							id: msg.ID,
-							type: "patientCard",
-							info: data.payload, // 这里就是 diseaseDesc/images/patient
-							from: msg.from,
-							time,
-						};
-						console.log(JSON.stringify(parsedMsg),'======sss');
-					// }
+					parsedMsg = {
+						id: msg.ID,
+						type: "patientCard",
+						msgType: data.msgType,
+						info: data.payload,
+						from: msg.from,
+						time,
+					};
 				} catch (e) {
 					console.error("自定义消息解析失败", e);
 				}
@@ -248,7 +248,6 @@ export default {
 		    this.lastMessageTime = msg.time;
 		  }
 		  this.messageList.push(msg);
-		
 		  this.$nextTick(() => {
 		    this.scrollToBottom();
 		  });
@@ -261,10 +260,7 @@ export default {
 		},
 		
 		scrollToBottom() {
-		  const query = uni.createSelectorQuery().in(this);
-		  query.select('.msg-list').scrollOffset(offset => {
-		    offset.scrollTop = offset.scrollHeight;
-		  }).exec();
+		  this.lastMsgId = this.messageList[this.messageList.length - 1]?.id || "";
 		},
 		
     formatTime(time) {
