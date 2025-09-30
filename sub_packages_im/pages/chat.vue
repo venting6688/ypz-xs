@@ -1,14 +1,11 @@
 <template>
   <view class="chat-page">
-    <!-- 顶部提示 -->
 		<view class="chat-header">
 		  <text class="msg-count" v-if="!sessionEnded">
 		    剩余问诊条数 {{ remainingMsg }}/5条
 		  </text>
-			<text v-else>服务已结束，不能发送消息</text>
 		</view>
-		
-    <!-- 消息列表 -->
+
     <scroll-view
       scroll-y
       class="msg-list"
@@ -36,7 +33,6 @@
           <image v-if="msg.from !== userId" class="msg-avatar" :src="doctor.avatar" />
           <!-- 患者头像 -->
           <image v-if="msg.from === userId" class="msg-avatar" :src="patient.avatar" />
-          <!-- 消息气泡 -->
           <view class="bubble">
             <template v-if="msg.type === 'text'">{{ msg.content }}</template>
             <template v-else-if="msg.type === 'image'">
@@ -63,13 +59,13 @@
       >
         发送
       </button>
-			<button
+			<!-- <button
 				class="send-btn send-card-btn"
 				:disabled="sessionEnded"
 				@click="sendPatientCard"
 			>
 				发送病历卡
-			</button>
+			</button> -->
     </view>
   </view>
 </template>
@@ -95,9 +91,10 @@ export default {
       messageList: [],
       inputText: "",
       lastMsgId: "",
-      lastMessageTime: 0,
-      sessionEnded: false,
-      remainingMsg: 5, // 当前会话可发送消息数
+      lastTimeShown: null,
+			sessionEnded: false,
+			remainingMsg: 5,
+			timeShowInterval: 1 * 60 * 1000,
     };
   },
   async onLoad(options) {
@@ -114,13 +111,13 @@ export default {
       diseaseDesc: params.diseaseDesc || "",
       images: params.images || [],
     };
-    this.addMessage({
-      id: "init-card",
-      type: "patientCard",
-      info: cardInfo,
-      from: this.userId,
-      time: Date.now(),
-    }, true); // 初始卡片不消耗条数
+    // this.addMessage({
+    //   id: "init-card",
+    //   type: "patientCard",
+    //   info: cardInfo,
+    //   from: this.userId,
+    //   time: Date.now(),
+    // }, true);
 
     await this.initTIM();
   },
@@ -128,30 +125,31 @@ export default {
     async initTIM() {
       try {
         await imService.login(this.userId);
-    
-        // 拉取历史消息（TIM 默认是倒序：最新 → 最旧）
-        const historyList = await imService.getHistoryMsg(this.conversationID);
-    
-        // 转换成正序（最旧 → 最新）
-        const orderedList = historyList.sort((a, b) => a.time - b.time);
-    
-        this.messageList = []; // 清空，避免二次进入时乱序
-        orderedList.forEach(msg => {
-          const parsedMsg = this.parseMsg(msg);
-          if (parsedMsg) this.addMessage(parsedMsg, true); // 历史消息不计数
+        const historyList = (await imService.getHistoryMsg(this.conversationID)) || [];
+        const parsedHistory = historyList.map(m => this.parseMsg(m)).filter(Boolean);
+        const merged = [...this.messageList, ...parsedHistory].filter(Boolean);
+        merged.sort((a, b) => (a.time || 0) - (b.time || 0));
+        // 重新构建 messageList，并根据 timeShowInterval 计算 showTime
+        this.messageList = [];
+        let lastShown = null; // 局部变量用于计算历史显示时间
+        merged.forEach(msg => {
+          msg.showTime = false;
+          if (lastShown === null || (msg.time - lastShown) >= this.timeShowInterval) {
+            msg.showTime = true;
+            lastShown = msg.time;
+          }
+          this.messageList.push(msg);
         });
     
-        this.$nextTick(() => {
-          this.scrollToBottom(); // 进来后自动滚到最后一条
-        });
-    
+        this.lastTimeShown = lastShown;
+        this.$nextTick(() => this.scrollToBottom());
         // 监听实时消息
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, event => {
           event.data.forEach(msg => {
             if (msg.conversationID === this.conversationID) {
-              const parsedMsg = this.parseMsg(msg);
-              if (parsedMsg) this.addMessage(parsedMsg);
-              this.lastMsgId = parsedMsg?.id;
+              const parsed = this.parseMsg(msg);
+              if (parsed) this.addMessage(parsed);
+              this.lastMsgId = parsed?.id || this.lastMsgId;
             }
           });
         });
@@ -169,7 +167,7 @@ export default {
       try {
         const timMsg = await imService.sendText(this.doctor.id, this.inputText);
         const parsedMsg = this.parseMsg(timMsg);
-        if (parsedMsg) this.addMessage(parsedMsg); // 新消息计数
+        this.addMessage(parsedMsg);
         this.lastMsgId = parsedMsg.id;
         this.inputText = "";
       } catch (e) {
@@ -206,69 +204,106 @@ export default {
 		parseMsg(msg) {
 		  if (!TIM.TYPES) return null;
 		  let parsedMsg = null;
-		  const time = msg.time * 1000;
+		
+		  const timeRaw = msg.time || Date.now();
+		  const timeMs = timeRaw < 1e12 ? timeRaw * 1000 : timeRaw;
+		
 		  if (msg.type === TIM.TYPES.MSG_TEXT) {
 		    parsedMsg = {
 		      id: msg.ID,
 		      type: "text",
 		      content: msg.payload.text,
 		      from: msg.from,
-		      time,
+		      time: timeMs,
 		    };
 		  } else if (msg.type === TIM.TYPES.MSG_IMAGE) {
 		    parsedMsg = {
 		      id: msg.ID,
 		      type: "image",
-		      content: msg.payload.imageInfoArray[0].url,
+		      content: msg.payload.imageInfoArray?.[0]?.url || "",
 		      from: msg.from,
-		      time,
+		      time: timeMs,
 		    };
 		  } else if (msg.type === TIM.TYPES.MSG_CUSTOM) {
 		    try {
-					const data = JSON.parse(msg.payload.data);
-					parsedMsg = {
-						id: msg.ID,
-						type: "patientCard",
-						msgType: data.msgType,
-						info: data.payload,
-						from: msg.from,
-						time,
-					};
-				} catch (e) {
-					console.error("自定义消息解析失败", e);
-				}
+		      const data = JSON.parse(msg.payload.data);
+		      if (data.msgType === "patient_info") {
+		        parsedMsg = {
+		          id: msg.ID,
+		          type: "patientCard",
+		          msgType: data.msgType,
+		          info: data.payload,
+		          from: msg.from,
+		          time: timeMs,
+		        };
+		      } else if (["system_tip", "service_start", "service_end"].includes(data.msgType)) {
+		        parsedMsg = {
+		          id: msg.ID,
+		          type: "systemMsg",
+		          msgType: data.msgType,
+		          content: data.payload?.desc || data.payload || "",
+		          from: msg.from,
+		          time: timeMs,
+		        };
+		      } else {
+		        // 其他自定义消息也保留原始内容
+		        parsedMsg = {
+		          id: msg.ID,
+		          type: "custom",
+		          raw: data,
+		          from: msg.from,
+		          time: timeMs,
+		        };
+		      }
+		    } catch (e) {
+		      console.error("自定义消息解析失败", e);
+		    }
 		  }
 		  return parsedMsg;
 		},
 		
 		addMessage(msg, isHistory = false) {
+		  if (!msg.time) msg.time = Date.now();
 		  msg.showTime = false;
-		  if (!this.lastMessageTime || msg.time - this.lastMessageTime > 5 * 60 * 1000) {
+		  if (this.lastTimeShown === null || (msg.time - this.lastTimeShown) >= this.timeShowInterval) {
 		    msg.showTime = true;
-		    this.lastMessageTime = msg.time;
+		    this.lastTimeShown = msg.time;
 		  }
 		  this.messageList.push(msg);
 		  this.$nextTick(() => {
 		    this.scrollToBottom();
 		  });
-		
-		  // 只计算新发送的患者消息
 		  if (!isHistory && msg.from === this.userId) {
 		    this.remainingMsg = Math.max(0, this.remainingMsg - 1);
 		    if (this.remainingMsg === 0) this.sessionEnded = true;
 		  }
 		},
-		
+
 		scrollToBottom() {
-		  this.lastMsgId = this.messageList[this.messageList.length - 1]?.id || "";
+		  if (this.messageList.length > 0) {
+		    this.lastMsgId = this.messageList[this.messageList.length - 1].id || "";
+		  } else {
+		    this.lastMsgId = "";
+		  }
 		},
+		formatTime(ms) {
+		  const date = new Date(ms); // ms
+		  const now = new Date();
 		
-    formatTime(time) {
-      const date = new Date(time);
-      const h = String(date.getHours()).padStart(2, "0");
-      const m = String(date.getMinutes()).padStart(2, "0");
-      return `${h}:${m}`;
-    },
+		  const Y = date.getFullYear();
+		  const M = String(date.getMonth() + 1).padStart(2, "0");
+		  const D = String(date.getDate()).padStart(2, "0");
+		  const h = String(date.getHours()).padStart(2, "0");
+		  const m = String(date.getMinutes()).padStart(2, "0");
+		
+		  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		  const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+		
+		  if (date >= today) return `${h}:${m}`;
+		  if (date >= yesterday) return `昨天 ${h}:${m}`;
+		  if (Y === now.getFullYear()) return `${M}-${D} ${h}:${m}`;
+		  return `${Y}-${M}-${D} ${h}:${m}`;
+		},
   },
 };
 </script>
@@ -312,7 +347,7 @@ export default {
   text-align: center;
   font-size: 24rpx;
   color: #999;
-  margin: 20rpx 0;
+  margin: 45rpx 0;
 }
 
 .msg-item {
@@ -355,8 +390,8 @@ export default {
   display: flex;
   align-items: center;
   padding: 10rpx;
-  border-top: 1px solid #eee;
-  background: #fff;
+  background: #f5f5f5;
+	padding: 25rpx 0;
 }
 
 .input-box {
