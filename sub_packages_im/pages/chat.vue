@@ -9,7 +9,7 @@
     <scroll-view
       scroll-y
       class="msg-list"
-      :scroll-into-view="lastMsgId"
+      :scroll-into-view="scrollToView"
       scroll-with-animation
     >
       <block v-for="(msg, index) in messageList" :key="msg.id">
@@ -17,22 +17,19 @@
         <view v-if="msg.showTime" class="time-tip">
           {{ formatTime(msg.time) }}
         </view>
-        <!-- 患者卡片 -->
-        <view v-if="msg.type === 'patientCard' && msg.msgType == 'patient_info'" class="patient-card-container">
-          <patientCard :info="msg.info" />
-        </view>
-				<systemMsg v-else-if="msg.type === 'patientCard' && (msg.msgType == 'system_tip')" :content="msg.info.desc" />
-        <!-- 文本/图片消息 -->
+    
+        <!-- 普通消息 -->
         <view
-          v-else
+          v-if="msg.type !== 'patientCard'"
           class="msg-item"
           :class="{ self: msg.from === userId }"
           :id="msg.id"
         >
-          <!-- 医生头像 -->
-          <image v-if="msg.from !== userId" class="msg-avatar" :src="doctor.avatar" />
-          <!-- 患者头像 -->
-          <image v-if="msg.from === userId" class="msg-avatar" :src="patient.avatar" />
+          <!-- 头像 + 气泡 -->
+          <image
+            class="msg-avatar"
+            :src="msg.from === userId ? patient.avatar : doctor.avatar"
+          />
           <view class="bubble">
             <template v-if="msg.type === 'text'">{{ msg.content }}</template>
             <template v-else-if="msg.type === 'image'">
@@ -40,8 +37,18 @@
             </template>
           </view>
         </view>
+    
+        <!-- 病历卡、系统消息 -->
+        <patientCard
+          v-else-if="msg.type === 'patientCard'"
+          :info="msg.info"
+        />
       </block>
+    
+      <!-- 底部锚点 -->
+      <view id="bottom-anchor"></view>
     </scroll-view>
+
     <!-- 输入区 -->
     <view class="input-area">
       <input
@@ -95,6 +102,7 @@ export default {
 			sessionEnded: false,
 			remainingMsg: 5,
 			timeShowInterval: 1 * 60 * 1000,
+			scrollToView: 'bottom-anchor',
     };
   },
   async onLoad(options) {
@@ -142,7 +150,11 @@ export default {
         });
     
         this.lastTimeShown = lastShown;
-        this.$nextTick(() => this.scrollToBottom());
+        this.$nextTick(() => {
+          if (this.messageList.length) {
+            this.lastMsgId = this.messageList[this.messageList.length - 1].id;
+          }
+        });
         // 监听实时消息
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, event => {
           event.data.forEach(msg => {
@@ -265,14 +277,22 @@ export default {
 		addMessage(msg, isHistory = false) {
 		  if (!msg.time) msg.time = Date.now();
 		  msg.showTime = false;
+		
 		  if (this.lastTimeShown === null || (msg.time - this.lastTimeShown) >= this.timeShowInterval) {
 		    msg.showTime = true;
 		    this.lastTimeShown = msg.time;
 		  }
+		
 		  this.messageList.push(msg);
+		
 		  this.$nextTick(() => {
-		    this.scrollToBottom();
+		    this.scrollToView = '';
+		    this.$nextTick(() => {
+		      this.scrollToView = 'bottom-anchor';
+		    });
 		  });
+		
+		  // 更新消息次数逻辑
 		  if (!isHistory && msg.from === this.userId) {
 		    this.remainingMsg = Math.max(0, this.remainingMsg - 1);
 		    if (this.remainingMsg === 0) this.sessionEnded = true;
@@ -281,11 +301,12 @@ export default {
 
 		scrollToBottom() {
 		  if (this.messageList.length > 0) {
-		    this.lastMsgId = this.messageList[this.messageList.length - 1].id || "";
+		    this.lastMsgId = this.messageList[this.messageList.length - 1].id;
 		  } else {
-		    this.lastMsgId = "";
+		    this.lastMsgId = 'bottom-anchor';
 		  }
 		},
+
 		formatTime(ms) {
 		  const date = new Date(ms); // ms
 		  const now = new Date();

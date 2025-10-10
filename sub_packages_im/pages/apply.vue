@@ -13,13 +13,13 @@
 			</view>
 			
 			<view class="uploadImg">
-				<text class="label">上传图片（最多上传9张）</text>
+				<text class="label">上传图片（最多上传6张）</text>
 				<view class="img-list">
 					<view v-for="(img, index) in imgList" :key="index" class="img-item">
 						<image :src="img" mode="aspectFill"></image>
 						<view class="del" @click="delImg(index)">×</view>
 					</view>
-					<view v-if="imgList.length < 9" class="img-add" @click="uploadImg">+</view>
+					<view v-if="imgList.length < 6" class="img-add" @click="uploadImg">+</view>
 				</view>
 			</view>
 		</view>
@@ -45,7 +45,7 @@ export default {
     return {
 			desc: '',
       userID: 'qinze2',
-			doctorId: 'qinze3',
+			doctorId: 'qinze1',
 			loginData: {},
 			defaultData: {},
 			patientInfo: {},
@@ -60,7 +60,7 @@ export default {
   methods: {
     uploadImg() {
 			uni.chooseImage({
-				count: 9 - this.imgList.length,
+				count: 6 - this.imgList.length,
 				success: async (res) => {
 					// 这里应该调用后端上传接口
 					for (let tempPath of res.tempFilePaths) {
