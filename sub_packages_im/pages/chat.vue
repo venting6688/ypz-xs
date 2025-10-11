@@ -157,11 +157,22 @@ export default {
         });
         // 监听实时消息
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, event => {
-          event.data.forEach(msg => {
-            if (msg.conversationID === this.conversationID) {
-              const parsed = this.parseMsg(msg);
-              if (parsed) this.addMessage(parsed);
-              this.lastMsgId = parsed?.id || this.lastMsgId;
+          const validMsgs = event.data.filter(
+            msg =>
+              msg.conversationID === this.conversationID &&
+              msg.payload &&
+              (
+                (msg.payload.text && msg.payload.text.trim() !== '') || // 文本消息有内容
+                (msg.payload.data && msg.payload.data.trim() !== '') || // 自定义消息有内容
+                (msg.payload.imageInfoArray && msg.payload.imageInfoArray.length > 0) // 图片消息
+              )
+          );
+        
+          validMsgs.forEach(msg => {
+            const parsed = this.parseMsg(msg);
+            if (parsed) {
+              this.addMessage(parsed);
+              this.lastMsgId = parsed.id;
             }
           });
         });
