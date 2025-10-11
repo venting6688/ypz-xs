@@ -119,27 +119,20 @@ export default {
       diseaseDesc: params.diseaseDesc || "",
       images: params.images || [],
     };
-    // this.addMessage({
-    //   id: "init-card",
-    //   type: "patientCard",
-    //   info: cardInfo,
-    //   from: this.userId,
-    //   time: Date.now(),
-    // }, true);
-
     await this.initTIM();
   },
   methods: {
     async initTIM() {
       try {
         await imService.login(this.userId);
+    
         const historyList = (await imService.getHistoryMsg(this.conversationID)) || [];
         const parsedHistory = historyList.map(m => this.parseMsg(m)).filter(Boolean);
         const merged = [...this.messageList, ...parsedHistory].filter(Boolean);
         merged.sort((a, b) => (a.time || 0) - (b.time || 0));
-        // 重新构建 messageList，并根据 timeShowInterval 计算 showTime
+    
         this.messageList = [];
-        let lastShown = null; // 局部变量用于计算历史显示时间
+        let lastShown = null;
         merged.forEach(msg => {
           msg.showTime = false;
           if (lastShown === null || (msg.time - lastShown) >= this.timeShowInterval) {
@@ -155,24 +148,22 @@ export default {
             this.lastMsgId = this.messageList[this.messageList.length - 1].id;
           }
         });
-        // 监听实时消息
+    
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, event => {
-          const validMsgs = event.data.filter(
-            msg =>
-              msg.conversationID === this.conversationID &&
-              msg.payload &&
-              (
-                (msg.payload.text && msg.payload.text.trim() !== '') || // 文本消息有内容
-                (msg.payload.data && msg.payload.data.trim() !== '') || // 自定义消息有内容
-                (msg.payload.imageInfoArray && msg.payload.imageInfoArray.length > 0) // 图片消息
-              )
-          );
+          if (!event.data || !Array.isArray(event.data)) return;
         
-          validMsgs.forEach(msg => {
+          event.data.forEach(msg => {
+            if (msg.conversationID !== this.conversationID) return;
+            if (msg.from === this.userId) return; // ✅ 跳过自己发的消息
+        
             const parsed = this.parseMsg(msg);
             if (parsed) {
-              this.addMessage(parsed);
-              this.lastMsgId = parsed.id;
+              // ✅ 防止同 ID 重复添加
+              const exists = this.messageList.find(m => m.id === parsed.id);
+              if (!exists) {
+                this.addMessage(parsed);
+                this.lastMsgId = parsed.id;
+              }
             }
           });
         });
@@ -225,63 +216,83 @@ export default {
 		},
 		
 		parseMsg(msg) {
-		  if (!TIM.TYPES) return null;
-		  let parsedMsg = null;
+		  if (!msg || !TIM.TYPES) return null;
 		
 		  const timeRaw = msg.time || Date.now();
 		  const timeMs = timeRaw < 1e12 ? timeRaw * 1000 : timeRaw;
+		  let parsedMsg = null;
 		
-		  if (msg.type === TIM.TYPES.MSG_TEXT) {
-		    parsedMsg = {
-		      id: msg.ID,
-		      type: "text",
-		      content: msg.payload.text,
-		      from: msg.from,
-		      time: timeMs,
-		    };
-		  } else if (msg.type === TIM.TYPES.MSG_IMAGE) {
-		    parsedMsg = {
-		      id: msg.ID,
-		      type: "image",
-		      content: msg.payload.imageInfoArray?.[0]?.url || "",
-		      from: msg.from,
-		      time: timeMs,
-		    };
-		  } else if (msg.type === TIM.TYPES.MSG_CUSTOM) {
-		    try {
-		      const data = JSON.parse(msg.payload.data);
-		      if (data.msgType === "patient_info") {
-		        parsedMsg = {
-		          id: msg.ID,
-		          type: "patientCard",
-		          msgType: data.msgType,
-		          info: data.payload,
-		          from: msg.from,
-		          time: timeMs,
-		        };
-		      } else if (["system_tip", "service_start", "service_end"].includes(data.msgType)) {
-		        parsedMsg = {
-		          id: msg.ID,
-		          type: "systemMsg",
-		          msgType: data.msgType,
-		          content: data.payload?.desc || data.payload || "",
-		          from: msg.from,
-		          time: timeMs,
-		        };
-		      } else {
-		        // 其他自定义消息也保留原始内容
-		        parsedMsg = {
-		          id: msg.ID,
-		          type: "custom",
-		          raw: data,
-		          from: msg.from,
-		          time: timeMs,
-		        };
-		      }
-		    } catch (e) {
-		      console.error("自定义消息解析失败", e);
+		  switch (msg.type) {
+		    case TIM.TYPES.MSG_TEXT: {
+		      const text = msg.payload?.text?.trim();
+		      if (!text) return null; // ✅ 过滤空文本
+		      parsedMsg = {
+		        id: msg.ID,
+		        type: "text",
+		        content: text,
+		        from: msg.from,
+		        time: timeMs,
+		      };
+		      break;
 		    }
+		
+		    case TIM.TYPES.MSG_IMAGE: {
+		      const img = msg.payload?.imageInfoArray?.[0]?.url;
+		      if (!img) return null;
+		      parsedMsg = {
+		        id: msg.ID,
+		        type: "image",
+		        content: img,
+		        from: msg.from,
+		        time: timeMs,
+		      };
+		      break;
+		    }
+		
+		    case TIM.TYPES.MSG_CUSTOM: {
+		      try {
+		        const rawData = msg.payload?.data?.trim();
+		        if (!rawData) return null; // ✅ 过滤空自定义消息
+		
+		        const data = JSON.parse(rawData);
+		        if (data.msgType === "patient_info") {
+		          parsedMsg = {
+		            id: msg.ID,
+		            type: "patientCard",
+		            info: data.payload,
+		            from: msg.from,
+		            time: timeMs,
+		          };
+		        } else if (["system_tip", "service_start", "service_end"].includes(data.msgType)) {
+		          parsedMsg = {
+		            id: msg.ID,
+		            type: "systemMsg",
+		            content: data.payload?.desc || data.payload || "",
+		            from: msg.from,
+		            time: timeMs,
+		          };
+		        } else {
+		          // ✅ 忽略无用或空 payload 的自定义消息
+		          if (!data.payload && !data.desc) return null;
+		          parsedMsg = {
+		            id: msg.ID,
+		            type: "custom",
+		            raw: data,
+		            from: msg.from,
+		            time: timeMs,
+		          };
+		        }
+		      } catch (e) {
+		        console.warn("自定义消息解析失败", e, msg);
+		        return null;
+		      }
+		      break;
+		    }
+		
+		    default:
+		      return null;
 		  }
+		
 		  return parsedMsg;
 		},
 		
