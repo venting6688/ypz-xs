@@ -15,13 +15,22 @@
 					</view>
 				</view>
 			</view>
+			<view class="setting" @click="orders">
+				<view class="left">
+					<uni-icons type="chat" size="26"></uni-icons>
+					<text style="margin-left: 10rpx;">咨询订单</text>
+				</view>
+				<view>
+					<uni-icons type="right" size="26"></uni-icons>
+				</view>
+			</view>
 			<view class="setting" @click="onSetting">
 				<view class="left">
 					<image src="../../static/img/icon/setting.png" mode="aspectFit" />
 					<text>设置</text>
 				</view>
 				<view>
-					<uni-icons type="right" size="30"></uni-icons>
+					<uni-icons type="right" size="26"></uni-icons>
 				</view>
 			</view>
 		</view>
@@ -80,6 +89,9 @@
 			},
 			onSetting() {
 				uni.navigateTo({ url: '/sub_packages/setting/index' })
+			},
+			orders() {
+				uni.navigateTo({ url: '/sub_packages_im/pages/order' })
 			},
 		},
 	}
@@ -149,7 +161,8 @@
 				align-items: center;
 				background: #fff;
 				padding: 15rpx 10rpx;
-
+				margin-bottom: 15rpx;
+				
 				.left {
 					display: flex;
 					align-items: center;
@@ -160,7 +173,7 @@
 						margin-right: 15rpx;
 					}
 					text {
-						font-size: 34rpx;
+						font-size: 30rpx;
 						color: $text-color;
 					}
 				}

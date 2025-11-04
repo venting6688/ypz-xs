@@ -56,31 +56,35 @@
     /* 快应用特有相关 */
     "quickapp" : {},
     /* 小程序特有相关 */
-    "mp-weixin": {
-			"appid": "wxfef5325b51f9169d",
-			"setting": {
-				"urlCheck": true,
-				"minified": true
-			},
-			"optimization": {
-				"subPackages": true
-			},
-			"usingComponents": true,
-			"lazyCodeLoading": "requiredComponents",
-			"plugins": {
-				"WechatSI": {
-					"version": "0.3.6",
-					"provider": "wx069ba97219f66d99"
-				}
-				// "healthCardPlugins": {
-				// 	"version": "3.55.0",
-				// 	"provider": "wxee969de81bba9a45"
-				// }
-			},
-			"secureNetwork": {
-				"enable": true
-			}
-		},
+    "mp-weixin" : {
+        "appid" : "wxfef5325b51f9169d",
+        "setting" : {
+            "urlCheck" : true,
+            "minified" : true,
+            "es6" : true
+        },
+        "optimization" : {
+            "subPackages" : true
+        },
+        "usingComponents" : true,
+        "lazyCodeLoading" : "requiredComponents",
+        "plugins" : {
+            "WechatSI" : {
+                "version" : "0.3.6",
+                "provider" : "wx069ba97219f66d99"
+            }
+        },
+        "secureNetwork" : {
+            "enable" : true
+        }
+    },
+    "h5" : {
+        "optimization" : {
+            "treeShaking" : {
+                "enable" : false
+            }
+        }
+    },
     "uniStatistics" : {
         "enable" : false
     },

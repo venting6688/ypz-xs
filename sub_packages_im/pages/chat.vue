@@ -125,12 +125,10 @@ export default {
     async initTIM() {
       try {
         await imService.login(this.userId);
-    
         const historyList = (await imService.getHistoryMsg(this.conversationID)) || [];
         const parsedHistory = historyList.map(m => this.parseMsg(m)).filter(Boolean);
         const merged = [...this.messageList, ...parsedHistory].filter(Boolean);
         merged.sort((a, b) => (a.time || 0) - (b.time || 0));
-    
         this.messageList = [];
         let lastShown = null;
         merged.forEach(msg => {
@@ -141,24 +139,19 @@ export default {
           }
           this.messageList.push(msg);
         });
-    
         this.lastTimeShown = lastShown;
         this.$nextTick(() => {
           if (this.messageList.length) {
             this.lastMsgId = this.messageList[this.messageList.length - 1].id;
           }
         });
-    
         tim.on(TIM.EVENT.MESSAGE_RECEIVED, event => {
           if (!event.data || !Array.isArray(event.data)) return;
-        
           event.data.forEach(msg => {
             if (msg.conversationID !== this.conversationID) return;
-            if (msg.from === this.userId) return; // ✅ 跳过自己发的消息
-        
+            if (msg.from === this.userId) return;
             const parsed = this.parseMsg(msg);
             if (parsed) {
-              // ✅ 防止同 ID 重复添加
               const exists = this.messageList.find(m => m.id === parsed.id);
               if (!exists) {
                 this.addMessage(parsed);
@@ -207,7 +200,6 @@ export default {
 		  try {
 		    const timMsg = await imService.sendCustom(this.doctor.id, customerData);
 		    const parsedMsg = this.parseMsg(timMsg);
-				
 		    if (parsedMsg) this.addMessage(parsedMsg);
 		    this.lastMsgId = parsedMsg.id;
 		  } catch (e) {
@@ -225,7 +217,7 @@ export default {
 		  switch (msg.type) {
 		    case TIM.TYPES.MSG_TEXT: {
 		      const text = msg.payload?.text?.trim();
-		      if (!text) return null; // ✅ 过滤空文本
+		      if (!text) return null;
 		      parsedMsg = {
 		        id: msg.ID,
 		        type: "text",
@@ -252,7 +244,7 @@ export default {
 		    case TIM.TYPES.MSG_CUSTOM: {
 		      try {
 		        const rawData = msg.payload?.data?.trim();
-		        if (!rawData) return null; // ✅ 过滤空自定义消息
+		        if (!rawData) return null;
 		
 		        const data = JSON.parse(rawData);
 		        if (data.msgType === "patient_info") {
@@ -272,7 +264,6 @@ export default {
 		            time: timeMs,
 		          };
 		        } else {
-		          // ✅ 忽略无用或空 payload 的自定义消息
 		          if (!data.payload && !data.desc) return null;
 		          parsedMsg = {
 		            id: msg.ID,
@@ -288,9 +279,8 @@ export default {
 		      }
 		      break;
 		    }
-		
 		    default:
-		      return null;
+				return null;
 		  }
 		
 		  return parsedMsg;

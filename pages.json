@@ -126,7 +126,7 @@
 			"root": "sub_packages_im",
 			"pages": [
 				{
-					"path" : "im/index",
+					"path" : "pages/index",
 					"style" : 
 					{
 						"navigationBarTitleText": "问诊医生",
@@ -134,11 +134,45 @@
 					}
 				},
 				{
-					"path" : "im/doctor",
+					"path" : "pages/doctor",
 					"style" : 
 					{
 						"navigationBarTitleText": "",
 						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path" : "pages/apply",
+					"style" : 
+					{
+						"navigationBarTitleText": "完善申请信息",
+						"usingComponents": {
+							"bar": "/sub_packages/components/bar"
+						},
+						"componentPlaceholder": {
+							"bar": "view"
+						}
+					}
+				},
+				{
+					"path" : "pages/chat",
+					"style" : 
+					{
+						"navigationBarTitleText": "问诊聊天"
+					}
+				},
+				{
+					"path" : "pages/order",
+					"style" : 
+					{
+						"navigationBarTitleText": "咨询订单"
+					}
+				},
+				{
+					"path" : "pages/orderDetail",
+					"style":
+					{
+						"navigationBarTitleText": "订单详情"
 					}
 				}
 			]
@@ -463,10 +497,6 @@
 				"van-rate": "/wxcomponents/vant/rate/index",
 				"van-loading": "/wxcomponents/vant/loading/index",
 				"van-progress": "/wxcomponents/vant/progress/index"
-				// "health-card-login": "plugin://healthCardPlugins/healthCardLogin"
-				// "health-card-users": "plugin://healthCardPlugins/healthCardUsers",
-				// "health-card-create-card": "plugin://healthCardPlugins/healthCardCreateCard",
-				// "health-card-query-comp": "plugin://healthCardPlugins/healthCardQueryComp"
 		},
 		"permission":{
 			"scope.userLocation":{

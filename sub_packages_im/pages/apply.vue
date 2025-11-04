@@ -33,7 +33,7 @@
 	// import TIM from 'tim-wx-sdk';
 	// import tim from '../common/im.js';
 	import mixin from '@/mixins/mixin.js'
-	import imService from '../common/imService.js';
+	// import imService from '../common/imService.js';
 	import bar from '../../sub_packages/components/bar.vue'
 	
 export default {

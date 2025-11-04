@@ -10,20 +10,14 @@ const imService = {
    */
 	async login(userID) {
 	  try {
-      // ⚠️ 正式项目应该从后端获取 userSig，这里演示写死
       const userSig = await this.getUserSig(userID);
-	
 	    await tim.login({ userID, userSig });
-	    console.log('IM 登录成功');
-	
-	    // 等待 SDK_READY 事件再继续
 	    await new Promise((resolve) => {
 	      tim.on(TIM.EVENT.SDK_READY, () => {
 	        console.log('SDK_READY: SDK 已准备好');
 	        resolve();
 	      });
 	    });
-	
 	    return true;
 	  } catch (err) {
 	    console.error('IM 登录失败:', err);
