@@ -1,14 +1,9 @@
 <template>
 	<view class="virtual">
-		<aiNotice
-		ref="notice" 
-		:tipMsg="tipMsg" 
-		@confirmed="handleConfirm" 
-		/>
-		
 		<view class="" :animation="anData"  style="height:0rpx;"></view>
-		<image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	
-		<view class="head">您好！“安好”  为您服务 </view>
+		<!-- <image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	 -->
+		<image class="background" src="../../static/image/anhao.png" />
+		<view class="head">您好！“安好” 为您服务 </view>
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
 				<view id="okk" style="padding-bottom: 100rpx;">
@@ -19,13 +14,13 @@
 							<view class="center">
 								<text class="msg">{{x.msg}}</text>
 							</view>
-							<view class="triangle"></view>
+							<!-- <view class="triangle"></view> -->
 						</view>
 				    </view>
 					<!-- AI消息 -->
 					<view class="robot" v-else>
 						<view class="robot-box"  v-if="x.type!==2">
-							<view class="triangle"></view>
+							<!-- <view class="triangle"></view> -->
 							<view class="center" style="opacity: 0.95;">
 								<view class="loading" v-if="x.msgLoad">
 									<text>思考中</text>
@@ -35,70 +30,61 @@
 										</view>
 									</view>
 								</view>
-								<!-- <view v-if="x.msgLoad" class="cuIcon-loading turn-load" style="font-size: 50rpx;color: #60B6FE;"></view> -->
 								<view v-else class="msg" v-html="markdown(x.msg)"></view>
 								<!-- 消息模板 -->
-								<view class="top1" v-if="x.type==1">
-									<view @click="answer(item)" v-for="(item,index) in x.questionList" :key="index">
-										<text>{{item}}</text>
-									</view>
+								<view class="top1" v-if="x.type == 1">
+								  <view
+								    class="answer"
+								    @click="answer(item)"
+								    v-for="(item, index) in x.questionList"
+								    :key="index"
+								  >
+								    <view class="tipContent">
+								      <view>{{ item }}</view>
+								      <image src="../../static/img/arrow.png" />
+								    </view>
+								  </view>
 								</view>
-								<view class="ai-tips" v-if="pattern!==1 && !x.msgLoad && x.type!==1">
-									此内容由AI生成，仅供参考
-								</view>
+								<view class="ai-tips" v-if="pattern!==1 && !x.msgLoad && x.type!==1">· 此内容由AI生成，仅供参考</view>
 							</view>
 						</view>
 						<!-- 推荐科室 -->
-						<view class="top2" v-if="x.type==2 && x.department">
-							<!-- <image src="@/static/image/department.png" mode="widthFix"></image> -->
-							<view class="top2-content">
-								<view class="department" v-for="(clinic,u) in x.department" :key="u">
-									<view class="title">
-										推荐科室
-									</view>
-									<view class="top2-center">
-										<text>{{clinic.name}}</text>
-										<view class="top2-btn" @click="footType(clinic)">
-											<view class="top2-img">
-												<image src="@/static/image/plus.png" mode="widthFix"></image>
-											</view>
-											<view class="text">挂号</view>
-										</view>
-									</view>
-								</view>
-								<view class="more">
-									<text @click="more">更多</text>
-									<image @click="tipsBtn(i)" src="../../static/image/question.png" mode="widthFix"></image>
-								</view>
-								<view class="dept-tips" v-if="x.tipsState">
-									{{x.tips}}
-								</view>
-								<view class="ai-tips" v-if="!x.msgLoad">
-									此内容由AI生成，仅供参考
-								</view>
-							</view>
+						<view class="top2" v-if="x.type == 2 && x.department">
+						  <view class="top2-content">
+						    <view class="department">
+						      <view class="title">推荐科室</view>
+						      <view class="dept-tips">{{ x.tips }}</view>
+						      <view class="top2-center" v-for="(clinic, u) in x.department" :key="u">
+						        <text>{{ clinic.name }}</text>
+						        <view class="registeredBtn" @click="footType(clinic, 'department')">去挂号</view>
+						      </view>
+						    </view>
+						    <view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
+						  </view>
 						</view>
 						<!-- 医生排班 -->
 						<view class="doctor" v-if="x.type==2 && x.scheduling">
 							<view class="top2-content">
 								<view class="title">医生排班</view>
-								<view class="scheduling" v-for="(item, index) in x.scheduling" :key="index" v-show="x.scheduling">
-									<view class="img">
-										<image :src="item.DoctorImg" v-if="item.DoctorImg" mode="aspectFit"></image>
-										<image src="../../static/image/doctor.png" mode="" v-else></image>
-									</view>
-									<view class="name">
-										<view class="price">
-											<view>{{item.DoctorName}} ({{item.SessionName}})</view>
-											<view class="fee">￥{{item.Fee}}</view>
-										</view>
-										<view>{{item.DoctorSessType}}</view>
-										<view>{{item.DepartmentName}}</view>
-										<view></view>
-									</view>
+								<view
+								  class="scheduling"
+								  v-for="(item, index) in x.scheduling"
+								  :key="index"
+								  v-show="x.scheduling"
+								>
+								  <view class="name">
+								    <view class="price">
+								      <view>{{ item.DoctorName }} ({{ item.DoctorSessType }})</view>
+								      <view class="fee">￥{{ parseFloat(item.Fee).toFixed(2) }}</view>
+								    </view>
+								    <view class="desc">
+								      {{ item.DoctorSpec ? formatText(item.DoctorSpec, 35) : '暂无简介信息' }}
+								    </view>
+								  </view>
+								  <view class="registeredBtn" @click="footType(item, 'doctor')">去挂号</view>
 								</view>
 								<view class="noData" v-show="x.scheduling.length == 0">很抱歉，暂无当前科室排班</view>
-								<view class="ai-tips" v-if="!x.msgLoad">此内容由AI生成，仅供参考</view>
+								<view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
 							</view>
 						</view>
 						<!-- 地图导航 -->
@@ -106,7 +92,7 @@
 							<view class="top2-content">
 								<view class="title">科室导航</view>
 								<view class="noData">很抱歉，科室导航暂未开通，您可以查询科室排班，敬请期待。</view>
-								<view class="ai-tips" v-if="!x.msgLoad">此内容由AI生成，仅供参考</view>
+								<view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
 							</view>
 						</view>
 					</view>
@@ -221,11 +207,9 @@
 	import mixin from '@/mixins/mixin.js'
 	import login from '@/utils/login.js'
 	import { parse } from 'best-effort-json-parser'
-	import aiNotice from '@/components/aiNotice.vue'
 	
 	export default {
 		mixins: [mixin],
-	  components: { aiNotice },
 		data() {
 			return {
 				siginVal: {},
@@ -233,10 +217,6 @@
 				showMsg: false,
 				md: new MarkdownIt(),
 				pattern:2,
-				patternList:[
-					'app-3y1tj6dptbvU0KIcFJorXU4Z',
-					'app-jvcTkWue6jt4pb06TWZGAsHI',
-				],
 				showComponent: true,
 				text:'',
 				number:1,
@@ -251,7 +231,7 @@
 					  my:false,
 						type:1,
 						msg:'您可以向我询问以下问题：',
-						questionList:['儿科排班','如何进行退烧？','腹痛挂什么科？'],
+						questionList:['今天儿科排班','如何进行退烧？','腹痛挂什么科？'],
 					}
 				],              //消息集合
 				DataList:{},    //底部弹窗
@@ -290,6 +270,10 @@
 		  });
 		},
 		methods: {
+			formatText(str, len) {
+				if (!str) return ''
+				return str.length > len ? str.slice(0, len) + '...' : str
+			},
 			handleConfirm() {
 				this.showMsg = true;
 			},
@@ -400,7 +384,7 @@
 				  },
 				  enableChunked: true,
 				  header: {
-				    'Authorization': `Bearer app-bn5rwLZrI6lW8uOlcH0OFDMq`,
+				    'Authorization': `Bearer app-JNpgkClVaG84M8HzwNoHwm0R`,
 				    'content-type': 'application/json',
 				  },
 				  success: (res) => {
@@ -504,24 +488,15 @@
 										map: answer.slots.department,
 									})
 								} 
-								if (type == 'A005' || type == 'A999') {
+								if (['A004', 'A005', 'A999', 'A998'].includes(type)) {
 									this.msgList.splice(this.msgList.length - 1, 1, {
 										my: false,
 										msgLoad: false,
 										msg: content,
 									})
 								}
-								// else {
-								// 	this.msgList.splice(this.msgList.length - 1, 1, {
-								// 	  my: false,
-								// 	  msgLoad: false,
-								// 	  msg: '您要查询的内容暂时不存在，您可以尝试问我“医生排班”、“挂号”、“医疗知识问答”、“时间问题”。',
-								// 	})
-								// }
-								
 							}
 						}
-						
 				  } catch (e) {
 				    console.error('解析流式返回数据异常:', e)
 				  }
@@ -692,18 +667,17 @@
     .virtual{
 		height: 100%;
 		position: relative;
-		background: linear-gradient(to right,#4dccfb,#5da9fc);
+		// background: linear-gradient(to right,#4dccfb,#5da9fc);
+		background: linear-gradient(333deg,#9bc9ff 0%, #c9e2ff 41%, #deedff 100%);
 		display: flex;
 		flex-direction: column;  
 		
 		.background {
 			position: absolute;
-			width: 100%;
-			height: 85%;
-			// width: 424rpx;
-			// height: 532rpx;
-			top: 6%;
-			// left: 24%;
+			width: 480rpx;
+			height: 500rpx;
+			top: 38%;
+			left: 20%;
 		}
 		
 		.head{
@@ -715,11 +689,7 @@
 			font-size: 36rpx;
 			font-weight: 600;
 			text-align: LEFT;
-			color: #ffffff;
-			// image {
-			// 	width: 100%;
-			// 	height: 40rpx;
-			// }
+			color: #000;
 		}
 		
 		.center{
@@ -728,301 +698,334 @@
 			display: flex;
 			flex-direction: column;
 			.scroll-Y {
-				margin-top: 86rpx;
-			    width: 750rpx;
-		        flex: auto;
-			    overflow: auto;
+				margin-top: 162rpx;
+				width: 750rpx;
+				flex: auto;
+				overflow: auto;
 				
 				.padd{
-					
 					padding-bottom: 180rpx !important;
 				}
 				.msgList {
 					font-size: 37rpx;
 					color: #000;
-					// display: flex;
-					// justify-content: flex-start;
-					
 					&:nth-of-type(1){
-						padding-top: 33%;
 						padding-bottom: 0 !important;
 					}
-					
-					
 					.my {
-						width: 100%;
-						display: flex;
-						justify-content: flex-end;
-						align-items: flex-start;
-						
-						
-						
-						.my-box {
-							display: flex;
-							justify-content: flex-end;
-							align-items: center;
-							width: 630rpx;
-							margin: 20rpx 25rpx 20rpx 0;
-							
-							.triangle {
-							    width: 0;
-							 	height: 0;
-							 	border-style: solid;
-							 	border-width: 15rpx 0 15rpx 18rpx;
-							 	border-color: transparent transparent transparent rgba(7,106,255,0.80);
-							}
-							
-							.center {
-								background: rgba(7,106,255,0.80);
-							    padding: 20rpx 24rpx;
-							    border-radius: 12rpx;
-							    color: #ffffff;
-								.msg {
-									text-align: left;
-									line-height: 37rpx;
-								}
-							}
-							
-						}
+					  width: 100%;
+					  display: flex;
+					  justify-content: flex-end;
+					  align-items: flex-start;
+					
+					  .my-box {
+					    display: flex;
+					    justify-content: flex-end;
+					    align-items: center;
+					    width: 630rpx;
+					    margin: 20rpx 25rpx 20rpx 0;
+					
+					    .center {
+					      color: #ffffff;
+					      background: linear-gradient(224deg,#5fa8ff 0%, #4286ff 100%);
+					      padding: 20rpx 24rpx;
+					      border-radius: 40rpx;
+					      border-top-right-radius: 0;
+					
+					      .msg {
+					        font-size: 32rpx;
+					        text-align: left;
+					        line-height: 37rpx;
+					      }
+					    }
+					  }
 					}
 					
 					.robot {
-						width: 100%;
-						display: flex;
-						justify-content: flex-start;
-						align-items: flex-start;
-						
-						.robot-box {
-							display: flex;
-							justify-content: flex-start;
-							align-items: center;
-							width: 680rpx;
-							margin: 20rpx 0 20rpx 25rpx;
-							.triangle {
-									width: 0;
-								height: 0;
-								border-style: solid;
-								border-width: 15rpx 18rpx 15rpx 0;
-								border-color: transparent rgba(255,255,255,0.80) transparent transparent;
-							}
-							.center{
-								color: #000000;
-							    padding:20rpx 24rpx;
-							    background: rgba(255,255,255,0.80);
-							    border-radius: 12rpx;
-								font-size: 34rpx;
-								.msg {
-									text-align: left;
-								}
-								.top1 {
-									margin-top: 10rpx;
-									text-align: left;
-									color: #1A66C2;
-									display: flex;
-									flex-wrap: wrap;
-									view {
-										margin: 20rpx 14rpx 0 14rpx;
-										text{
-											border-bottom: 2rpx solid #1A66C2;
-										}
-									}
-								}
-								.ai-tips {
-									margin-top: 20rpx;
-									text-align: center;
-									font-size: 26rpx;
-									color: #919191;
-								}
-							}
-						}
-						.top2 {
-							display: flex;
-							justify-content: flex-start;
-							align-items: center;
-							width: 680rpx;
-							margin: 20rpx 0 20rpx 25rpx;
-							position: relative;
-							padding:20rpx 24rpx;
-							background: rgba(255,255,255,0.80);
-							border-radius: 12rpx;
-							opacity: 0.9;
-							>image {
-								position: absolute;
-								width: 560rpx;
-								height: 380rpx;
-							}
-							.top2-content {
-								position: relative;
-								width: 560rpx;
-								.department {
-									width: 100%;
-									height: 190rpx;
-									color: #000000;
-									.title {
-										display: flex;
-										align-items: center;
-										height: 30%;
-										font-weight: 600;
-										font-size: 34rpx;
-										margin-left: 20rpx;
-									}
-									.top2-center {
-										width: 100%;
-										margin: 0;
-										height: 70%;
-										display: flex;
-										justify-content: space-between;
-										align-items: center;
-										font-size: 38rpx;
-										overflow: hidden;
-										.img {
-											transform: translate(16rpx,0);
-											width: 52rpx;
-											height: 52rpx;
-											>image {
-												display: block;
-												width: 52rpx;
-											    height: 52rpx;
-											}
-										}
-										text {
-											font-size: 32rpx;
-											text-align: left;
-											display: block;
-											width: 220px;
-											margin-left: 20rpx;
-										}
-										.top2-btn {
-											transform: translate(-16rpx,0);
-											color: #ffffff;
-											width: 120rpx;
-											height: 53rpx;
-											background: linear-gradient(3deg,#489dff 0%, #50bfff 100%);
-											border-radius: 8rpx;
-											font-size: 30rpx;
-											display: flex;
-											align-items: center;
-											justify-content: space-evenly;
-											.top2-img {
-												width: 22rpx;
-												height: 22rpx;
-												>image {
-													display: block;
-													width: 22rpx;
-												    height: 22rpx;
-												}
-												
-											}
-											.text {
-												line-height: 30rpx;
-											}
-										}
-									}
-								}
-								.more {
-									// width: 100%;
-									color: #1A66C2;
-									margin: 0 20rpx;
-									display: flex;
-									align-items: center;
-									justify-content: space-between;
-									>text {
-										border-bottom: 2rpx solid #1A66C2;
-									}
-									>image {
-										width: 45rpx;
-										height: 45rpx;
-									}
-								}
-								.dept-tips {
-									margin: 20rpx 20rpx 10rpx 20rpx;
-									font-size: 30rpx;
-									
-								}
-							}
-							.ai-tips {
-								margin-top: 20rpx;
-								text-align: center;
-								font-size: 26rpx;
-								color: #919191;
-							}
-						}
-						
-						.doctor {
-							display: flex;
-							justify-content: flex-start;
-							align-items: center;
-							width: 680rpx;
-							margin: 20rpx 0 20rpx 25rpx;
-							position: relative;
-							padding-bottom:20rpx;
-							background: rgba(255,255,255,0.80);
-							border-radius: 12rpx;
-							.top2-content {
-								width: 100%;
-								position: relative;
-								.title {
-									color: #333;
-									padding: 15rpx 20rpx;
-									background: #C6E0FF;
-									border-radius: 15rpx 15rpx 0 0;
-								}
-								.noData {
-									font-size: 32rpx;
-									padding: 15rpx 20rpx;
-									color: #666;
-								}
-								.scheduling {
-									color: #333;
-									width: 100%;
-									padding: 10rpx 20rpx;
-									display: flex;
-									justify-content: space-between;
-									flex: 1;
-									gap: 10rpx;
-									border-bottom: 1px solid #ccc;
-									.img {
-										width: 122.14rpx;
-										height: 152.67rpx;
-										border-radius: 9.54rpx;
-										image{
-											width: 122.14rpx;
-											height: 152.67rpx;
-											border-radius: 9.54rpx;
-										}
-									}
-									.name {
-										flex: 1;
-										gap: 5rpx;
-										display: flex;
-										font-size: 30rpx;
-										flex-direction: column;
-										padding-top: 15rpx;
-										.price {
-											display: flex;
-											justify-content: space-between;
-											.fee {
-												font-size: 34rpx;
-												color: #4286FF;
-											}
-										}
-									}
-								}
-							}
-							.ai-tips {
-								margin-top: 20rpx;
-								text-align: center;
-								font-size: 26rpx;
-								color: #919191;
-							}
-						}
-						
-						
+					  width: 100%;
+					  display: flex;
+					  justify-content: flex-start;
+					  align-items: flex-start;
+					
+					  .robot-box {
+					    width: 97%;
+					    display: flex;
+					    justify-content: flex-start;
+					    align-items: center;
+					    margin: 20rpx 24rpx;
+					
+					    .center {
+					      color: #333333;
+					      font-size: 34rpx;
+					      padding: 20rpx 24rpx;
+					      border-radius: 40rpx;
+					      border-top-left-radius: 0;
+					      background: rgba(255, 255, 255, 0.8);
+					
+					      .msg {
+					        text-align: left;
+					        margin-bottom: 20rpx;
+					      }
+					
+					      .top1 {
+					        margin-top: 10rpx;
+					        text-align: left;
+					        color: #02134E;
+					        display: flex;
+					        flex-wrap: wrap;
+					       .answer {
+					         width: 100%;
+					         .tipContent {
+					           display: flex;
+					           padding: 20rpx;
+					           color: #02134E;
+					           background: #fff;
+					           border-radius: 50rpx;
+					           margin-bottom: 20rpx;
+					           align-items: center;
+					           justify-content: space-between;
+					           /* 半透明白色 + 毛玻璃效果 */
+					           background: rgba(255, 255, 255, 0.6);
+					           backdrop-filter: blur(10px);
+					           -webkit-backdrop-filter: blur(10px);
+					           /* 阴影和边框，提升立体感 */
+					           box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.05);
+					           border: 1rpx solid rgba(255, 255, 255, 0.4);
+					           image {
+					             width: 56rpx;
+					             height: 17rpx;
+					           }
+					         }
+					       }
+					      }
+					
+					      .ai-tips {
+					        margin-top: 20rpx;
+					        text-align: left;
+					        font-size: 26rpx;
+					        color: #919191;
+					      }
+					    }
+					  }
+					
+					  .top2 {
+					    width: 93%;
+					    display: flex;
+					    justify-content: flex-start;
+					    align-items: center;
+					    position: relative;
+					    padding: 20rpx 10rpx;
+					    border-radius: 40rpx;
+					    border-top-left-radius: 0;
+					    margin: 20rpx 0 20rpx 25rpx;
+					    background: rgba(255, 255, 255, 0.8);
+					
+					    > image {
+					      position: absolute;
+					      width: 560rpx;
+					      height: 380rpx;
+					    }
+					
+					    .top2-content {
+					      position: relative;
+					      .department {
+					        width: 100%;
+					        color: #000000;
+					
+					        .title {
+					          display: flex;
+					          align-items: center;
+					          height: 30%;
+					          font-weight: 600;
+					          font-size: 34rpx;
+					          margin-left: 20rpx;
+					        }
+					
+					        .top2-center {
+					          width: 100%;
+					          margin: 0;
+					          height: 70%;
+					          display: flex;
+					          justify-content: space-between;
+					          align-items: center;
+					          font-size: 38rpx;
+					          overflow: hidden;
+					          padding: 20rpx 0;
+										border-bottom: 1px solid #C9E2FF;
+					          .img {
+					            transform: translate(16rpx, 0);
+					            width: 52rpx;
+					            height: 52rpx;
+					
+					            > image {
+					              display: block;
+					              width: 52rpx;
+					              height: 52rpx;
+					            }
+					          }
+					
+					          text {
+					            font-size: 32rpx;
+					            text-align: left;
+					            display: block;
+					            width: 220px;
+					            margin-left: 20rpx;
+					          }
+					
+					          .top2-btn {
+					            transform: translate(-16rpx, 0);
+					            color: #ffffff;
+					            width: 120rpx;
+					            height: 53rpx;
+					            background: linear-gradient(3deg, #489dff 0%, #50bfff 100%);
+					            border-radius: 8rpx;
+					            font-size: 30rpx;
+					            display: flex;
+					            align-items: center;
+					            justify-content: space-evenly;
+					
+					            .top2-img {
+					              width: 22rpx;
+					              height: 22rpx;
+					
+					              > image {
+					                display: block;
+					                width: 22rpx;
+					                height: 22rpx;
+					              }
+					            }
+					
+					            .text {
+					              line-height: 30rpx;
+					            }
+					          }
+					        }
+					      }
+					
+					      .more {
+					        // width: 100%;
+					        color: #02134E;
+					        margin: 0 20rpx;
+					        display: flex;
+					        align-items: center;
+					        justify-content: space-between;
+					
+					        > text {
+					          border-bottom: 2rpx solid #02134E;
+					        }
+					
+					        > image {
+					          width: 45rpx;
+					          height: 45rpx;
+					        }
+					      }
+					
+					      .dept-tips {
+					        margin: 20rpx 20rpx 10rpx 20rpx;
+					        font-size: 28rpx;
+					        color: #666;
+					      }
+					    }
+					
+					    .ai-tips {
+					      margin-top: 20rpx;
+					      text-align: left;
+					      font-size: 26rpx;
+					      color: #919191;
+					      margin-left: 20rpx;
+					    }
+					  }
+					
+					  .doctor {
+					    width: 93%;
+					    display: flex;
+					    justify-content: flex-start;
+					    align-items: center;
+					    margin: 20rpx 24rpx;
+					    position: relative;
+					    padding-bottom: 20rpx;
+					    background: rgba(255, 255, 255, 0.8);
+					    border-radius: 40rpx;
+					
+					    .top2-content {
+					      width: 100%;
+					      position: relative;
+					
+					      .title {
+					        color: #333;
+					        padding: 15rpx 20rpx;
+					        background: #E3EDFF;
+					        border-radius: 0 40rpx 0 0;
+					      }
+					
+					      .noData {
+					        font-size: 32rpx;
+					        padding: 15rpx 20rpx;
+					        color: #666;
+					      }
+					
+					      .scheduling {
+					        flex: 1;
+					        gap: 10rpx;
+					        display: flex;
+					        margin: 25rpx 15rpx;
+					        padding: 10rpx 0 10rpx 15rpx;
+					        background: #E3EDFF;
+					        justify-content: space-between;
+					        align-items: center;
+					        border-radius: 20rpx;
+					
+					        .name {
+					          flex: 1;
+					          gap: 5rpx;
+					          display: flex;
+					          font-size: 30rpx;
+					          flex-direction: column;
+					          padding-top: 15rpx;
+					
+					          .price {
+					            display: flex;
+					            gap: 15%;
+					
+					            .fee {
+					              font-size: 34rpx;
+					              color: #4286FF;
+					            }
+					          }
+					
+					          .desc {
+					            color: #999;
+					            font-size: 28rpx;
+					          }
+					        }
+					      }
+					    }
+					
+					    .ai-tips {
+					      margin-top: 20rpx;
+					      text-align: left;
+					      font-size: 26rpx;
+					      color: #919191;
+					      margin-left: 25rpx
+					    }
+					  }
 					}
 					
 				}
-			
-		    }
+			}
+				
+			.registeredBtn {
+				transform: translate(-16rpx, 0);
+				color: #ffffff;
+				padding: 10rpx 22rpx;
+				margin-left: 18rpx;
+				background: #4286FF;
+				border-radius: 30rpx;
+				font-size: 30rpx;
+				display: flex;
+				align-items: center;
+				justify-content: space-evenly;
+			}
 			/* 选择症状、疾病 弹窗 */
 			.Dialog {
 				width: 750rpx;
@@ -1086,98 +1089,134 @@
 				}
 			}
 		  .foot {
-				margin-bottom:24rpx;   //带着footbar
-				width: 750rpx;
-				.foot-center {
-					margin-left: 12rpx;
-					width: 726rpx;
-					height: 115rpx;
-					background: rgba(255,255,255,0.90);
-					border-radius: 8rpx;
-					display: flex;
-					align-items: center;
-					justify-content: space-evenly;
-					
-					.image {
-						width: 63rpx;
-						height: 63rpx;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						background: #ffffff;
-						border: 2rpx solid transparent;
-						// border-image: linear-gradient(108deg, #499eff 0%, #7b5afd 100%) 1 1;
-						background-image: linear-gradient(#ffffff, #ffffff),
-						    linear-gradient(108deg, #499eff 0%, #7b5afd 100%);
-						border-radius: 40rpx;
-						background-origin: border-box;
-						background-clip: content-box, border-box;
-						
-						image {
-							width: 45rpx;
-							height: 45rpx;
-						}
-					}
-					.sendMsg {
-						width: 104rpx;
-						height: 56rpx;
-						position: relative;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						
-						text {
-							position: absolute;
-						}
-						image {
-							width: 104rpx;
-							height: 56rpx;
-						}
-					}
-					.btn {
-						button {
-						width: 580rpx;
-						height: 71rpx;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						background: linear-gradient(336deg,#479cff 10%, rgba(71,216,251,0.80) 100%);
-						border-radius: 8rpx;
-						font-size: 36rpx;
-						color: #ffffff;
-						}
-						.is-hover{
-							background: #7ebdff;
-						}
-					}
-					.w {
-						width: 520rpx !important;
-					}
-					
-					.input {
-						width: 580rpx;
-						height: 71rpx;
-						border: 2rpx solid transparent;
-						border-radius: 8rpx;
-						background-image: linear-gradient(#ffffff, #ffffff),
-						    linear-gradient(101deg, #49a1ff 0%, #55bbfd 100%);
-						background-origin: border-box;
-						background-clip: content-box, border-box;
-							  
-						input{
-						width: 550rpx;
-						height: 71rpx;
-						background-color: transparent !important;
-						font-size: 34rpx;
-						line-height: 34rpx;
-						margin: 0 15rpx;
-						}
-						.ws {
-							width: 490rpx !important;
-						}
-					}
-				}
+		    width: 750rpx;
+		    padding: 30rpx 0 15rpx;
+		    background: rgba(255, 255, 255, 0.6);
+		    backdrop-filter: blur(10px);
+		    -webkit-backdrop-filter: blur(10px);
+		    box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.05);
+		  
+		    .foot-bar {
+		      margin-left: 12rpx;
+		      width: 726rpx;
+		      display: flex;
+		      margin: 20rpx 12rpx;
+		  
+		      > view {
+		        width: 150rpx;
+		        height: 60rpx;
+		        background: rgba(255, 255, 255, 0.9);
+		        border-radius: 8rpx;
+		        line-height: 28rpx;
+		        margin-right: 24rpx;
+		        color: #000000;
+		        display: flex;
+		        justify-content: center;
+		        align-items: center;
+		        font-size: 30rpx;
+		      }
+		  
+		      .blue {
+		        color: #ffffff;
+		        background: #9a7546;
+		      }
 		    }
+		  
+		    .foot-center {
+		      margin-left: 12rpx;
+		      width: 726rpx;
+		      height: 115rpx;
+		      background: rgba(255, 255, 255, 0.9);
+		      border-radius: 8rpx;
+		      display: flex;
+		      align-items: center;
+		      justify-content: space-evenly;
+		  
+		      .image {
+		        width: 63rpx;
+		        height: 63rpx;
+		        display: flex;
+		        justify-content: center;
+		        align-items: center;
+		        background: #ffffff;
+		        border: 2rpx solid transparent;
+		        background-image: linear-gradient(#ffffff, #ffffff),
+		          linear-gradient(108deg, #499eff 0%, #7b5afd 100%);
+		        border-radius: 40rpx;
+		        background-origin: border-box;
+		        background-clip: content-box, border-box;
+		  
+		        image {
+		          width: 45rpx;
+		          height: 45rpx;
+		        }
+		      }
+		  
+		      .sendMsg {
+		        width: 104rpx;
+		        height: 56rpx;
+		        position: relative;
+		        display: flex;
+		        justify-content: center;
+		        align-items: center;
+		  
+		        text {
+		          position: absolute;
+		        }
+		  
+		        image {
+		          width: 104rpx;
+		          height: 56rpx;
+		        }
+		      }
+		  
+		      .btn {
+		        button {
+		          width: 580rpx;
+		          height: 71rpx;
+		          display: flex;
+		          justify-content: center;
+		          align-items: center;
+		          background: linear-gradient(336deg, #479cff 10%, rgba(71, 216, 251, 0.8) 100%);
+		          border-radius: 8rpx;
+		          font-size: 36rpx;
+		          color: #ffffff;
+		        }
+		  
+		        .is-hover {
+		          background: #7ebdff;
+		        }
+		      }
+		  
+		      .w {
+		        width: 520rpx !important;
+		      }
+		  
+		      .input {
+		        width: 580rpx;
+		        height: 71rpx;
+		        border: 2rpx solid transparent;
+		        border-radius: 8rpx;
+		        background-image: linear-gradient(#ffffff, #ffffff),
+		          linear-gradient(101deg, #49a1ff 0%, #55bbfd 100%);
+		        background-origin: border-box;
+		        background-clip: content-box, border-box;
+		  
+		        input {
+		          width: 550rpx;
+		          height: 71rpx;
+		          background-color: transparent !important;
+		          font-size: 34rpx;
+		          line-height: 34rpx;
+		          margin: 0 15rpx;
+		        }
+		  
+		        .ws {
+		          width: 490rpx !important;
+		        }
+		      }
+		    }
+		  }
 		}
 		/*---------------------------------- 语音样式 ------------------------------ */
 		.voice-mask{
