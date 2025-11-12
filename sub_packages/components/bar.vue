@@ -2,150 +2,231 @@
 	<view class="box">
 		<view class="bar">
 			<view class="name">
-				{{footData.patientName?pixelate(footData.patientName):''}}<text>{{footData.relation?footData.relation:''}}</text>
+				{{ footData.patientName ? pixelate(footData.patientName) : '' }}
+				<text>{{ footData.relation ? footData.relation : '' }}</text>
 			</view>
 			<view class="cut" @click="cutPatient">
 				<image src="@/static/image/cut.png" mode=""></image>
 				<text>切换就诊人</text>
 			</view>
 		</view>
-		<uni-popup class="cutPatientDialog" @maskClick="cutPatientPopupClick" :safe-area="false"  ref="cutPatientPopup" type="bottom">
-			<view class="scroll">
-				<view class="middle">
-					<view class="li" v-for="(item,index) in personageObj.list" :key="index" @click="updateDefaultArchives(item)" :class="{blue:personageObj.sole.patientName==item.patientName}">
-						<view class="name">
-							<text>{{item.patientName}}</text>
-						</view>
-						<view class="img" >
-							<image v-if="personageObj.sole.patientName==item.patientName" src="@/static/image/right.png" mode="widthFix"></image>
-						</view>
-					</view>
-			 </view>
-			</view>
+		<uni-popup class="cutPatientDialog" @maskClick="cutPatientPopupClick" :safe-area="false" ref="cutPatientPopup" type="bottom">
+			<popupFamily :personageObj="personageObj" @handle="show" />
 		</uni-popup>
 	</view>
 </template>
 
 <script>
-	import { mapState } from 'vuex'
-	import mixin from '@/mixins/mixin.js'
-	import popupFamily from '@/components/popupFamily.vue';
-	export default {
-		mixins: [mixin],
-		components:{
-			popupFamily
+import { mapState } from 'vuex';
+import mixin from '@/mixins/mixin.js';
+import popupFamily from '@/components/popupFamily.vue';
+export default {
+	mixins: [mixin],
+	components: {
+		popupFamily
+	},
+	data() {
+		return {
+			registerData: {
+				archivesList: []
+			},
+			personageObj: {
+				list: [],
+				sole: {}
+			},
+			timer: null,
+			cutPatientPopupState: true
+		};
+	},
+	computed: {
+		...mapState(['footData'])
+	},
+	methods: {
+		cutPatientPopupClick() {
+			this.timer = setTimeout(() => {
+				this.cutPatientPopupState = false;
+				clearTimeout(this.timer);
+				this.timer = null;
+			}, 1500);
 		},
-		data(){
-			return {
-				registerData:{
-					archivesList:[]
-				},
-				personageObj:{
-					list:[],
-					sole:{},
-				},
-				timer:null,
-				cutPatientPopupState:true,
+		show() {
+			this.$refs.cutPatientPopup.close();
+		},
+		cutPatient() {
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = null;
+				this.cutPatientPopupState = false;
 			}
+			this.$nextTick(() => {
+				this.loginData();
+				this.cutPatientPopupState = true;
+				this.$refs.cutPatientPopup.open('bottom'); //弹框
+			});
 		},
-		computed: { 
-			...mapState(['footData']),
-				},
-		methods: {
-			cutPatientPopupClick(){
-				this.timer = setTimeout(()=>{
-					this.cutPatientPopupState = false
-					clearTimeout(this.timer)
-					this.timer = null
-				},1500)
-			},
-			show(){
-				this.$refs.cutPatientPopup.close()
-			},
-			cutPatient(){
-				if(this.timer){
-					clearTimeout(this.timer)
-					this.timer = null
-					this.cutPatientPopupState = false
-				}
-				this.$nextTick(() => {
-					this.loginData()
-					this.cutPatientPopupState = true
-					this.$refs.cutPatientPopup.open('bottom')   //弹框
-				});
-			},
-			loginData(){
-				let loginValue = uni.getStorageSync("loginData");
-				if(loginValue){
-					this.registerData = JSON.parse(loginValue)
-					this.personageObj.list = this.registerData && this.registerData.archivesList
-					this.personageObj.sole = this.footData
-				}
-			},
-		},
-		mounted(){
-			
+		loginData() {
+			let loginValue = uni.getStorageSync('loginData');
+			if (loginValue) {
+				this.registerData = JSON.parse(loginValue);
+				this.personageObj.list = this.registerData && this.registerData.archivesList;
+				this.personageObj.sole = this.footData;
+			}
 		}
-	}
+	},
+	mounted() {}
+};
 </script>
 
 <style lang="less" scoped>
-	.box {
-		width: 100vw;
-		height: 100%; 
-		background-color: #f5f5f5;
+.box {
+	width: 100vw;
+	height: 100%;
+	background-color: #f5f5f5;
+	display: flex;
+	flex-direction: column;
+	.bar {
+		width: 750rpx;
+		height: 84rpx;
+		background: #f0f7ff;
 		display: flex;
-		flex-direction: column;
-		.bar {
-			width: 750rpx;
-			height: 84rpx;
-			background: #f0f7ff;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 30rpx;
+		color: #4286ff;
+
+		.name {
+			height: 32rpx;
+			font-size: 32rpx;
+			line-height: 32rpx;
 			display: flex;
-			justify-content: space-between;
 			align-items: center;
-			padding: 0 30rpx;
-			color: #4286ff;
-			
-			.name {
+			text {
+				width: 66rpx;
 				height: 32rpx;
-				font-size: 32rpx;
-				line-height: 32rpx;
+				background: #4286ff;
+				border-radius: 8rpx;
+				color: #ffffff;
+				margin-left: 10rpx;
+				font-size: 26rpx;
+				line-height: 26rpx;
 				display: flex;
 				align-items: center;
-				text {
-					width: 66rpx;
-					height: 32rpx;
-					background: #4286ff;
-					border-radius: 8rpx;
-					color: #ffffff;
-					margin-left: 10rpx;
-					font-size: 26rpx;
-					line-height: 26rpx;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-				}
-			}
-			.price {
-				font-size: 30rpx;
-			}
-			.cut {
-				width: 226rpx;
-				height: 54rpx;
-				border: 2rpx solid #4286ff;
-				border-radius: 38rpx;
-				display: flex;
 				justify-content: center;
-				align-items: center;
-				image {
-					width: 30rpx;
-					height: 28rpx;
-					margin-right: 5rpx;
-				}
 			}
 		}
-		.cutPatientDialog{
-			width: 100%;
+		.price {
+			font-size: 30rpx;
+		}
+		.cut {
+			width: 226rpx;
+			height: 54rpx;
+			border: 2rpx solid #4286ff;
+			border-radius: 38rpx;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			image {
+				width: 30rpx;
+				height: 28rpx;
+				margin-right: 5rpx;
+			}
 		}
 	}
+	.cutPatientDialog {
+		width: 100%;
+		.center {
+			width: 750rpx;
+			background-color: #ffffff;
+			border-radius: 30rpx 30rpx 0 0;
+			// height: 570rpx;
+			overflow: hidden;
+			.top {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin: 30rpx 25rpx 0;
+				.title {
+					display: flex;
+					align-items: center;
+					font-size: 30rpx;
+				}
+			}
+			.scroll {
+				height: 55%;
+				margin-left: 20rpx;
+				padding-bottom: 30rpx;
+				.middle {
+					padding-top: 20rpx;
+					.li {
+						width: 96%;
+						min-height: 80rpx;
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						margin: 20rpx 5rpx;
+						color: #92a1bb;
+						padding: 0 20rpx 0 40rpx;
+						background: #f0f7ff;
+						border-radius: 20rpx;
+
+						&:first-child {
+							margin-top: 10rpx;
+						}
+						.name {
+							width: 20%;
+							font-size: 32rpx;
+							line-height: 32rpx;
+						}
+						.no {
+							width: 36%;
+							margin-left: 3%;
+							font-size: 32rpx;
+							line-height: 32rpx;
+						}
+						.price {
+							width: 29%;
+							font-size: 32rpx;
+							line-height: 32rpx;
+						}
+						.img {
+							width: 11%;
+							height: 48rpx;
+							line-height: 48rpx;
+							text-align: center;
+							// margin-left:80rpx;
+							image {
+								width: 46rpx;
+								height: 48rpx;
+							}
+						}
+					}
+
+					.colour {
+						border: 2rpx dashed #797979;
+						// background: #479cff !important;
+						// color: #ffffff;
+					}
+				}
+			}
+
+			.btn {
+				margin-bottom: 20rpx;
+				height: 130rpx;
+				display: flex;
+				justify-content: space-evenly;
+				align-items: center;
+
+				button {
+					transform: translate(0, -10rpx);
+					font-size: 38rpx;
+					width: 300rpx;
+					height: 80rpx;
+					background: linear-gradient(351deg, #479cff 0%, rgba(71, 216, 251, 0.8) 100%);
+					border-radius: 15rpx;
+					color: #ffffff;
+				}
+			}
+		}
+	}
+}
 </style>

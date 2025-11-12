@@ -4,7 +4,7 @@
 		<!-- <image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	 -->
 		<image class="background" src="../../static/image/anhao.png" />
 		<view class="head">山东第一医科大学第二附属医院</view>
-		<view class="aiName">HI~ {{ siginVal.patientName }}</view>
+		<view class="aiName">HI~ {{ siginVal.patientName != undefined ? siginVal.patientName : '' }}</view>
 		<view class="aiTip">我是您的AI虚拟护士“安好“，与您温暖同行</view>
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
@@ -324,74 +324,6 @@ export default {
 		  const weekMap = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
 		  return weekMap[dayjs(date).day()]
 		},
-		// getServiceGroup() {
-		// 		registrationApi.getServiceGroup().then(res => {
-		// 			if(res.data.code===200) {
-		// 				this.stairDepartment = res.data.data.ClinicServiceGroup.map(item =>({text:item.CliSerGroupName,...item}));
-		// 				if(this.stairDepartment.length){
-		// 					let CliSerGroupID = this.stairDepartment[this.mainActiveIndex].CliSerGroupID
-		// 					this.getSpecialtyGroup(CliSerGroupID)
-		// 				}
-		// 			}
-		// 		}).catch(err => {
-		// 			console.log('errrrrr：', err);
-		// 		}).finally(() => {
-		// 			uni.hideLoading();
-		// 		});
-		// 	},
-		// 	// 获取小科室
-		// 	getSpecialtyGroup(CliSerGroupID) {
-		// 		registrationApi.getSpecialtyGroup(CliSerGroupID).then(res => {
-		// 			if(Array.isArray(res.data.data.ClinicGroup)){
-		// 				this.secondDepartment = res.data.data.ClinicGroup.map(item =>({text:item.CLGRPDesc,...item}));
-		// 			}else {
-		// 				this.secondDepartment = [res.data.data.ClinicGroup].map(item =>({text:item.CLGRPDesc,...item}));
-		// 			}
-		// 			console.log(JSON.stringify(this.secondDepartment));
-		// 			this.integration()
-		// 	}).catch(err => {
-		// 		console.log('2：', err);
-		// 	})
-		// },
-		// integration(){
-		// 	if(!this.items.length){
-		// 		this.items = this.stairDepartment.map((i,x)=> {
-		// 			if(x===this.mainActiveIndex){
-		// 				i.children = this.secondDepartment
-		// 			}
-		// 			return i
-		// 		})
-		// 			this.filteredItems = this.items
-		// 	}else if(!this.filteredItems.length && !this.searchQuery){
-		// 		this.filteredItems = this.items
-		// 	}else {
-		// 		this.filteredItems.forEach((i,x)=> {
-		// 			if(x===this.mainActiveIndex){
-		// 				i.children = this.secondDepartment
-		// 			}
-		// 		})
-		// 	}
-		// },
-		// filterItemsFun() {
-		// 	if (this.searchQuery) {
-		// 		this.filteredItems = this.items.map((category,index) => {
-		// 			// 检查父类的 text 属性是否包含 searchQuery
-		// 			const parentMatches = category.text.includes(this.searchQuery);
-		// 			if(parentMatches){
-		// 			// this.mainActiveIndex = index
-		// 			return {
-		// 					...category,
-		// 			};
-		// 			}
-		// 			return null;
-		// 		}).filter(category => category !== null);
-		// 	} else {
-		// 		this.filteredItems = this.items;
-		// 	}
-		// 	this.mainActiveIndex = 0
-		// 	let CliSerGroupID = this.filteredItems[this.mainActiveIndex].CliSerGroupID
-		// 	this.getSpecialtyGroup(CliSerGroupID)
-		// },
 		// 保持消息体可见
 		msgGo(i) {
 			const query = uni.createSelectorQuery().in(this);

@@ -81,7 +81,7 @@
 					.updateDefaultArchives(data)
 					.then((result) => {
 						this.$emit('handle',item)
-						this.refreshUserInfo(value.phoneNum)
+						this.refreshUserInfo(value.phoneNum);
 					})
 				}catch(e){
 					console.log(e);

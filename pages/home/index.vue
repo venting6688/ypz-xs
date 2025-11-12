@@ -197,6 +197,7 @@
 			width: 100%;
 			height: 220rpx;
 			margin-top: 15rpx;
+			padding: 0 10rpx 0 20rpx;
 			image {
 				height: 100%;
 				width: 100%;
@@ -207,6 +208,7 @@
 			border-radius: 15rpx;
 			padding: 15rpx;
 			margin-top: 20rpx;
+			margin: 20rpx 20rpx 0;
 			.tabContent {
 				.van-grid-item__content {
 					display: flex;
