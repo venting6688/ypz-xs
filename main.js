@@ -5,6 +5,11 @@ import store from "./store";
 import  login from './utils/login.js'
  
 Vue.config.productionTip = false
+
+Vue.prototype.$store = store
+
+Vue.prototype.$bus = new Vue()
+
 Vue.prototype.$login = login
 App.mpType = 'app'
 const app = new Vue({

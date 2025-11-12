@@ -1,5 +1,6 @@
 <template>
 	<view class="box">
+		<bar v-if="loginData.xcxOpenId" />
 		<date @handle="show" />
 		<view class="information">
 			<uni-section type="line">
@@ -85,6 +86,21 @@
 		},
 		computed: {
 			...mapState(['footData']),
+		},
+		watch: {
+		  footData: {
+		    deep: true,
+		    handler(newVal, oldVal) {
+		      if (
+		        oldVal &&
+		        oldVal.patientUniquelyIdentifies &&
+		        newVal.patientUniquelyIdentifies !== oldVal.patientUniquelyIdentifies
+		      ) {
+						let type = this.currentTab === 0 ? '00' : '99';
+		        this.getVisitRecord(type);
+		      }
+		    }
+		  }
 		},
 		onLoad(e) {
 			let loginValue = uni.getStorageSync("loginData");

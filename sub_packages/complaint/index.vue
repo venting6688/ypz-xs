@@ -254,6 +254,7 @@
 	.homeLayout {
 		width: 100%;
 		overflow-x: hidden;
+		padding: 0 20rpx;
 		.goBack {
 			position: fixed;
 			z-index: 999;

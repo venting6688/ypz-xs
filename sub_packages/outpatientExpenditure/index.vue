@@ -134,6 +134,22 @@
 		computed: {
 			...mapState(['footData','showState']),
 		},
+		watch: {
+		  footData: {
+		    deep: true,
+		    handler(newVal, oldVal) {
+		      if (
+		        oldVal &&
+		        oldVal.patientUniquelyIdentifies &&
+		        newVal.patientUniquelyIdentifies !== oldVal.patientUniquelyIdentifies
+		      ) {
+		        this.queryMedicalRecords();
+		        this.getPaymentRecord();
+		      }
+		    }
+		  }
+		},
+
 		onLoad(option) {
 			this.loading.loadingState = false
 			let loginData = uni.getStorageSync("loginData");

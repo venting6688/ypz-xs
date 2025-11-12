@@ -310,7 +310,7 @@
 	.homeLayout {
 		width: 100%;
 		overflow-x: hidden;
-		
+		padding: 0 20rpx;
 		.head {
 			position: absolute;
 			top: 12%;
