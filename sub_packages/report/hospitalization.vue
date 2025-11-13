@@ -1,5 +1,6 @@
 <template>
 	<view class="box">
+		<bar v-if="loginData.xcxOpenId"/>
 		<date @handle="show" />
 		<view class="information">
 			<uni-section type="line">
@@ -50,11 +51,13 @@
 
 <script>
 	import { mapState } from 'vuex'
-	import date from '../components/date.vue'
+	import bar from '../components/bar.vue'
 	import elseApi from '@/api/elseApi.js'
+	import date from '../components/date.vue'
 	import healthCard from '@/api/healthCard.js'
 	export default {
 		components:{
+			bar,
 			date,
 		},
 		data(){
@@ -70,6 +73,21 @@
 		},
 		computed: {
 			...mapState(['footData']),
+		},
+		watch: {
+		  footData: {
+		    deep: true,
+		    handler(newVal, oldVal) {
+		      if (
+		        oldVal &&
+		        oldVal.patientUniquelyIdentifies &&
+		        newVal.patientUniquelyIdentifies !== oldVal.patientUniquelyIdentifies
+		      ) {
+						let type = this.currentTab === 0 ? '00' : '99';
+						this.getVisitRecord(type)
+		      }
+		    }
+		  }
 		},
 		onLoad(e) {
 			let loginValue = uni.getStorageSync("loginData");

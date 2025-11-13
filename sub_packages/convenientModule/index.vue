@@ -1,9 +1,10 @@
 <template>
 	<view class="inventory">
 		<bar v-if="footData.patientUniquelyIdentifies"/>
-		<view class="date">
+		<!-- <view class="date">
 			<uni-datetime-picker v-model="range" type="daterange" style="border: none !important; border-radius: 15rpx !important;" />
-		</view>
+		</view> -->
+		<date @handle="show" />
 		<view class="center">
 			<view class="top" @click="showInfo(item)" v-for="(item, index) in visibleData" :key="index">
 				<view class="title">
@@ -33,10 +34,12 @@
 	import { mapState } from 'vuex';
 	import bus from "@/utils/bus.js";
 	import bar from '../components/bar.vue'
+	import date from '../components/date.vue'
 	import hospitalizationApi from '@/api/hospitalizationApi.js';
 	export default {
 		components:{
 			bar,
+			date,
 		},
 		data() {
 			return {
@@ -61,6 +64,18 @@
 				this.endDate =  this.range.length ? this.range[1] : ''
 				this.fetchAllData();
 			},
+		  footData: {
+		    deep: true,
+		    handler(newVal, oldVal) {
+		      if (
+		        oldVal &&
+		        oldVal.patientUniquelyIdentifies &&
+		        newVal.patientUniquelyIdentifies !== oldVal.patientUniquelyIdentifies
+		      ) {
+						this.fetchAllData();
+		      }
+		    }
+		  }
 		},
 		mounted() {
 			this.fetchAllData()
@@ -69,14 +84,21 @@
 			this.loadMore(); // 触底加载更多
 		},
 		methods: {
+			show(time){
+				const datePattern = /^\d{4}-\d{2}-\d{2}$/.test(time.startTime);
+				if(datePattern){
+					this.date = time
+					this.fetchAllData()
+				}
+			},
 			async fetchAllData() {
 				this.loading = true;
 				try {
 					let data = {
 						AimFlag: 'All',
 						patientID: this.footData.patientUniquelyIdentifies,
-						startDate: this.startDate,
-						endDate: this.endDate
+						startDate: this.date.startTime,
+						endDate: this.date.endTime,
 					}
 					const res = await hospitalizationApi.getHospitalRecord(data);
 					this.recordList = []; this.visibleData = [];

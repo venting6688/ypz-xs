@@ -306,20 +306,6 @@ export default {
 				}
 			}
 		}
-		.without {
-			font-size: 40rpx;
-			width: 681.3rpx;
-			height: 500rpx;
-			background: #ffffff;
-			margin: 0 auto;
-			border-radius: 15.27rpx;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			image {
-				width: 75%;
-			}
-		}
 	}
 }
 </style>

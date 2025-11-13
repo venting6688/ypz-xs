@@ -98,12 +98,14 @@
 			width: 100%;
 			height: 154rpx;
 			margin-top: 15rpx;
+			padding: 0 20rpx;
 			image {
 				height: 100%;
 				width: 100%;
 			}
 		}
 		.content {
+			padding: 0 20rpx;
 			.section {
 			  background: #fff;
 			  border-radius: 16rpx;

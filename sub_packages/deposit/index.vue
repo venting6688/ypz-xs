@@ -77,6 +77,20 @@
 		computed: {
 			...mapState(['footData']),
 		},
+		watch: {
+		  footData: {
+		    deep: true,
+		    handler(newVal, oldVal) {
+		      if (
+		        oldVal &&
+		        oldVal.patientUniquelyIdentifies &&
+		        newVal.patientUniquelyIdentifies !== oldVal.patientUniquelyIdentifies
+		      ) {
+						this.getPayRecord();
+		      }
+		    }
+		  }
+		},
 		onLoad() {
 			this.getHospitalRecord()
 		},

@@ -4,7 +4,7 @@
 		<!-- <image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	 -->
 		<image class="background" src="../../static/image/anhao.png" />
 		<view class="head">山东第一医科大学第二附属医院</view>
-		<view class="aiName">HI~ {{ siginVal.patientName != undefined ? siginVal.patientName : '' }}</view>
+		<view class="aiName">Hi~ {{ siginVal.patientName != undefined ? siginVal.patientName : '' }}</view>
 		<view class="aiTip">我是您的AI虚拟护士“安好“，与您温暖同行</view>
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
@@ -486,7 +486,6 @@ export default {
 				      if (!jsonData || !jsonData.intent || jsonData.content == null) continue
 				      const type = jsonData.intent
 				      const content = jsonData.content
-							console.log(JSON.stringify(jsonData),'=s=s=s=s=s=');
 				      if (['A004', 'A005', 'A999', 'A998'].includes(type)) {
 				        const safeContent = typeof content === 'string' ? content : String(content || '')
 				        if (typeof lastAnswer !== 'string') lastAnswer = String(lastAnswer || '')
@@ -546,74 +545,7 @@ export default {
 				})
 			}
 		},
-		showTypewriterEffect(newText, lastMsg) {
-		  if (!lastMsg) return
-		  if (typeof newText !== 'string' || !newText.length) return
 		
-		  if (this.typewriterTimer) clearInterval(this.typewriterTimer)
-		
-		  let displayLength = 0
-		  const step = 1
-		  const speed = 25
-		
-		  this.typewriterTimer = setInterval(() => {
-		    if (displayLength < newText.length) {
-		      displayLength += step
-		      let nextChar = newText.slice(displayLength - step, displayLength)
-		
-		      if (typeof nextChar !== 'string') {
-		        try {
-		          nextChar = String(nextChar)
-		        } catch (err) {
-		          console.error('Typewriter字符转换异常:', err, nextChar)
-		          nextChar = ''
-		        }
-		      }
-		
-		      if (typeof lastMsg.msg !== 'string') {
-		        lastMsg.msg = String(lastMsg.msg || '')
-		      }
-		
-		      lastMsg.msg += nextChar
-		      this.$forceUpdate()
-		    } else {
-		      clearInterval(this.typewriterTimer)
-		      this.typewriterTimer = null
-		    }
-		  }, speed)
-		},
-		arrayBufferToString(buffer) {
-			const bytes = new Uint8Array(buffer);
-			let out = '',
-				i = 0,
-				len = bytes.length;
-			while (i < len) {
-				let c = bytes[i++];
-				if (c >> 7 === 0) {
-					// 单字节
-					out += String.fromCharCode(c);
-				} else if (c >> 5 === 0b110) {
-					// 双字节
-					let c2 = bytes[i++];
-					out += String.fromCharCode(((c & 0x1f) << 6) | (c2 & 0x3f));
-				} else if (c >> 4 === 0b1110) {
-					// 三字节
-					let c2 = bytes[i++];
-					let c3 = bytes[i++];
-					out += String.fromCharCode(((c & 0x0f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f));
-				} else {
-					// 四字节 (surrogate pair)
-					let c2 = bytes[i++];
-					let c3 = bytes[i++];
-					let c4 = bytes[i++];
-					let codepoint = ((c & 0x07) << 18) | ((c2 & 0x3f) << 12) | ((c3 & 0x3f) << 6) | (c4 & 0x3f);
-					codepoint -= 0x10000;
-					out += String.fromCharCode(0xd800 + (codepoint >> 10));
-					out += String.fromCharCode(0xdc00 + (codepoint & 0x3ff));
-				}
-			}
-			return out;
-		},
 		//弹窗事件
 		choice(index) {
 			let reply = this.reply.join(',');
@@ -755,10 +687,10 @@ export default {
 
 	.background {
 		position: absolute;
-		width: 480rpx;
-		height: 500rpx;
+		width: 460rpx;
+		height: 550rpx;
 		top: 38%;
-		left: 20%;
+		left: 18%;
 	}
 
 	.head {
@@ -767,23 +699,23 @@ export default {
 		left: 32rpx;
 		height: 50rpx;
 		font-size: 36rpx;
-		font-weight: 600;
-		text-align: LEFT;
+		text-align: left;
 		color: #000;
 	}
 
 	.aiName {
 		position: absolute;
-		top: 12%;
+		top: 14%;
 		left: 32rpx;
 		color: #4286ff;
 		font-size: 34rpx;
 		font-weight: bold;
+		font-style: italic;
 	}
 
 	.aiTip {
 		position: absolute;
-		top: 15.5%;
+		top: 17.5%;
 		left: 32rpx;
 		color: #798eb3;
 		font-size: 30rpx;
@@ -796,7 +728,7 @@ export default {
 		display: flex;
 		flex-direction: column;
 		.scroll-Y {
-			margin-top: 36%;
+			margin-top: 40%;
 			width: 750rpx;
 			flex: auto;
 			overflow: auto;
