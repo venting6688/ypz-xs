@@ -77,8 +77,27 @@
 				</view>
 			</view>
 		</view>
-		<Toast v-if="toastObj.state" @back="closeToast" :type="toastObj.type" :url="toastObj.url" :tips="toastObj.tips"
-			:message="toastObj.message" />
+		<Toast v-if="toastObj.state" 
+			@back="closeToast" 
+			:type="toastObj.type" 
+			:url="toastObj.url" 
+			:tips="toastObj.tips"
+			:message="toastObj.message" 
+		/>
+		
+		<uni-popup ref="submitPopup" type="center" :maskClick="false">
+			<view class="submitMsg">
+				<view class="header">提交预问诊</view>
+				<view class="content">
+					<view class="msg">您已成功挂号: {{doctor.clinic}} - {{doctor.DoctorName}}，为提升诊疗效率，请完成预问诊</view>
+					<view class="tip">温馨提示：预问诊可帮助医生提前了解您的病情，减少现场就诊时间。请如实填写症状、病史等信息，信息仅用于诊疗参考.</view>
+				</view>
+				<view class="bottom">
+					<view class="btn cancelBtn" @click="subJump(false)">取消</view>
+					<view class="btn subBtn" @click="subJump(true)">预问诊</view>
+				</view>
+			</view>
+		</uni-popup>
 	</view>
 </template>
 
@@ -89,6 +108,7 @@
 	} from 'vuex'
 	import login from '@/utils/login.js'
 	import bar from '../components/bar.vue'
+	import guideApi from '@/api/guideApi.js'
 	import Toast from '../components/toast.vue'
 	import healthCard from '@/api/healthCard.js'
 	import registrationApi from '@/api/registrationApi.js'
@@ -101,6 +121,7 @@
 		},
 		data() {
 			return {
+				visitNumber: '',
 				doctor: {
 					ServiceDate: '',
 					hour: '',
@@ -178,6 +199,19 @@
 			...mapState(['footData']),
 		},
 		methods: {
+			subJump(status) {
+				let params = {
+					queueName: this.doctor.clinic,
+					doctorName: this.doctor.DoctorName,
+					visitNumber: this.visitNumber,
+				};
+				let url = status ? `/sub_packages/convenientModule/inquiry?params=${JSON.stringify(params)}` : '/pages/convenient/index';
+				if (status) {
+					uni.navigateTo({ url });
+				} else {
+					uni.switchTab({ url });
+				}
+			},
 			closeToast(state) {
 				this.toastObj = {
 					state: state,
@@ -289,12 +323,11 @@
 											registrationApi.queryPayResult,
 											registrationPrePayResponse
 										).then((res) => {
-											this.toastObj = {
-												state: true,
-												message: '预约成功',
-												url: '/pages/convenient/index',
-												tips: '秒自动为您切换便捷导引',
-											}
+											guideApi.getFirstVisit(this.footData.patientUniquelyIdentifies).then((registeredRes) => {
+												let count = registeredRes.data.data.orders.order.length;
+												this.visitNumber = registeredRes.data.data.orders.order[count-1];
+											});
+											this.$refs.submitPopup.open();
 										}).catch(err => {
 											console.error('消息处理失败', err)
 										})
@@ -346,7 +379,6 @@
 					'lbnDdyJ69_PcTcHyGTkjAeH0lZkNetrRsLp-ZpGm6Y4', //预约成功
 					'0p0XRL-OapRVNW1zkHRjYu5MchIIDfpjSMYLctmNuFg', //预约取消
 				];
-				console.log(JSON.stringify(obj), 'wwwwwwwwwwwww');
 				subMessage.subscribeRegisterNotice(
 					tmplIds,
 					registrationApi.appointmentRegister,
@@ -383,11 +415,53 @@
 	.doctorsDetails {
 		width: 100vw;
 		height: 100%;
-		background-color: #f5f5f5;
 		display: flex;
 		// align-items: center;
 		flex-direction: column;
-
+		background-color: #f5f5f5;
+		.submitMsg {
+			width: 90%;
+			margin: auto;
+			padding: 20rpx 0;
+			color: #333;
+			font-size: 32rpx;
+			line-height: 45rpx;
+			background: #fff;
+			border-radius: 20rpx;
+			.content {
+				padding: 0 20rpx;
+			}
+			.msg {
+				margin-bottom: 15rpx;
+			}
+			.header {
+				text-align: center;
+				margin-bottom: 15rpx;
+				padding-bottom: 15rpx;
+				border-bottom: 1px solid #ccc;
+			}
+			.tip {
+				color: #999;
+				font-size: 26rpx;
+			}
+			.bottom {
+				display: flex;
+				margin-top: 15rpx;
+				align-items: center;
+				justify-content: space-around;
+			}
+			.btn {
+				border-radius: 37rpx;
+				padding: 15rpx 45rpx;
+			}
+			.cancelBtn {
+				background: #f5f5f5;
+			}
+			.subBtn {
+				color: #fff;
+				background: #4286FF;
+			}
+		}
 		.middle {
 			overflow: auto;
 

@@ -68,7 +68,7 @@
 								<image src="../../../static/image/inquiry.png" mode=""></image>
 								<text>智能问诊</text>
 							</view>
-							<view class="inquiryBtn" @click="navigateToPage">去填写</view>
+							<view class="inquiryBtn" @click="navigateToPage(isSubmit)">{{isSubmit ? '查看预问诊信息' : '去填写'}}</view>
 						</view>
 					</view>
 				</view>
@@ -126,6 +126,8 @@
 		props: { headerEmit: Object },
 		data() {
 			return {
+				subContent: {},
+				isSubmit: false,
 				firstContent:{},
 				subscribeList:[],
 				subscribeObj:{},
@@ -144,6 +146,7 @@
 				timer:null,
 				timer2:null,
 				timer3:null,
+				
 			}
 		},
 		created() {
@@ -157,7 +160,6 @@
 							this.subscribeObj = e
 						}
 					})
-					// console.log(JSON.stringify(this.firstContent),'change......');
 				}else{
 					this.firstContent = {}
 					this.subscribeObj = {}
@@ -182,6 +184,10 @@
 				bus.$emit('refreshGetFirstVisit',{firstState:true,effectState:false})
 			},20000)
 			
+			this.getPreConsultation();
+		},
+		onShow() {
+			this.getPreConsultation();
 		},
 		beforeDestroy(){
 			bus.$off('complex-data-passed')
@@ -207,10 +213,25 @@
 					name: '山东第一医科大学第二附属医院', 
 				})
 			},
-			navigateToPage() {
-				let data = JSON.stringify(this.firstContent)
+			getPreConsultation() {
+				if (JSON.stringify(this.firstContent) != '{}') {
+					const data = {
+					  visitNumber: this.firstContent.visitNumber,
+					};
+					guideApi.getPreConsultation(data).then(res => {
+						if (res.data.code == 200 && res.data.data) {
+							this.isSubmit = true;
+							this.subContent = JSON.parse(res.data.data.content);
+						}
+					});
+				}
+			},
+			navigateToPage(status) {
+				let data = JSON.stringify(this.firstContent);
+				console.log(data,'=d=d=w=w=w==w=w');
+				let url = status ? '/sub_packages/convenientModule/inquiry?summary='+JSON.stringify(this.subContent) : '/sub_packages/convenientModule/inquiry?params='+data;
 				uni.navigateTo({
-					url: '/sub_packages/convenientModule/inquiry?params='+data
+					url
 				});
 			},
 			
@@ -747,8 +768,7 @@
 								display: flex;
 								justify-content: center;
 								align-items: center;
-								width: 130rpx;
-								height: 50rpx;
+								padding: 20rpx;
 								font-size: 28rpx;
 								line-height: 24rpx;
 								color: #ffffff;

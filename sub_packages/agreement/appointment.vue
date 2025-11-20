@@ -1,27 +1,64 @@
 <template>
-	<view class="user">
-		<h1>预约须知</h1>
-	</view>
+	<scroll-view 
+	scroll-y
+	class="popup-box" 
+	:class="fontMode" 
+	>
+		<view class="content">
+			<text class="popup-text">
+				一、预约方式
+				1.电话预约：0538-5885656  0538-6237862 0538-6236456（夜间） 
+				2.医院官网预约：网址：https://sah.sdfmu.edu.cn/
+				3.微信小程序预约：微信搜索“山东第一医科大学第二附属医院”小程序预约 
+				4.公众号预约：微信关注“山东第一医科大学第二附属医院”公众号，点击“自助就医”进行预约
+				5.现场预约：门诊大厅“一站式服务中心” 6.自助预约：在医院自助机预约 
+				二、预约号源 
+				1.所有专家号、专科号、普通号号源全部开放预约。 
+				2.预约挂号，每次可预约2个不同的科室。
+				三、实名制 分时段预约 
+				1.预约挂号时须请使用患者本人姓名、身份证号及手机号码。预约挂号实行分时段预约，预约时间为候诊时间。 
+				四、免费服务 预约优先
+				1.预约患者的挂号诊疗费用与非预约患者的相同。 预约患者优先就诊，遇急危重症患者，应主动让号。 
+				五、取号时间与方法 取号时间：就诊当日
+				1.取号方法：请您于就诊当日通过“山东第一医科大学第二附属医院”小程序，点击“确认取号”进行报到，或来院后持身份证或电子健康卡到自助机进行预约报到，然后到相应的诊区候诊，等待叫号。
+				六、改号、消号、号源已满、医师停诊、患者爽约情况处理办法 
+				1.改号、消号：如您需更改或是取消预约，最迟在就诊前一天通过原预约途径更改或取消。
+				2.号源已满：如遇号源已满，我们将根据患者病情，推荐同专业其他专家，供选择预约。
+				3.患者爽约：由于专家号源相对紧张，请您不要无故爽约。如不能按时来院就诊又未及时取消预约者，视为爽约。 
+				4.医师停诊：若遇已约专家有事停诊，请您关注短信提醒。 
+				七、预约要求
+				1.预约患者提前1-7天进行预约；预约时限最长不超过90天。
+			</text>
+		</view>
+	</scroll-view>
 </template>
 
-<script>
-	export default {
-		data(){
-			return {
-				
-			}
-		},
-		methods: {
-			
-		}
-	}
-</script>
-
 <style lang="less" scoped>
-	.user {
-		width: 100vw;
-		height: 100%; 
-		display: flex;
-		justify-content: center;
-	}
+.popup-box {
+	height: 98vh;
+	margin: auto;
+	background: #f5f5f5;
+}
+
+.content {
+	padding: 0 30rpx;
+}
+
+.popup-text {
+	font-size: 28rpx;
+	color: #666;
+	line-height: 1.8;
+}
+
+/* 老年模式样式 */
+.elder .popup-text {
+	font-size: 36rpx;
+	line-height: 2;
+}
+.elder .popup-title {
+	font-size: 40rpx;
+}
+.elder .popup-btn {
+	font-size: 36rpx;
+}
 </style>

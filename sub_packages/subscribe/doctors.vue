@@ -141,7 +141,6 @@ export default {
 		// 获取医生
 		getScheduleDetail(item, index, type) {
 			this.timeObj = item;
-			console.log(JSON.stringify(this.timeObj),'=d=d=d=d=dd=');
 			this.jumpType = type;
 			// this.thatDay = this.jumpType == 'click' ? '' : this.thatDay;
 			if (index === 0) {
