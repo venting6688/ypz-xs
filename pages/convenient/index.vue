@@ -15,7 +15,7 @@
 		/>
 		<!-- 预约、挂号部分 -->
 		<view v-if="showState && departmentList != undefined && departmentList.length > 0 && ['初诊','查验','回诊','处方'].includes(headerEmit.state)" class="scroll-Y" :animation="animationData" @touchmove='touchMove'>
-			<first @handle="show" v-if="headerEmit.state=='初诊'" :emit="headerEmit" />
+			<first @handle="show" v-if="headerEmit.state=='初诊'" :emit="headerEmit" ref="firstCom" />
 		  <check @handle="show" v-if="headerEmit.state=='查验'" :headerEmit="headerEmit" />
 			<answer @handle="show" v-if="headerEmit.state=='回诊'" :headerEmit="headerEmit" />
 			<prescription @handle="show" v-if="headerEmit.state=='处方'" :headerEmit="headerEmit" />
@@ -95,7 +95,11 @@
 				department: state => state.department,
 			}),
 		},
-		
+		onShow() {
+			if (this.$refs.firstCom && this.$refs.firstCom.getPreConsultation) {
+				this.$refs.firstCom.getPreConsultation(); // 调用组件方法
+			}
+		},
 		async created() {
 			this.departmentList = this.getFirstVisit();
 			this.$store.watch(

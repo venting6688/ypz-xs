@@ -314,10 +314,11 @@
 									signType: obj.body.miniPayRequest.signType, // 签名算法
 									paySign: obj.body.miniPayRequest.paySign, // 签名
 									success: (result) => {
-										let tmplIds = [
-											'I41PJiwUKpovpXxitt6p7jy4zVgWB2xe4KofzBPxpzA', //挂号成功
-											'Fiv9HSnHU_-AKIECUvwuCS1SSBq9hsiUctlPuboV95Q', //挂号取消
-										];
+										// let tmplIds = [
+										// 	'I41PJiwUKpovpXxitt6p7jy4zVgWB2xe4KofzBPxpzA', //挂号成功
+										// 	'Fiv9HSnHU_-AKIECUvwuCS1SSBq9hsiUctlPuboV95Q', //挂号取消
+										// ];
+										let tmplIds = ['I41PJiwUKpovpXxitt6p7jy4zVgWB2xe4KofzBPxpzA'];
 										subMessage.subscribeRegisterNotice(
 											tmplIds,
 											registrationApi.queryPayResult,
@@ -325,7 +326,7 @@
 										).then((res) => {
 											guideApi.getFirstVisit(this.footData.patientUniquelyIdentifies).then((registeredRes) => {
 												let count = registeredRes.data.data.orders.order.length;
-												this.visitNumber = registeredRes.data.data.orders.order[count-1];
+												this.visitNumber = registeredRes.data.data.orders.order[count-1].visitNumber;
 											});
 											this.$refs.submitPopup.open();
 										}).catch(err => {
@@ -429,7 +430,7 @@
 			background: #fff;
 			border-radius: 20rpx;
 			.content {
-				padding: 0 20rpx;
+				padding: 0 35rpx;
 			}
 			.msg {
 				margin-bottom: 15rpx;
@@ -446,7 +447,7 @@
 			}
 			.bottom {
 				display: flex;
-				margin-top: 15rpx;
+				margin: 20rpx 0;
 				align-items: center;
 				justify-content: space-around;
 			}

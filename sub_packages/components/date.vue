@@ -142,6 +142,7 @@ export default {
 		//新增
 		openDatePopup() {
 			this.$refs.datePopup.open();
+			this.dateState = 'other'
 		},
 		updateDays(yearIndex, monthIndex, type) {
 			const year = this.years[yearIndex];
@@ -194,6 +195,7 @@ export default {
 				endTime: this.endDate,
 			}
 			this.$emit('handle',this.date)
+			this.dateState = 'other'
 		},
 		cancel() {
 			this.$refs.datePopup.close();

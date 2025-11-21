@@ -376,14 +376,18 @@ export default {
 			this.summary = content;
 			this.visitNumber = content.visitNumber;
 			this.$refs.popup.open('bottom');
-			console.log(JSON.stringify(content),'=ds=d=d=d=');
 		}
 	},
 	beforeDestroy() {
-		this.requestTask.abort();
-		this.requestTask = null;
+		this.safeAbort();
 	},
 	methods: {
+		safeAbort() {
+			if (this.requestTask && this.requestTask.abort) {
+				this.requestTask.abort();
+			}
+			this.requestTask = null;
+		},
 		onblur() {
 			this.Focus = false;
 		},
@@ -610,13 +614,11 @@ export default {
 								success: (res) => {
 									if (res.confirm) {
 										this.conversation_id = '';
-										if (this.requestTask) {
-											this.requestTask.abort();
-										}
+										this.safeAbort();
 										if (this.scene) {
 											wx.exitMiniProgram();
 										} else {
-											uni.navigateBack();
+											uni.switchTab({ url: '/pages/convenient/index' });
 										}
 									}
 								}

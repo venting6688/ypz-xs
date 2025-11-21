@@ -3,7 +3,7 @@
 		<bar v-if="loginData.defaultArchives" />
 		<date @handle="show" />
 		<view class="information">
-			<ul v-if="list.length">
+			<ul v-if="list.length" class="recordUl">
 				<li v-for="(item, index) in list" :key="index">
 					<view class="center">
 						<view class="detail">
@@ -259,12 +259,14 @@ export default {
 	.information {
 		width: 100%;
 		overflow: auto;
-		margin-bottom: 50rpx;
+		margin: 20rpx 0 50rpx;
+		
 		ul {
-			width: 681.3rpx;
+			width: 100%;
 			margin: 0 auto;
+			padding: 0 20rpx;
 			> li {
-				width: 681.3rpx;
+				width: 100%;
 				padding: 15rpx 0 0;
 				background: #ffffff;
 				border-radius: 15.27rpx;

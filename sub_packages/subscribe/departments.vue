@@ -159,6 +159,7 @@
 		}
 		/deep/ .van-sidebar-item{
 			background-color: #ffffff;
+			// font-size: 37rpx;
 		}
 		/deep/ .van-sidebar-item--selected {
 		  color: #3E99FF;

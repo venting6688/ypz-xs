@@ -228,7 +228,6 @@
 			},
 			navigateToPage(status) {
 				let data = JSON.stringify(this.firstContent);
-				console.log(data,'=d=d=w=w=w==w=w');
 				let url = status ? '/sub_packages/convenientModule/inquiry?summary='+JSON.stringify(this.subContent) : '/sub_packages/convenientModule/inquiry?params='+data;
 				uni.navigateTo({
 					url
