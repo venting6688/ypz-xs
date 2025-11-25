@@ -355,7 +355,7 @@
 						openId: loginValue.xcxOpenId,
 					}
 					let tmplIds = [
-						'lbnDdyJ69_PcTcHyGTkjAeH0lZkNetrRsLp-ZpGm6Y4', //预约成功
+						// 'lbnDdyJ69_PcTcHyGTkjAeH0lZkNetrRsLp-ZpGm6Y4', //预约成功
 						'0p0XRL-OapRVNW1zkHRjYu5MchIIDfpjSMYLctmNuFg', //预约取消
 					];
 					subMessage.subscribeRegisterNotice(

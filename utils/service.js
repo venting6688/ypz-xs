@@ -36,15 +36,15 @@ export const cjRequest = (parmas, state) => {
 	}
 }
 
-const baseUrl = "https://www.chinzsoft.com/api/mobile/";
-// const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
+// const baseUrl = "https://www.chinzsoft.com/api/mobile/";
+const baseUrl = "https://aiwz.sdtyfy.com:8099/prod-api/mobile/"
 
 function request(parmas,state){
 	let token = store.state.loginToken;
 	let header = { "Authorization": token };
 	
 	return new Promise((resolve, reject) => {
-		if(!state){
+		if(!state){ 
 			requestCount++;
 			uni.showLoading({
 				title:'加载中'

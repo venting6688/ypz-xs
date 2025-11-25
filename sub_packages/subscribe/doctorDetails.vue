@@ -205,11 +205,16 @@
 					doctorName: this.doctor.DoctorName,
 					visitNumber: this.visitNumber,
 				};
-				let url = status ? `/sub_packages/convenientModule/inquiry?params=${JSON.stringify(params)}` : '/pages/convenient/index';
 				if (status) {
-					uni.navigateTo({ url });
+					uni.navigateTo({ url: `/sub_packages/convenientModule/inquiry?params=${JSON.stringify(params)}` });
 				} else {
-					uni.switchTab({ url });
+					this.$refs.submitPopup.close();
+					this.toastObj = {
+						state: true,
+						message: '挂号成功',
+						url: '/pages/convenient/index',
+						tips: '秒自动为您切换便捷导引',
+					}
 				}
 			},
 			closeToast(state) {
@@ -378,7 +383,7 @@
 
 				let tmplIds = [
 					'lbnDdyJ69_PcTcHyGTkjAeH0lZkNetrRsLp-ZpGm6Y4', //预约成功
-					'0p0XRL-OapRVNW1zkHRjYu5MchIIDfpjSMYLctmNuFg', //预约取消
+					// '0p0XRL-OapRVNW1zkHRjYu5MchIIDfpjSMYLctmNuFg', //预约取消
 				];
 				subMessage.subscribeRegisterNotice(
 					tmplIds,

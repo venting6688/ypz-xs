@@ -38,15 +38,30 @@ function subscribeRegisterNotice(tmplIds = [], reportApis, reportParams = {}, ra
 				})
 
 				// 如果有被拒绝的模板，先引导用户开启
+				// if (unauthorizedTmplIds.length > 0) {
+				// 	showGuideToOpenSetting('您已拒绝部分消息订阅，需要开启后才能接收重要通知').then(() => {
+				// 		// 用户可能已经在设置中更改了授权状态，重新尝试订阅
+				// 		requestSubscribeWithReport(tmplIds, reportApis, reportParams, rawData).then(resolve).catch(
+				// 			reject)
+				// 	}).catch(() => {
+				// 		reject(new Error('用户取消授权订阅消息'))
+				// 	})
+				// 	return
+				// }
 				if (unauthorizedTmplIds.length > 0) {
-					showGuideToOpenSetting('您已拒绝部分消息订阅，需要开启后才能接收重要通知').then(() => {
-						// 用户可能已经在设置中更改了授权状态，重新尝试订阅
-						requestSubscribeWithReport(tmplIds, reportApis, reportParams, rawData).then(resolve).catch(
-							reject)
-					}).catch(() => {
-						reject(new Error('用户取消授权订阅消息'))
-					})
-					return
+					showGuideToOpenSetting('您已拒绝部分订阅消息，是否前往设置开启？').then(() => {
+							// 可能在设置里修改了授权
+							requestSubscribeWithReport(tmplIds, reportApis, reportParams, rawData).then(resolve).catch(reject);
+						})
+						.catch(() => {
+							// 用户不愿意去设置 → 仍然执行 API（openid=''）
+							reportParams.openid = '';
+							executeApisWithEmptyOpenid(tmplIds, reportApis, reportParams, rawData).then(result => resolve({
+									...result,
+									guideCancelled: true
+							})).catch(reject);
+						});
+					return;
 				}
 
 				// 正常请求订阅
