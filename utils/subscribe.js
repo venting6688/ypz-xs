@@ -17,12 +17,19 @@ function subscribeRegisterNotice(tmplIds = [], reportApis, reportParams = {}, ra
 			success: (settingRes) => {
 				// 检查订阅消息总开关
 				if (!settingRes.subscriptionsSetting.mainSwitch) {
-					// 总开关关闭，引导用户开启
-					showGuideToOpenSetting('订阅消息总开关已关闭，需要开启后才能接收重要通知').then(() => {
-						reject(new Error('订阅消息总开关未开启'))
-					}).catch(() => {
-						reject(new Error('订阅消息总开关未开启'))
-					})
+					reportParams.openid = '';
+					executeApisWithEmptyOpenid(tmplIds, reportApis, reportParams, rawData).then(result => {
+						resolve({
+							...result,
+							mainSwitchClosed: true,
+							subRes: null
+						});
+					}).catch(err => {
+						resolve({
+							subscriptionError: err,
+							mainSwitchClosed: true
+						});
+					});
 					return
 				}
 
@@ -38,28 +45,22 @@ function subscribeRegisterNotice(tmplIds = [], reportApis, reportParams = {}, ra
 				})
 
 				// 如果有被拒绝的模板，先引导用户开启
-				// if (unauthorizedTmplIds.length > 0) {
-				// 	showGuideToOpenSetting('您已拒绝部分消息订阅，需要开启后才能接收重要通知').then(() => {
-				// 		// 用户可能已经在设置中更改了授权状态，重新尝试订阅
-				// 		requestSubscribeWithReport(tmplIds, reportApis, reportParams, rawData).then(resolve).catch(
-				// 			reject)
-				// 	}).catch(() => {
-				// 		reject(new Error('用户取消授权订阅消息'))
-				// 	})
-				// 	return
-				// }
 				if (unauthorizedTmplIds.length > 0) {
 					showGuideToOpenSetting('您已拒绝部分订阅消息，是否前往设置开启？').then(() => {
 							// 可能在设置里修改了授权
-							requestSubscribeWithReport(tmplIds, reportApis, reportParams, rawData).then(resolve).catch(reject);
+							console.log(JSON.stringify(reportParams), '拒绝1111');
+							requestSubscribeWithReport(tmplIds, reportApis, reportParams, rawData).then(resolve).catch(
+								reject);
 						})
 						.catch(() => {
 							// 用户不愿意去设置 → 仍然执行 API（openid=''）
+							console.log(JSON.stringify(reportParams), '拒绝22222');
 							reportParams.openid = '';
-							executeApisWithEmptyOpenid(tmplIds, reportApis, reportParams, rawData).then(result => resolve({
+							executeApisWithEmptyOpenid(tmplIds, reportApis, reportParams, rawData).then(result =>
+								resolve({
 									...result,
 									guideCancelled: true
-							})).catch(reject);
+								})).catch(reject);
 						});
 					return;
 				}
