@@ -8,7 +8,7 @@
 			<view class="left">
 				<uni-section title="请选择时间" type="line">
 					<view class="uni-px-5 uni-pb-5">
-						<uni-data-select v-model="value" :localdata="range" @change="timeClick"></uni-data-select>
+						<uni-data-select v-model="value" :localdata="range" :clear="false" @change="timeClick"></uni-data-select>
 					</view>
 				</uni-section>
 			</view>
@@ -107,32 +107,47 @@ export default {
 	},
 	methods: {
 		timeClick(e) {
-			let startTime = '',
-				endTime = '';
-			switch (e) {
-				case 1:
-					let dateObj = this.getWeekRange();
-					startTime = dateObj.start;
-					endTime = dateObj.end;
-					break;
-				case 2:
-					startTime = dayjs().subtract(3, 'month').startOf('month').format('YYYY-MM-DD');
-					endTime = this.now;
-					break;
-				case 3:
-					startTime = dayjs().subtract(6, 'month').startOf('month').format('YYYY-MM-DD');
-					endTime = this.now;
-					break;
-				default:
-					startTime = dayjs().startOf('year').format('YYYY-MM-DD');
-					endTime = dayjs().endOf('year').format('YYYY-MM-DD');
-					break;
-			}
-			this.date = {
-				startTime,
-				endTime
-			};
-			this.$emit('handle', this.date);
+		  let startTime = '',
+		      endTime = '';
+		  switch (e) {
+		    case 1:
+		      let dateObj = this.getWeekRange();
+		      startTime = dateObj.start;
+		      endTime = dateObj.end;
+		      break;
+		    case 2:
+		      startTime = dayjs().subtract(3, 'month').startOf('month').format('YYYY-MM-DD');
+		      endTime = this.now;
+		      break;
+		    case 3:
+		      startTime = dayjs().subtract(6, 'month').startOf('month').format('YYYY-MM-DD');
+		      endTime = this.now;
+		      break;
+		    default:
+		      startTime = dayjs().startOf('year').format('YYYY-MM-DD');
+		      endTime = dayjs().endOf('year').format('YYYY-MM-DD');
+		      break;
+		  }
+		  this.date = { startTime, endTime };
+		  this.$emit('handle', this.date);
+		
+		  // ★ 新增：同步日期插件选中内容
+		  this.startDate = startTime;
+		  this.endDate = endTime;
+		  const s = dayjs(startTime);
+		  const e2 = dayjs(endTime);
+		  this.startIndex = [
+		    this.years.indexOf(s.year()),
+		    this.months.indexOf(s.month() + 1),
+		    s.date() - 1
+		  ];
+		  this.endIndex = [
+		    this.years.indexOf(e2.year()),
+		    this.months.indexOf(e2.month() + 1),
+		    e2.date() - 1
+		  ];
+		  this.updateDays(this.startIndex[0], this.startIndex[1], 'start');
+		  this.updateDays(this.endIndex[0], this.endIndex[1], 'end');
 		},
 		getWeekRange() {
 			const currentDay = dayjs().day(); // 星期几（0=周日）
@@ -194,12 +209,30 @@ export default {
 			}
 		},
 		confirm() {
-			this.$refs.datePopup.close();
-			this.date = {
-				startTime: this.startDate,
-				endTime: this.endDate
-			};
-			this.$emit('handle', this.date);
+		  this.$refs.datePopup.close();
+		  this.date = {
+		    startTime: this.startDate,
+		    endTime: this.endDate
+		  };
+		
+		  const start = dayjs(this.startDate);
+		  const end = dayjs(this.endDate);
+		  const now = dayjs();
+		
+		  const week = this.getWeekRange();
+		  if (this.startDate === week.start && this.endDate === week.end) {
+		    this.value = 1;
+		  } else if (start.isSame(now.subtract(3, 'month').startOf('month')) || start.isAfter(now.subtract(3, 'month')) ) {
+		    this.value = 2;
+		  } else if (start.isSame(now.subtract(6, 'month').startOf('month')) || start.isAfter(now.subtract(6, 'month')) ) {
+		    this.value = 3;
+		  } else if (start.isSame(now.startOf('year')) || start.isAfter(now.startOf('year'))) {
+		    this.value = 4;
+		  } else {
+		    this.value = '';  // 自定义，不匹配任何
+		  }
+		
+		  this.$emit('handle', this.date);
 		},
 	}
 };
@@ -212,11 +245,11 @@ export default {
 		padding: 0 20rpx;
 		.left {
 			float: right;
-			width: 33%;
+			width: 25%;
 		}
 	}
 	.date-btn {
-		width: 65%;
+		width: 73%;
 		float: left;
 		text-align: center;
 		font-size: 32rpx;

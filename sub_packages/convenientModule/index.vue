@@ -1,11 +1,8 @@
 <template>
 	<view class="inventory">
 		<bar v-if="footData.patientUniquelyIdentifies"/>
-		<!-- <view class="date">
-			<uni-datetime-picker v-model="range" type="daterange" style="border: none !important; border-radius: 15rpx !important;" />
-		</view> -->
 		<date @handle="show" />
-		<view class="center">
+		<view class="center" v-if="recordList.length > 0">
 			<view class="top" @click="showInfo(item)" v-for="(item, index) in visibleData" :key="index">
 				<view class="title">
 					<view class="left">{{item.admDate}}</view>
@@ -21,10 +18,9 @@
 			<!-- 加载状态提示 -->
 			<view v-if="loading" class="loading-text">加载中...</view>
 			<view v-if="noMoreData" class="no-more-text">没有更多数据了</view>
-			
-			<view v-if="recordList.length === 0" class="without">
-				<image src="../static/image/wu.png" mode="widthFix"></image>
-			</view>
+		</view>
+		<view v-else class="without">
+			<image src="../static/image/wu.png" mode="widthFix"></image>
 		</view>
 	</view>
 </template>
@@ -164,6 +160,11 @@
 			width: 92%;
 			border: 3rpx solid #4286ff
 		}
+		.without {
+			width: 95%;
+			position: absolute;
+			top: 13.5%;
+		}
 		.center {
 			margin:28rpx 33rpx 0 33rpx;
 			width: 684rpx;
@@ -180,21 +181,6 @@
 			
 			&:last-of-type{
 				margin:28rpx 33rpx 28rpx 33rpx;
-			}
-			
-			.without {
-				font-size: 40rpx;
-				width: 681.3rpx;
-				height: 500rpx;
-				background: #ffffff;
-				margin: 0 auto;
-				border-radius: 15.27rpx;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				image {
-					width: 75%;
-				}
 			}
 			
 			.title {
