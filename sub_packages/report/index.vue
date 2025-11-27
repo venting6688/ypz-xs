@@ -8,7 +8,7 @@
 					<uni-segmented-control 
 						:current="currentTab" 
 						:values="tabs" 
-						style-type="button"
+						style-type="text"
 						activeColor="#4286FF"
 						@clickItem="onTabClick" 
 					/>

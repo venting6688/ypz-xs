@@ -1,12 +1,17 @@
 <template>
 	<view class="box">
 		<view class="header">
-			<view class="date-btn">
-				<view :class="{ blue: dateState === 'week' }" @click="timeClick('week')">本周内</view>
-				<view :class="{ blue: dateState === 'month' }" @click="timeClick('month')">三个月内</view>
-				<view :class="{ blue: dateState === 'other' }" @click="openDatePopup">其他时间</view>
+			<view class="date-btn" @click="openDatePopup">
+				<uni-icons type="calendar" size="24" color="#999"></uni-icons>
+				<text>{{ date.startTime }} ~ {{ date.endTime }}</text>
 			</view>
-			<view class="result" v-if="selectedType === 'other' && startDate && endDate">{{ startDate }} ~ {{ endDate }}</view>
+			<view class="left">
+				<uni-section title="请选择时间" type="line">
+					<view class="uni-px-5 uni-pb-5">
+						<uni-data-select v-model="value" :localdata="range" @change="timeClick"></uni-data-select>
+					</view>
+				</uni-section>
+			</view>
 		</view>
 
 		<uni-popup ref="datePopup" type="bottom" :safe-area-inset-bottom="false">
@@ -21,13 +26,13 @@
 					<view class="date-column">
 						<picker-view :value="startIndex" @change="onStartChange">
 							<picker-view-column>
-								<view v-for="y in years" :key="y">{{ y }}年</view>
+								<view v-for="y in years" :key="y" class="picker-item">{{ y }}年</view>
 							</picker-view-column>
 							<picker-view-column>
-								<view v-for="m in months" :key="m">{{ m }}月</view>
+								<view v-for="m in months" :key="m" class="picker-item">{{ m }}月</view>
 							</picker-view-column>
 							<picker-view-column>
-								<view v-for="d in startDays" :key="d">{{ d }}日</view>
+								<view v-for="d in startDays" :key="d" class="picker-item">{{ d }}日</view>
 							</picker-view-column>
 						</picker-view>
 					</view>
@@ -35,13 +40,13 @@
 					<view class="date-column">
 						<picker-view :value="endIndex" @change="onEndChange">
 							<picker-view-column>
-								<view v-for="y in years" :key="y">{{ y }}年</view>
+								<view v-for="y in years" :key="y" class="picker-item">{{ y }}年</view>
 							</picker-view-column>
 							<picker-view-column>
-								<view v-for="m in months" :key="m">{{ m }}月</view>
+								<view v-for="m in months" :key="m" class="picker-item">{{ m }}月</view>
 							</picker-view-column>
 							<picker-view-column>
-								<view v-for="d in endDays" :key="d">{{ d }}日</view>
+								<view v-for="d in endDays" :key="d" class="picker-item">{{ d }}日</view>
 							</picker-view-column>
 						</picker-view>
 					</view>
@@ -61,9 +66,14 @@ export default {
 		const currentYear = today.year();
 		return {
 			date: {},
-			dateState: 'week',
+			value: 1,
 			now: dayjs().format('YYYY-MM-DD'),
-			// range: [dayjs().subtract(7, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
+			range: [
+				{ value: 1, text: '本周内'},
+				{ value: 2, text: '近三月'},
+				{ value: 3, text: '近半年'},
+				{ value: 4, text: '近一年'},
+			],
 
 			//新增
 			isIOS: false,
@@ -80,52 +90,48 @@ export default {
 			endDate: today.format('YYYY-MM-DD')
 		};
 	},
-	// watch: {
-	// 	range(newval) {
-	// 		console.log('s0s00s0s');
-	// 		this.date = {
-	// 			startTime: this.range.length ? this.range[0] : '',
-	// 			endTime: this.range.length ? this.range[1] : ''
-	// 		}
-	// 		this.dateState = 'other';
-	// 		this.$emit('handle',this.date)
-	// 	},
-	// },
 	created() {
 		const sysInfo = uni.getSystemInfoSync();
 		this.isIOS = sysInfo.platform === 'ios';
 	},
 	mounted() {
-		let startTime = dayjs().subtract(7, 'day').format('YYYY-MM-DD');
+		let dateObj = this.getWeekRange();
 		this.date = {
-			startTime,
-			endTime: this.now
+			startTime: dateObj.start,
+			endTime: dateObj.end
 		};
 		this.$emit('handle', this.date);
-
+	
 		this.updateDays(this.startIndex[0], this.startIndex[1], 'start');
 		this.updateDays(this.endIndex[0], this.endIndex[1], 'end');
 	},
 	methods: {
-		timeClick(type) {
+		timeClick(e) {
 			let startTime = '',
 				endTime = '';
-			switch (type) {
-				case 'week':
+			switch (e) {
+				case 1:
 					let dateObj = this.getWeekRange();
 					startTime = dateObj.start;
 					endTime = dateObj.end;
 					break;
-				default:
+				case 2:
 					startTime = dayjs().subtract(3, 'month').startOf('month').format('YYYY-MM-DD');
 					endTime = this.now;
+					break;
+				case 3:
+					startTime = dayjs().subtract(6, 'month').startOf('month').format('YYYY-MM-DD');
+					endTime = this.now;
+					break;
+				default:
+					startTime = dayjs().startOf('year').format('YYYY-MM-DD');
+					endTime = dayjs().endOf('year').format('YYYY-MM-DD');
 					break;
 			}
 			this.date = {
 				startTime,
 				endTime
 			};
-			this.dateState = type;
 			this.$emit('handle', this.date);
 		},
 		getWeekRange() {
@@ -142,7 +148,6 @@ export default {
 		//新增
 		openDatePopup() {
 			this.$refs.datePopup.open();
-			this.dateState = 'other'
 		},
 		updateDays(yearIndex, monthIndex, type) {
 			const year = this.years[yearIndex];
@@ -192,14 +197,10 @@ export default {
 			this.$refs.datePopup.close();
 			this.date = {
 				startTime: this.startDate,
-				endTime: this.endDate,
-			}
-			this.$emit('handle',this.date)
-			this.dateState = 'other'
+				endTime: this.endDate
+			};
+			this.$emit('handle', this.date);
 		},
-		cancel() {
-			this.$refs.datePopup.close();
-		}
 	}
 };
 </script>
@@ -207,37 +208,30 @@ export default {
 <style lang="less" scoped>
 .box {
 	margin-top: 25rpx;
-	.date {
-		width: 55%;
-		margin-right: 25rpx;
-	}
-	.blueBorder {
-		border: 1px solid #4286ff;
+	.header {
+		padding: 0 20rpx;
+		.left {
+			float: right;
+			width: 33%;
+		}
 	}
 	.date-btn {
+		width: 65%;
+		float: left;
+		text-align: center;
+		font-size: 32rpx;
+		background-color: #fff;
+		border: 2rpx solid #c0c4cc;
+		border-radius: 10rpx;
+		padding: 8rpx 17rpx 8rpx 0;
+		color: #333;
+	
 		display: flex;
 		align-items: center;
-		padding: 0 20rpx;
-		justify-content: space-between;
+		justify-content: center; 
+		gap: 10rpx;
 	}
 	
-	.date-btn > view {
-	  text-align: center;
-	  font-size: 28rpx;
-	  line-height: 28rpx;
-	  border: 2rpx solid #ccc;
-	  border-radius: 10rpx;
-	  padding: 17rpx;
-	  color: #076aff;
-	}
-	.date-btn > view + view {
-	  margin-left: 20rpx;
-	}
-	.blue {
-	  background: #4286ff !important;
-	  color: #ffffff !important;
-	}
-
 	//new css
 	.popup-content {
 		padding: 20px 20px;
@@ -268,6 +262,12 @@ export default {
 	.date-column {
 		flex: 1;
 		margin-right: 10px;
+	}
+	.picker-item {
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  font-size: 30rpx;
 	}
 	.label {
 		margin-bottom: 5px;

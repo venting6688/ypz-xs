@@ -91,7 +91,7 @@ export default {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 0 30rpx;
+		padding: 0 20rpx 0 30rpx;
 		color: #4286ff;
 
 		.name {
@@ -121,7 +121,7 @@ export default {
 			width: 226rpx;
 			height: 54rpx;
 			border: 2rpx solid #4286ff;
-			border-radius: 38rpx;
+			border-radius: 10rpx;
 			display: flex;
 			justify-content: center;
 			align-items: center;
