@@ -102,8 +102,6 @@ export default {
 			this.$refs.cutPatientPopup.close()
 		}, 
 		navigator(index) {
-			
-			console.log(this.report.manifestation, 'd=d=d=d=d');
 			this.msgList = {};
 			uni.showLoading({
 				title: '智能分析解读中，请稍后...',

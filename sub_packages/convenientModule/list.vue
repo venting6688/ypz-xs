@@ -1,9 +1,7 @@
 <template>
 	<view class="inventory">
 		<bar />
-		<view class="date">
-			<uni-datetime-picker v-model="range" type="daterange" />
-		</view>
+		<view class="date"><date @handle="show" /></view>
 		<view class="center">
 			<view class="top" @click="showDetail(item.value)" v-for="(item, index) in dayList" :key="index">
 				<view class="title">
@@ -27,19 +25,21 @@
 	import { mapState } from 'vuex';
 	import bus from "@/utils/bus.js";
 	import bar from '../components/bar.vue'
+	import date from '../components/date.vue'
 	import hospitalizationApi from '@/api/hospitalizationApi.js';
 	export default {
 		components:{
 			bar,
+			date,
 		},
 		data() {
 			return {
-				dayList: [],
 				date:{},
+				dayList: [],
 				admID: '',
 				range: [],
 				startDate: '',
-				endDate: dayjs().format('YYYY-MM-DD'),
+				endDate: '',
 			}
 		},
 		computed: {
@@ -47,8 +47,8 @@
 		},
 		watch: {
 			range(newval) {
-				this.startDate = this.range.length ? this.range[0] : this.startDate
-				this.endDate =  this.range.length ? this.range[1] : this.endDate
+				this.startDate = this.range.length ? this.range[0] : ''
+				this.endDate =  this.range.length ? this.range[1] : ''
 				this.getHospitalizationDaysList();
 			},
 		},
@@ -59,6 +59,13 @@
 		},
 		
 		methods: {
+			show(time){
+				const datePattern = /^\d{4}-\d{2}-\d{2}$/.test(time.startTime);
+				if(datePattern){
+					this.date = time
+					this.getHospitalizationDaysList()
+				}
+			},
 			async getHospitalizationDaysList () {
 				let str = {
 					startDate: this.startDate,
@@ -94,23 +101,17 @@
 	   }
 	.inventory{
 		.date {
-			margin: 15rpx auto;
-			width: 92%;
-			border: 3rpx solid #4286ff
+			height: 70rpx;
 		}
 		.center {
-			margin:28rpx 33rpx 0 33rpx;
-			width: 684rpx;
+			margin: 20rpx 20rpx;
+			padding: 10rpx 0;
 			background: #ffffff;
 			border-radius: 12rpx;
-			padding: 20rpx 0;
 			.widthout {
 				image {
 					width: 75%;
 				}
-			}
-			&:last-of-type{
-				margin:28rpx 33rpx 28rpx 33rpx;
 			}
 			
 			.title {
@@ -132,7 +133,7 @@
 			}
 			.top {
 				margin:15rpx 10rpx;
-				padding: 15rpx 10rpx;
+				padding: 0 10rpx 20rpx;
 				border-bottom: 1px solid #eee;
 				.content {
 					margin:0 20rpx;

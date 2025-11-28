@@ -1,7 +1,7 @@
 <template>
 	<view class="inventory">
 		<bar v-if="footData.patientUniquelyIdentifies"/>
-		<date @handle="show" />
+		<view class="date"><date @handle="show" /></view>
 		<view class="center" v-if="recordList.length > 0">
 			<view class="top" @click="showInfo(item)" v-for="(item, index) in visibleData" :key="index">
 				<view class="title">
@@ -92,7 +92,7 @@
 				try {
 					let data = {
 						AimFlag: 'All',
-						patientID: this.footData.patientUniquelyIdentifies,
+						patientID: this.footData.patientUniquelyIdentifies, //'0000506592'
 						startDate: this.date.startTime,
 						endDate: this.date.endTime,
 					}
@@ -156,9 +156,7 @@
 	   }
 	.inventory{
 		.date {
-			margin: 15rpx auto;
-			width: 92%;
-			border: 3rpx solid #4286ff
+			height: 70rpx;
 		}
 		.without {
 			width: 95%;
@@ -166,11 +164,10 @@
 			top: 13.5%;
 		}
 		.center {
-			margin:28rpx 33rpx 0 33rpx;
-			width: 684rpx;
+			margin: 20rpx 20rpx;
+			padding: 10rpx 0;
 			background: #ffffff;
 			border-radius: 12rpx;
-			padding: 20rpx 0;
 			
 			.loading-text,
 			.no-more-text {
@@ -178,11 +175,6 @@
 			  padding: 20rpx;
 			  color: #999;
 			}
-			
-			&:last-of-type{
-				margin:28rpx 33rpx 28rpx 33rpx;
-			}
-			
 			.title {
 				display: flex;
 				align-items: center;
@@ -201,8 +193,8 @@
 				}
 			}
 			.top {
-				margin:15rpx 10rpx;
-				padding: 15rpx 10rpx;
+				margin: 15rpx 10rpx;
+				padding: 0 10rpx 20rpx;
 				border-bottom: 1px solid #eee;
 				.content {
 					margin:15rpx 20rpx;

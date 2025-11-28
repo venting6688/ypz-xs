@@ -74,20 +74,18 @@ export default {
 				{ value: 3, text: '近半年'},
 				{ value: 4, text: '近一年'},
 			],
-
 			//新增
 			isIOS: false,
-			years: [currentYear - 2, currentYear - 1, currentYear],
+			years: Array.from({ length: 11 }, (_, i) => currentYear - 10 + i),
 			months: Array.from({ length: 12 }, (_, i) => i + 1),
 			startDays: Array.from({ length: 31 }, (_, i) => i + 1),
 			endDays: Array.from({ length: 31 }, (_, i) => i + 1),
 
-			// 默认选中为今天
-			startIndex: [2, today.month(), today.date() - 1], // 2 对应当前年
-			endIndex: [2, today.month(), today.date() - 1],
+			startIndex: [0, 0, 0],
+			endIndex: [0, 0, 0],
 
-			startDate: today.format('YYYY-MM-DD'),
-			endDate: today.format('YYYY-MM-DD')
+			startDate: '',
+			endDate: ''
 		};
 	},
 	created() {
@@ -95,16 +93,43 @@ export default {
 		this.isIOS = sysInfo.platform === 'ios';
 	},
 	mounted() {
-		let dateObj = this.getWeekRange();
-		this.date = {
-			startTime: dateObj.start,
-			endTime: dateObj.end
-		};
-		this.$emit('handle', this.date);
+	  // ① 获取本周时间区间
+	  const week = this.getWeekRange();
+	  this.date = {
+	    startTime: week.start,
+	    endTime: week.end
+	  };
+	  this.$emit('handle', this.date);
 	
-		this.updateDays(this.startIndex[0], this.startIndex[1], 'start');
-		this.updateDays(this.endIndex[0], this.endIndex[1], 'end');
+	  // ② 将 start / end 日期赋给 picker 显示
+	  this.startDate = week.start;
+	  this.endDate = week.end;
+	
+	  const s = dayjs(week.start);
+	  const e = dayjs(week.end);
+	
+	  // ③ 计算年份/月份的索引
+	  const startY = this.years.indexOf(s.year());
+	  const startM = this.months.indexOf(s.month() + 1);
+	  const endY = this.years.indexOf(e.year());
+	  const endM = this.months.indexOf(e.month() + 1);
+	
+	  // ④ 先生成天数字段（避免 day 越界）
+	  this.updateDays(startY, startM, 'start');
+	  this.updateDays(endY, endM, 'end');
+	
+	  // ⑤ 计算日期索引（s.date() 是 1..31，所以 -1）
+	  const startD = s.date() - 1;
+	  const endD = e.date() - 1;
+	
+	  // ⑥ 设置最终 picker 索引
+	  this.startIndex = [startY, startM, startD];
+	  this.endIndex = [endY, endM, endD];
+	
+	  // ⑦ 下拉框默认选中本周
+	  this.value = 1;
 	},
+
 	methods: {
 		timeClick(e) {
 		  let startTime = '',
@@ -165,19 +190,20 @@ export default {
 			this.$refs.datePopup.open();
 		},
 		updateDays(yearIndex, monthIndex, type) {
-			const year = this.years[yearIndex];
-			const month = this.months[monthIndex];
-			const daysInMonth = dayjs(`${year}-${month}-01`).daysInMonth();
-			const arr = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-
-			if (type === 'start') {
-				this.startDays = arr;
-				if (this.startIndex[2] >= daysInMonth) this.startIndex[2] = daysInMonth - 1;
-			} else {
-				this.endDays = arr;
-				if (this.endIndex[2] >= daysInMonth) this.endIndex[2] = daysInMonth - 1;
-			}
+		  const year = this.years[yearIndex];
+		  const month = this.months[monthIndex];
+		  const daysInMonth = dayjs(`${year}-${month}-01`).daysInMonth();
+		  const arr = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+		
+		  if (type === 'start') {
+		    this.startDays = arr;
+		    if (this.startIndex[2] > daysInMonth - 1) this.startIndex[2] = daysInMonth - 1;
+		  } else {
+		    this.endDays = arr;
+		    if (this.endIndex[2] > daysInMonth - 1) this.endIndex[2] = daysInMonth - 1;
+		  }
 		},
+
 		onStartChange(e) {
 			const [yIndex, mIndex, dIndex] = e.detail.value;
 			this.startIndex = [yIndex, mIndex, dIndex];

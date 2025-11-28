@@ -80,10 +80,11 @@
 								</view>
 							</view>
 							<!-- 地图导航 -->
-							<view class="doctor" v-if="x.type == 2 && x.map">
+							<view class="doctor" v-if="x.type == 2 && x.address">
 								<view class="top2-content">
-									<view class="title">科室导航</view>
-									<view class="noData">{{x.map}}</view>
+									<view class="title">导航</view>
+									<view class="noData">{{x.address}}</view>
+									<view class="noData"><image v-if="x.image" :src="x.image" /></view>
 									<view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
 								</view>
 							</view>
@@ -223,7 +224,7 @@ export default {
 					my: false,
 					type: 1,
 					msg: '您可以向我询问以下问题：',
-					questionList: ['今天儿科排班', '如何进行退烧？', '腹痛挂什么科？']
+					questionList: ['今天儿科排班', '如何应对冬季高发流感', '神经内科科室导航']
 				}
 			], //消息集合
 			DataList: {}, //底部弹窗
@@ -404,7 +405,8 @@ export default {
 						query: msg,
 						inputs: {
 							sex: this.siginVal.sex,
-							age: this.calculateAge(this.siginVal.idNum)
+							age: this.calculateAge(this.siginVal.idNum),
+							patient_id: this.siginVal.patientUniquelyIdentifies,
 						},
 						response_mode: 'streaming',
 						conversation_id: this.conversation_id,
@@ -412,7 +414,7 @@ export default {
 					},
 					enableChunked: true,
 					header: {
-						Authorization: `Bearer app-JNpgkClVaG84M8HzwNoHwm0R`,
+						Authorization: `Bearer app-npuPoa4gDRhUohTtu74UaLUp`, //app-JNpgkClVaG84M8HzwNoHwm0R`,
 						'content-type': 'application/json'
 					},
 					success: (res) => {
@@ -531,11 +533,15 @@ export default {
 				          msg: content.msg
 				        })
 				      } else if (type === 'A003') {
+								let images = [...content.matchAll(/!\[.*?\]\((.*?)\)/g)].map(m => m[1]);
+								images = images != '' ? 'https://www.chinzsoft.com/api'+images : '';
+								let text = content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
 				        this.msgList.splice(this.msgList.length - 1, 1, {
 				          my: false,
 				          type: 2,
 				          msgLoad: false,
-				          map: content
+				          address: text,
+									image: images, 
 				        })
 				      }
 				    }
