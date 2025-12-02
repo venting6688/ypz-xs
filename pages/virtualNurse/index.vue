@@ -1,54 +1,42 @@
 <template>
 	<view class="virtual">
 		<view class="" :animation="anData" style="height: 0rpx"></view>
-		<!-- <image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	 -->
-		<!-- <image class="background" src="../../static/image/anhao.gif" /> -->
-		<!-- <video 
-			id="myVideo" 
-			class="background-video"
-			src="https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4"
-			autoplay
-			muted
-			playsinline
-			webkit-playsinline
-			:show-play-btn="false"
-			:controls="false"
-		>
-		</video> -->
-		<view class="video-wrap">
-		  <video
-		  	id="myVideo"
-		  	class="background-video"
-		  	:src="videoUrl"
-		  	autoplay
-		  	muted
-		  	loop
-		  	playsinline
-		  	webkit-playsinline
-		  	:controls="false"
-		  	:show-play-btn="false"
-		  	show-center-play-btn="false"
-		  	show-progress="false"
-		  	enable-progress-gesture="false"
-		  	show-fullscreen-btn="false"
-		  	@loadeddata="onVideoReady"
-		  	@timeupdate="forceShow"
-		  	:style="{ opacity: videoLoaded ? 1 : 0 }"
-		  ></video>
-		
-		  <!-- 底部遮挡黑线 -->
-		  <view class="video-bottom-cover" v-if="videoLoaded"></view>
-		</view>
-		
 		<view class="head">山东第一医科大学第二附属医院</view>
-		<view class="aiTitle">
-			<view class="aiName">Hi~ {{ siginVal.patientName != undefined ? siginVal.patientName : '' }}</view>
-			<view class="aiTip">我是"安好"，与您温暖同行，让关爱时刻在线</view>
-		</view>
-
+		
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
-				<view id="okk" style="padding-bottom: 100rpx">
+				<view class="video-wrap">
+				  <video
+				  	id="myVideo"
+				  	class="background-video"
+				  	:src="videoUrl"
+				  	autoplay
+				  	muted
+				  	loop
+				  	playsinline
+				  	webkit-playsinline
+				  	:controls="false"
+				  	:show-play-btn="false"
+				  	show-center-play-btn="false"
+				  	show-progress="false"
+				  	enable-progress-gesture="false"
+				  	show-fullscreen-btn="false"
+				  	@loadeddata="onVideoReady"
+				  	@timeupdate="forceShow"
+				  	:style="{ opacity: videoLoaded ? 1 : 0 }"
+				  ></video>
+				
+				  <!-- 底部遮挡黑线 -->
+				  <view class="video-bottom-cover" v-if="videoLoaded"></view>
+				</view>
+				
+				
+				<view class="aiTitle">
+					<view class="aiName">Hi~ {{ siginVal.patientName != undefined ? siginVal.patientName : '' }}</view>
+					<view class="aiTip">我是"安好"，与您温暖同行，让关爱时刻在线</view>
+				</view>
+				
+				<view id="okk" style="padding-bottom: 52rpx; margin-top: 27%">
 					<view class="msgList" v-for="(x, i) in msgList" :key="i" :class="{ padd: i === msgList.length - 1 }">
 						<!-- 用户消息 -->
 						<view class="my" v-if="x.my">
@@ -302,7 +290,7 @@ export default {
 					type: 1,
 					msg: '猜您想问：',
 					questionList: [
-						{ type: '综合', question: ['导航', '今天儿科排班', '如何应对冬季高发流感'] },
+						{ type: '综合', question: ['医院导航', '今天儿科排班', '如何应对冬季高发流感'] },
 						{ type: '查药品', question: ['阿莫西林是干什么的', '抗生素可以和酒精一起服用吗', '布洛芬缓释片口服剂量'] },
 						{ type: '找医生', question: ['耳鼻喉科医生今天上班吗', '明天消化内科排班', '明天口腔修复门诊排班']},
 						{ type: '院内导航', question: ['医院地址交通指南', '神经内科在哪，具体导航', '急诊位置'] },
@@ -861,7 +849,8 @@ export default {
 	height: 100%;
 	position: relative;
 	// background: linear-gradient(333deg, #9bc9ff 0%, #c9e2ff 41%, #deedff 100%);
-	background: linear-gradient(180deg,#deedff, #c4dcf5 50%, #9bc9ff 100%);
+	// background: linear-gradient(180deg,#deedff, #c4dcf5 50%, #9bc9ff 100%);
+	background: linear-gradient(180deg, #c5ddf8, #cfe2fa 50%, #9bc9ff 100%);
 	display: flex;
 	flex-direction: column;
 
@@ -871,7 +860,7 @@ export default {
 		height: 560rpx;
 	}
 	.video-wrap {
-		top: 0%;
+		top: -16%;
 	  width: 100vw;
 	  height: 560rpx;
 	  overflow: hidden;
@@ -913,7 +902,7 @@ export default {
 
 	.aiTitle {
 		width: 64%;
-		top: 15%;
+		top: 3%;
 		left: 5%;
 		position: absolute;
 	}
@@ -937,7 +926,7 @@ export default {
 		display: flex;
 		flex-direction: column;
 		.scroll-Y {
-			margin-top: 50%;
+			margin-top: 185rpx;
 			width: 750rpx;
 			flex: auto;
 			overflow: auto;

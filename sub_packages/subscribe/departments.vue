@@ -155,18 +155,28 @@
 			margin-bottom: 40rpx;
 			padding-top: 40rpx;
 		}
+		/deep/.van-search__content {
+			height: 75rpx;
+			display: flex;
+			align-items: center;
+			background-color: #f0f0f0;
+			border-radius: 35rpx;
+		}
 		// select
 		/deep/ .van-tree-select__nav{
 			background-color: #ffffff;
 		}
 		/deep/ .van-sidebar-item{
 			background-color: #ffffff;
-			// font-size: 37rpx;
+			font-size: 32rpx;
 		}
 		/deep/ .van-sidebar-item--selected {
 		  color: #3E99FF;
 		  background: #f2f6f9;
 		  border-color: var(--sidebar-selected-border-color,#3E99FF);
+		}
+		/deep/ .van-tree-select__item{
+			font-size: 30rpx;
 		}
 		/deep/ .van-tree-select__content{
 			background-color: #F2F6F9;

@@ -22,9 +22,9 @@
 							<text>{{ item[0].DoctorName }}</text>
 							<text>{{ item[0].DoctorSessType }}</text>
 							<text class="expert" v-if="item.expert">{{ item.expert }}</text>
-							<!-- <text class="money">￥{{item[0].Fee}}</text> -->
 						</view>
-						<view class="synopsis">{{ item[0].DoctorSpec ? item[0].DoctorSpec : '暂无简介' }}</view>
+						<view class="deparName">{{ item[0].DepartmentName }}</view>
+						<view class="synopsis">{{ item[0].DoctorSpec ? formatText(item[0].DoctorSpec, 35) : '暂无简介' }}</view>
 					</view>
 				</view>
 				<view class="footer">
@@ -32,30 +32,23 @@
 						<view class="num">
 							<view class="subscribe-time">{{ i.ServiceDate }}</view>
 							<view class="subscribe-am">{{ i.SessionName }}</view>
-							<!-- <view class="subscribe-number">
-								<text>剩余</text>
-								<text>{{i.AvailableLeftNum}}</text>
-							</view> -->
 						</view>
 
-						<view>
-							<text class="money">￥{{ item[0].Fee }}</text>
+						<view class="amount">
+							<view class="money">￥{{ item[0].Fee }}</view>
+							<view>
+								<button
+									v-if="i.AvailableLeftNum > 0"
+									type="primary"
+									size="mini"
+									style="background-color: #007aff; color: white; margin-right: 10rpx"
+									@click="getNumSource(i, item, x)"
+								>
+									剩余{{ i.AvailableLeftNum }}
+								</button>
+								<button v-else type="primary" size="mini" style="background-color: #ccc; color: white; margin-right: 10rpx">剩余0</button>
+							</view>
 						</view>
-
-						<view>
-							<button
-								v-if="i.AvailableLeftNum > 0"
-								type="primary"
-								size="mini"
-								style="background-color: #007aff; color: white; margin-right: 10rpx"
-								@click="getNumSource(i, item, x)"
-							>
-								剩余{{ i.AvailableLeftNum }}
-							</button>
-							<button v-else type="primary" size="mini" style="background-color: #ccc; color: white; margin-right: 10rpx">剩余0</button>
-						</view>
-
-						<!-- <view class="subscribe-btn">预约</view> -->
 					</view>
 				</view>
 			</view>
@@ -232,6 +225,10 @@ export default {
 		},
 		close() {
 			this.$refs.popup.close();
+		},
+		formatText(str, len) {
+			if (!str) return '';
+			return str.length > len ? str.slice(0, len) + '...' : str;
 		}
 	},
 	onLoad(e) {
@@ -243,7 +240,7 @@ export default {
 		this.departmentName = e.departmentName;
 		this.schedule = e.timeObj ? JSON.parse(e.timeObj) : {};
 		this.thatDay = e.thatDay ? e.thatDay : '';
-		this.jumpType = e.jumpType ? e.jumpType :this.jumpType;
+		this.jumpType = e.jumpType ? e.jumpType : this.jumpType;
 	},
 	mounted() {
 		this.getScheduleDates();
@@ -297,6 +294,7 @@ export default {
 			background: #ffffff;
 			border-radius: 11.45rpx;
 			text-align: center;
+			padding: 10rpx 0;
 			view {
 				display: flex;
 				justify-content: center;
@@ -304,16 +302,16 @@ export default {
 				height: 33.33%;
 
 				&:nth-of-type(1) {
-					font-size: 23rpx;
+					font-size: 26rpx;
 					line-height: 23rpx;
 					color: #666666;
 				}
 				&:nth-of-type(2) {
-					font-size: 27rpx;
+					font-size: 30rpx;
 					line-height: 26rpx;
 				}
 				&:nth-of-type(3) {
-					font-size: 23rpx;
+					font-size: 26rpx;
 					line-height: 23rpx;
 					color: #4286ff;
 				}
@@ -352,11 +350,11 @@ export default {
 		margin: 15rpx 0 50rpx 0;
 
 		.center {
-			width: 680rpx;
+			// width: 680rpx;
 			// height: 350rpx;
 			background: #ffffff;
 			border-radius: 11.45rpx;
-			margin: 25rpx auto;
+			margin: 25rpx 25rpx 25rpx 13rpx;
 			padding: 20rpx 0;
 
 			&:nth-of-type(1) {
@@ -376,14 +374,14 @@ export default {
 					height: 152.67rpx;
 					border-radius: 9.54rpx;
 					image {
-						width: 122.14rpx;
-						height: 152.67rpx;
-						border-radius: 9.54rpx;
+						width: 122rpx;
+						height: 152rpx;
+						border-radius: 10rpx;
 					}
 				}
 				.message {
 					margin-left: 24rpx;
-					padding-top: 20rpx;
+					padding-top: 10rpx;
 					.name {
 						display: flex;
 						align-items: center;
@@ -416,12 +414,16 @@ export default {
 							align-items: center;
 						}
 					}
+					.deparName {
+						margin-top: 15rpx;
+						color: #666;
+					}
 					.synopsis {
 						width: 508rpx;
 						height: 99rpx;
-						margin-top: 18rpx;
-						font-size: 23rpx;
-						line-height: 26rpx;
+						margin-top: 10rpx;
+						font-size: 24rpx;
+						line-height: 35rpx;
 						color: #999999;
 						overflow: hidden;
 						display: -webkit-box; //将元素设为盒子伸缩模型显示
@@ -438,38 +440,72 @@ export default {
 					align-items: center;
 					height: 57.25rpx;
 					margin: 20rpx;
-					.money {
-						font-size: 32rpx;
-						color: #faaa03;
-					}
-					.num {
+					gap: 62rpx;
+					.num,
+					.amount {
 						display: flex;
+						// justify-content: flex-start;
 						align-items: center;
+						// flex: 1;
+						gap: 68rpx;
+					}
 
+					.num {
 						.subscribe-time {
-							margin-right: 80rpx;
+							font-size: 30rpx;
+							color: #333;
 						}
-						.subscribe-number {
-							text {
-								&:last-of-type {
-									color: #4286ff;
-								}
-							}
+						.subscribe-am {
+							font-size: 30rpx;
+							color: #666;
 						}
 					}
-					.subscribe-btn {
-						width: 137.4rpx;
-						height: 57.25rpx;
-						background: rgba(66, 134, 255, 0.08);
-						border-radius: 38.17rpx;
-						color: #4286ff;
-						font-size: 26.72rpx;
-						line-height: 26.72rpx;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						margin-right: 20rpx;
+
+					.amount {
+						.money {
+							font-size: 32rpx;
+							color: #faaa03;
+						}
+						button {
+							font-size: 24rpx;
+							border-radius: 8rpx;
+							padding: 0 35rpx;
+							margin-left: 10rpx;
+						}
 					}
+
+					// .money {
+					// 	font-size: 32rpx;
+					// 	color: #faaa03;
+					// }
+					// .num {
+					// 	display: flex;
+					// 	align-items: center;
+
+					// 	.subscribe-time {
+					// 		margin-right: 80rpx;
+					// 	}
+					// 	.subscribe-number {
+					// 		text {
+					// 			&:last-of-type {
+					// 				color: #4286ff;
+					// 			}
+					// 		}
+					// 	}
+					// }
+					// .subscribe-btn {
+					// 	width: 137.4rpx;
+					// 	height: 57.25rpx;
+					// 	background: rgba(66, 134, 255, 0.08);
+					// 	border-radius: 38.17rpx;
+					// 	color: #4286ff;
+					// 	font-size: 26.72rpx;
+					// 	line-height: 26.72rpx;
+					// 	display: flex;
+					// 	justify-content: center;
+					// 	align-items: center;
+					// 	margin-right: 20rpx;
+					// }
 				}
 			}
 		}
