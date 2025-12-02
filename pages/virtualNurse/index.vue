@@ -130,10 +130,10 @@
 									<view class="scheduling" v-for="(item, index) in x.scheduling" :key="index" v-show="x.scheduling">
 										<view class="name">
 											<view class="price">
-												<view>{{ item.DoctorName }} ({{ item.DoctorSessType }})</view>
+												<view class="doctName">{{ item.DoctorName }} ({{ item.DoctorSessType }})</view>
 												<view class="fee">￥{{ parseFloat(item.Fee).toFixed(2) }}</view>
 											</view>
-											<view class="desc" style="color: #666;">{{ item.DepartmentName }}</view>
+											<view class="ks">{{ item.DepartmentName }}</view>
 											<view class="desc">
 												号源：
 												<text v-for="(sch, i) in item.scheduling" :key="i">
@@ -298,7 +298,7 @@ export default {
 					type: 1,
 					msg: '猜您想问：',
 					questionList: [
-						{ type: '综合', question: ['医院导航', '今天儿科排班', '如何应对冬季高发流感'] },
+						{ type: '综合', question: ['医院导航', '明天口腔科排班', '如何应对冬季高发流感'] },
 						{ type: '查药品', question: ['阿莫西林的作用', '布洛芬缓释片口服剂量', '抗生素可以和酒精一起服用吗'] },
 						{ type: '找医生', question: ['头疼挂什么科', '明天消化内科排班', '耳鼻喉科医生今天上班吗']},
 						{ type: '院内导航', question: [ '急诊位置', '医院地址交通指南', '神经内科在哪，具体导航',] },
@@ -1012,7 +1012,7 @@ export default {
 									.tipContent {
 										display: flex;
 										padding: 20rpx 25rpx 20rpx 20rpx;
-										font-size: 30rpx;
+										font-size: 32rpx;
 										color: #02134e;
 										background: #fff;
 										border-radius: 50rpx;
@@ -1216,7 +1216,7 @@ export default {
 
 								.name {
 									flex: 1;
-									gap: 5rpx;
+									gap: 10rpx;
 									display: flex;
 									font-size: 30rpx;
 									flex-direction: column;
@@ -1225,15 +1225,20 @@ export default {
 									.price {
 										display: flex;
 										gap: 15%;
-
+										.doctName {
+											font-size: 32rpx;
+										}
 										.fee {
 											font-size: 34rpx;
 											color: #4286ff;
 										}
 									}
-
+									.ks {
+										color: #666;
+										font-size: 30rpx;
+									}
 									.desc {
-										color: #5fa8ff;
+										color: #666;
 										font-size: 28rpx;
 										.space {
 										  display: inline-block;
