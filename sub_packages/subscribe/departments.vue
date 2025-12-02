@@ -1,13 +1,13 @@
 <template>
 	<view class="department">
-		<HeaderBar :HeaderBar="HeaderBar" />
+		<!-- <HeaderBar :HeaderBar="HeaderBar" /> -->
 		<van-search
 			v-model="searchQuery"
 			placeholder="搜索科室"
 			@change="onSearchChange"
 		/>
 		<van-tree-select
-			height="880rpx"
+			height="93vh"
 			:items="filteredItems"
 			:main-active-index.sync="mainActiveIndex"
 			:active-id.sync="activeId"
@@ -151,7 +151,9 @@
 			height: 61.07rpx;
 			background: #f2f6f9;
 			border-radius: 7.63rpx;
-			margin: 35rpx auto;
+			margin: 0 auto;
+			margin-bottom: 40rpx;
+			padding-top: 40rpx;
 		}
 		// select
 		/deep/ .van-tree-select__nav{
@@ -165,7 +167,6 @@
 		  color: #3E99FF;
 		  background: #f2f6f9;
 		  border-color: var(--sidebar-selected-border-color,#3E99FF);
-		     
 		}
 		/deep/ .van-tree-select__content{
 			background-color: #F2F6F9;

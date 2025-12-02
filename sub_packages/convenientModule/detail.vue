@@ -1,6 +1,5 @@
 <template>
 	<view class="details">
-		<bar />
 		<view class="middle">
 			<view class="uni-container">
 				<uni-table border stripe>
@@ -23,12 +22,8 @@
 </template>
 
 <script>
-	import bar from '../components/bar.vue'
 	import { mapState } from 'vuex'
 	export default {
-		components:{
-			bar
-		},
 		data(){
 			return {
 				detailInfo:{},

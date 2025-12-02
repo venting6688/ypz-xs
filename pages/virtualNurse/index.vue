@@ -2,10 +2,50 @@
 	<view class="virtual">
 		<view class="" :animation="anData" style="height: 0rpx"></view>
 		<!-- <image class="background" src="https://aiwz.sdtyfy.com:8099/img/virtualBg.png" ></image>	 -->
-		<image class="background" src="../../static/image/anhao.png" />
+		<!-- <image class="background" src="../../static/image/anhao.gif" /> -->
+		<!-- <video 
+			id="myVideo" 
+			class="background-video"
+			src="https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4"
+			autoplay
+			muted
+			playsinline
+			webkit-playsinline
+			:show-play-btn="false"
+			:controls="false"
+		>
+		</video> -->
+		<view class="video-wrap">
+		  <video
+		  	id="myVideo"
+		  	class="background-video"
+		  	:src="videoUrl"
+		  	autoplay
+		  	muted
+		  	loop
+		  	playsinline
+		  	webkit-playsinline
+		  	:controls="false"
+		  	:show-play-btn="false"
+		  	show-center-play-btn="false"
+		  	show-progress="false"
+		  	enable-progress-gesture="false"
+		  	show-fullscreen-btn="false"
+		  	@loadeddata="onVideoReady"
+		  	@timeupdate="forceShow"
+		  	:style="{ opacity: videoLoaded ? 1 : 0 }"
+		  ></video>
+		
+		  <!-- 底部遮挡黑线 -->
+		  <view class="video-bottom-cover" v-if="videoLoaded"></view>
+		</view>
+		
 		<view class="head">山东第一医科大学第二附属医院</view>
-		<view class="aiName">Hi~ {{ siginVal.patientName != undefined ? siginVal.patientName : '' }}</view>
-		<view class="aiTip">我是您的AI虚拟护士“安好“，与您温暖同行</view>
+		<view class="aiTitle">
+			<view class="aiName">Hi~ {{ siginVal.patientName != undefined ? siginVal.patientName : '' }}</view>
+			<view class="aiTip">我是"安好"，与您温暖同行，让关爱时刻在线</view>
+		</view>
+
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
 				<view id="okk" style="padding-bottom: 100rpx">
@@ -34,14 +74,50 @@
 									</view>
 									<view v-else class="msg" v-html="markdown(x.msg)"></view>
 									<!-- 消息模板 -->
-									<view class="top1" v-if="x.type == 1">
+									<!-- <view class="top1" v-if="x.type == 1">
 										<view class="answer" @click="answer(item)" v-for="(item, index) in x.questionList" :key="index">
 											<view class="tipContent">
 												<view>{{ item }}</view>
 												<image src="../../static/img/arrow.png" />
 											</view>
 										</view>
+									</view> -->
+									<view v-if="x.type == 1">
+										<scroll-view scroll-x class="tabs-scroll" :scroll-left="scrollLeft" scroll-with-animation>
+											<view class="tab-list">
+												<view v-for="(item, index) in tabs" :key="index" class="tab-item" :class="{ active: current === index }" @click="changeTab(index)">
+													{{ item }}
+													<view v-if="current === index" class="active-bottom">
+														<image src="../../static/image/arc.png" />
+													</view>
+												</view>
+											</view>
+										</scroll-view>
+										
+										<swiper :current="current" @change="onSwiperChange" class="swiper-body">
+											<swiper-item v-for="(item, i) in tabs" :key="i">
+												<view class="page-content">
+													<view class="top1" v-if="x.type == 1">
+														<view class="answer" v-for="msgItem in msgList" :key="msgItem.msg">
+															<view 
+																class="answer" 
+																v-for="(question, idx) in getQuestionsByType(msgItem, item)" 
+																:key="idx"
+																@click="answer(question)"
+															>
+																<view class="tipContent">
+																	<view>{{ question }}</view>
+																	<image src="../../static/img/arrow.png" />
+																</view>
+															</view>
+														</view>
+													</view>
+												</view>
+											</swiper-item>
+										</swiper>
 									</view>
+									
+
 									<view class="ai-tips" v-if="pattern !== 1 && !x.msgLoad && x.type !== 1">· 此内容由AI生成，仅供参考</view>
 								</view>
 							</view>
@@ -83,7 +159,8 @@
 							<view class="doctor" v-if="x.type == 2 && x.address">
 								<view class="top2-content">
 									<view class="title">导航</view>
-									<view class="noData">{{x.address}}</view>
+									<view class="noData" v-html="markdown(x.address)"></view>
+									<!-- <view class="noData">{{x.address}}</view> -->
 									<view class="noData"><image v-if="x.image" :src="x.image" /></view>
 									<view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
 								</view>
@@ -192,14 +269,14 @@ var wh;
 // 顶部空盒子的高度
 var mgUpHeight;
 
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
 import bus from '@/utils/bus';
 import { mapActions } from 'vuex';
 import MarkdownIt from 'markdown-it';
 import mixin from '@/mixins/mixin.js';
 import login from '@/utils/login.js';
 import { parse } from 'best-effort-json-parser';
-import { safeParseJSON } from '@/utils/jsonHelper.js'
+import { safeParseJSON } from '@/utils/jsonHelper.js';
 
 export default {
 	mixins: [mixin],
@@ -223,8 +300,14 @@ export default {
 				{
 					my: false,
 					type: 1,
-					msg: '您可以向我询问以下问题：',
-					questionList: ['今天儿科排班', '如何应对冬季高发流感', '神经内科科室导航']
+					msg: '猜您想问：',
+					questionList: [
+						{ type: '综合', question: ['导航', '今天儿科排班', '如何应对冬季高发流感'] },
+						{ type: '查药品', question: ['阿莫西林是干什么的', '抗生素可以和酒精一起服用吗', '布洛芬缓释片口服剂量'] },
+						{ type: '找医生', question: ['耳鼻喉科医生今天上班吗', '明天消化内科排班', '明天口腔修复门诊排班']},
+						{ type: '院内导航', question: ['医院地址交通指南', '神经内科在哪，具体导航', '急诊位置'] },
+						{ type: '知识问答', question: ['糖尿病患者，空腹血糖控制在多少算达标', '血常规“白细胞计数”偏低，是什么意思', '新生儿黄疸，什么情况下需要去医院'] },
+					]
 				}
 			], //消息集合
 			DataList: {}, //底部弹窗
@@ -248,7 +331,13 @@ export default {
 			},
 			inputState: true,
 			secondDepartment: [],
-			
+			current: 0,
+			tabs: ['综合', '查药品', '找医生', '院内导航', '知识问答'],
+			scrollLeft: 0, // 用来控制 scroll-view 的滑动距离
+			tabWidth: 180, // 单个 tab 的宽度(px 换算 rpx 自行调整)
+			viewWidth: 750 , // scroll-view 宽度 rpx
+			videoLoaded: false,
+			videoUrl: 'https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4'
 		};
 	},
 	onShow() {
@@ -265,6 +354,39 @@ export default {
 		});
 	},
 	methods: {
+		onVideoReady() {
+			this.videoLoaded = true
+		},
+		forceShow() {
+			this.videoLoaded = true
+		},
+		getQuestionsByType(msgItem, type) {
+				if (!msgItem.questionList) return [];
+				const q = msgItem.questionList.find(q => q.type === type);
+				return q ? q.question : [];
+		},
+		changeTab(index) {
+			this.current = index;
+			this.scrollToTab(index);
+		},
+		onSwiperChange(e) {
+			const index = e.detail.current;
+			this.current = index;
+			this.scrollToTab(index);
+		},
+		scrollToTab(index) {
+			const totalWidth = this.tabs.length * this.tabWidth;
+			const halfView = this.viewWidth / 2;
+
+			let target = index * this.tabWidth + this.tabWidth / 2 - halfView;
+
+			// 边界处理
+			if (target < 0) target = 0;
+			if (target > totalWidth - this.viewWidth) target = totalWidth - this.viewWidth;
+
+			this.scrollLeft = target;
+		},
+		
 		formatText(str, len) {
 			if (!str) return '';
 			return str.length > len ? str.slice(0, len) + '...' : str;
@@ -277,8 +399,8 @@ export default {
 			this.$set(this.msgList[index], 'tipsState', !this.msgList[index].tipsState);
 		},
 		markdown(content) {
-		  const safeContent = typeof content === 'string' ? content : String(content || '')
-		  return this.md.render(safeContent)
+			const safeContent = typeof content === 'string' ? content : String(content || '');
+			return this.md.render(safeContent);
 		},
 		more() {
 			uni.navigateTo({
@@ -296,34 +418,34 @@ export default {
 			this.Focus = false;
 		},
 		footType(item, type) {
-		  let name = '',
-		  id = '';
-		  let date = item.medDate ? item.medDate : dayjs().format('YYYY-MM-DD');
-		  let today = date == dayjs().format('YYYY-MM-DD') ? true : false;
-		  let week = this.getWeekday(date);
-		  let timeObj = {};
-		  let url = '';
-		  if (type == 'doctor') {
-		    name = item.DepartmentName;
-		    id = item.DepartmentCode;
-		    timeObj = {
-		      date,
-		      week,
-		      deptCode: id,
-		      status: '有号'
-		    };
-		    // url = `/sub_packages/subscribe/doctors?title=${name}&CLGRPRowId=${id}&timeObj=${JSON.stringify(timeObj)}&thatDay=${today}&jumpType='jump'`
-				url = `/sub_packages/subscribe/departments`
-		  } else {
-		    name = item.name;
-		    id = item.id;
-		    url = `/sub_packages/subscribe/doctors?title=${name}&CLGRPRowId=${id}`
-		  }
-		  uni.navigateTo({ url })
+			let name = '',
+				id = '';
+			let date = item.medDate ? item.medDate : dayjs().format('YYYY-MM-DD');
+			let today = date == dayjs().format('YYYY-MM-DD') ? true : false;
+			let week = this.getWeekday(date);
+			let timeObj = {};
+			let url = '';
+			if (type == 'doctor') {
+				name = item.DepartmentName;
+				id = item.specialtyGroupId;
+				timeObj = {
+					date,
+					week,
+					deptCode: id,
+					status: '有号'
+				};
+				url = `/sub_packages/subscribe/doctors?title=${name}&CLGRPRowId=${id}&timeObj=${timeObj}&thatDay=${today}`;
+				// url = `/sub_packages/subscribe/departments`
+			} else {
+				name = item.name;
+				id = item.id;
+				url = `/sub_packages/subscribe/doctors?title=${name}&CLGRPRowId=${id}`;
+			}
+			uni.navigateTo({ url });
 		},
 		getWeekday(date) {
-		  const weekMap = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-		  return weekMap[dayjs(date).day()]
+			const weekMap = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+			return weekMap[dayjs(date).day()];
 		},
 		// 保持消息体可见
 		msgGo(i) {
@@ -406,7 +528,7 @@ export default {
 						inputs: {
 							sex: this.siginVal.sex,
 							age: this.calculateAge(this.siginVal.idNum),
-							patient_id: this.siginVal.patientUniquelyIdentifies,
+							patient_id: this.siginVal.patientUniquelyIdentifies
 						},
 						response_mode: 'streaming',
 						conversation_id: this.conversation_id,
@@ -442,116 +564,118 @@ export default {
 						this.inputState = true;
 					}
 				});
-				let buffer = ''
-				let partialAnswer = ''
-				let lastAnswer = ''
-				let messageStarted = false
-				
-				requestTask.onChunkReceived(res => {
-				  try {
-				    const responseText = this.arrayBufferToString(res.data)
-				    buffer += responseText
-				    let lines = buffer.split('\n')
-				    buffer = lines.pop()
-				
-				    for (const line of lines) {
-				      if (!line.startsWith('data:')) continue
-				      const jsonStr = line.replace(/^data:\s*/, '').trim()
-				      if (!jsonStr) continue
-				
-				      // 流式结束信号
-				      if (jsonStr === '[DONE]' || jsonStr.includes('message_end')) {
-				        messageStarted = false
-				        lastAnswer = ''
-				        partialAnswer = ''
-				        break
-				      }
-				
-				      const obj = safeParseJSON(jsonStr)
-				      if (!obj) continue
-				
-				      // 错误处理
-				      if (obj.event === 'error') {
-				        this.msgList.splice(this.msgList.length - 1, 1, {
-				          my: false,
-				          msgLoad: false,
-				          msg: '很抱歉，您的问题暂时没查询到，我还在努力学习中...'
-				        })
-				        continue
-				      }
-				
-				      this.conversation_id = obj.conversation_id || this.conversation_id
-				
-				      const answer = obj.answer || obj.data?.outputs?.answer
-				      if (!answer) continue
-				      const jsonData = safeParseJSON(answer)
-				      if (!jsonData || !jsonData.intent || jsonData.content == null) continue
-				      const type = jsonData.intent
-				      const content = jsonData.content
-				      if (['A004', 'A005', 'A999', 'A998'].includes(type)) {
-				        const safeContent = typeof content === 'string' ? content : String(content || '')
-				        if (typeof lastAnswer !== 'string') lastAnswer = String(lastAnswer || '')
-				
-				        const newPart = safeContent.slice(lastAnswer.length)
-				        if (typeof newPart !== 'string' || !newPart.trim()) return
-				
-				        lastAnswer = safeContent
-				        const lastMsg = this.msgList[this.msgList.length - 1]
-				
-				        if (lastMsg && lastMsg.msgLoad) {
-				          lastMsg.msgLoad = false
-				          this.showTypewriterEffect(newPart, lastMsg)
-				        } else if (lastMsg && !lastMsg.msgLoad) {
-				          this.showTypewriterEffect(newPart, lastMsg)
-				        } else {
-				          const msgObj = { my: false, msgLoad: false, msg: '' }
-				          this.msgList.push(msgObj)
-				          this.showTypewriterEffect(newPart, msgObj)
-				        }
-				        this.$forceUpdate()
-				      } else if (type === 'A001') {
-				        const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState
-				        this.msgList.splice(this.msgList.length - 1, 1, {
-				          my: false,
-				          type: 2,
-				          msgLoad: false,
-				          department: content.option,
-				          tips: content.reason,
-				          tipsState: originalTipsState
-				        })
-				      } else if (type === 'A002' && content.code != 500) {
-				        this.msgList.splice(this.msgList.length - 1, 1, {
-				          my: false,
-				          type: 2,
-				          msgLoad: false,
-				          scheduling: content
-				        })
-				      } else if (type === 'A002' && content.code == 500) {
-				        this.msgList.splice(this.msgList.length - 1, 1, {
-				          my: false,
-				          msgLoad: false,
-				          msg: content.msg
-				        })
-				      } else if (type === 'A003') {
-								let images = [...content.matchAll(/!\[.*?\]\((.*?)\)/g)].map(m => m[1]);
-								images = images != '' ? 'https://www.chinzsoft.com/api'+images : '';
+				let buffer = '';
+				let partialAnswer = '';
+				let lastAnswer = '';
+				let messageStarted = false;
+
+				requestTask.onChunkReceived((res) => {
+					try {
+						const responseText = this.arrayBufferToString(res.data);
+						buffer += responseText;
+						let lines = buffer.split('\n');
+						buffer = lines.pop();
+
+						for (const line of lines) {
+							if (!line.startsWith('data:')) continue;
+							const jsonStr = line.replace(/^data:\s*/, '').trim();
+							if (!jsonStr) continue;
+
+							// 流式结束信号
+							if (jsonStr === '[DONE]' || jsonStr.includes('message_end')) {
+								messageStarted = false;
+								lastAnswer = '';
+								partialAnswer = '';
+								break;
+							}
+
+							const obj = safeParseJSON(jsonStr);
+							if (!obj) continue;
+
+							// 错误处理
+							if (obj.event === 'error') {
+								this.msgList.splice(this.msgList.length - 1, 1, {
+									my: false,
+									msgLoad: false,
+									msg: '很抱歉，您的问题暂时没查询到，我还在努力学习中...'
+								});
+								continue;
+							}
+
+							this.conversation_id = obj.conversation_id || this.conversation_id;
+
+							const answer = obj.answer || obj.data?.outputs?.answer;
+							if (!answer) continue;
+							const jsonData = safeParseJSON(answer);
+							if (!jsonData || !jsonData.intent || jsonData.content == null) continue;
+							const type = jsonData.intent;
+							const content = jsonData.content;
+
+							if (type === 'A001') {
+								const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState;
+								this.msgList.splice(this.msgList.length - 1, 1, {
+									my: false,
+									type: 2,
+									msgLoad: false,
+									department: content.option,
+									tips: content.reason,
+									tipsState: originalTipsState
+								});
+							} else if (type === 'A002' && content.code != 500) {
+								this.msgList.splice(this.msgList.length - 1, 1, {
+									my: false,
+									type: 2,
+									msgLoad: false,
+									scheduling: content
+								});
+							} else if (type === 'A002' && content.code == 500) {
+								this.msgList.splice(this.msgList.length - 1, 1, {
+									my: false,
+									msgLoad: false,
+									msg: content.msg
+								});
+							} else if (type === 'A003') {
+								let images = [...content.matchAll(/!\[.*?\]\((.*?)\)/g)].map((m) => m[1]);
+								images = images != '' ? 'https://www.chinzsoft.com/api' + images : '';
 								let text = content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
-				        this.msgList.splice(this.msgList.length - 1, 1, {
-				          my: false,
-				          type: 2,
-				          msgLoad: false,
-				          address: text,
-									image: images, 
-				        })
-				      }
-				    }
-				  } catch (e) {
-				    console.error('解析流式返回数据异常:', e)
-				  }
-				})
+								this.msgList.splice(this.msgList.length - 1, 1, {
+									my: false,
+									type: 2,
+									msgLoad: false,
+									address: text,
+									image: images
+								});
+							} else {
+								//['A004', 'A005', 'A006', 'A999', 'A998']
+								const safeContent = typeof content === 'string' ? content : String(content || '');
+								if (typeof lastAnswer !== 'string') lastAnswer = String(lastAnswer || '');
+
+								const newPart = safeContent.slice(lastAnswer.length);
+								if (typeof newPart !== 'string' || !newPart.trim()) return;
+
+								lastAnswer = safeContent;
+								const lastMsg = this.msgList[this.msgList.length - 1];
+
+								if (lastMsg && lastMsg.msgLoad) {
+									lastMsg.msgLoad = false;
+									this.showTypewriterEffect(newPart, lastMsg);
+								} else if (lastMsg && !lastMsg.msgLoad) {
+									this.showTypewriterEffect(newPart, lastMsg);
+								} else {
+									const msgObj = { my: false, msgLoad: false, msg: '' };
+									this.msgList.push(msgObj);
+									this.showTypewriterEffect(newPart, msgObj);
+								}
+								this.$forceUpdate();
+							}
+						}
+					} catch (e) {
+						console.error('解析流式返回数据异常:', e);
+					}
+				});
 			}
 		},
-		
+
 		//弹窗事件
 		choice(index) {
 			let reply = this.reply.join(',');
@@ -678,27 +802,105 @@ export default {
 		this.manager = plugin.getRecordRecognitionManager();
 		this.setManagerLisener();
 		this.msgGo();
+		const videoCtx = uni.createVideoContext('myVideo', this);
+		if (!this.played) {
+			videoCtx.play();
+		}
 	}
 };
 </script>
 
 <style lang="less" scoped>
+.tabs-scroll {
+	white-space: nowrap;
+}
+.swiper-body {
+	height: 300rpx;
+}
+.tab-list {
+	display: flex;
+}
+.tab-item {
+	position: relative;
+	font-size: 32rpx;
+	color: #666;
+	padding: 24rpx 18rpx 18rpx;
+}
+
+.tab-item:nth-child(1) {
+	padding-left: 0;
+}
+
+.tab-item.active {
+	color: #007aff;
+	font-weight: bold;
+}
+
+// .active-bottom {
+//   width: 30px;       /* 波浪线长度 */
+// 	height: 3px;       /* 波浪线高度 */
+// 	background: #007aff;
+// 	border-top-left-radius: 50% 100%;
+// 	border-top-right-radius: 50% 100%;
+// 	border-bottom-left-radius: 50% 100%;
+// 	border-bottom-right-radius: 50% 100%;
+// 	transform: rotate(-20deg); /* 旋转调整弧度方向 */
+// }
+
+.active-bottom {
+	display: flex;
+	justify-content: center;
+  image {
+		width: 56rpx;
+		height: 12rpx;
+	}
+}
+
+
 .virtual {
 	height: 100%;
 	position: relative;
-	// background: linear-gradient(to right,#4dccfb,#5da9fc);
-	background: linear-gradient(333deg, #9bc9ff 0%, #c9e2ff 41%, #deedff 100%);
+	// background: linear-gradient(333deg, #9bc9ff 0%, #c9e2ff 41%, #deedff 100%);
+	background: linear-gradient(180deg,#deedff, #c4dcf5 50%, #9bc9ff 100%);
 	display: flex;
 	flex-direction: column;
 
 	.background {
 		position: absolute;
-		width: 460rpx;
-		height: 550rpx;
-		top: 38%;
-		left: 18%;
+		width: 786rpx;
+		height: 560rpx;
 	}
-
+	.video-wrap {
+		top: 0%;
+	  width: 100vw;
+	  height: 560rpx;
+	  overflow: hidden;
+	  position: absolute;
+	}
+	
+	.background-video {
+	  width: 100%;
+	  height: 560rpx;
+	  object-fit: cover;
+	}
+	
+	/* 底部覆盖黑线 */
+	.video-bottom-cover {
+	  position: absolute;
+	  bottom: 0;
+	  width: 100%;
+	  height: 3px; /* 调整覆盖黑线高度 */
+	  background-color: #c9e0f7;
+	}
+	// .background-video {
+	// 	top: -1%;
+	// 	width: 100%;
+	// 	height: 560rpx;
+	// 	position: absolute;
+	// 	object-fit: cover;
+	// 	transition: opacity .3s;
+	// }
+	
 	.head {
 		position: absolute;
 		top: 115rpx;
@@ -709,20 +911,21 @@ export default {
 		color: #000;
 	}
 
-	.aiName {
+	.aiTitle {
+		width: 64%;
+		top: 15%;
+		left: 5%;
 		position: absolute;
-		top: 14%;
-		left: 32rpx;
+	}
+	.aiName {
 		color: #4286ff;
 		font-size: 34rpx;
 		font-weight: bold;
 		font-style: italic;
+		margin-bottom: 15rpx;
 	}
 
 	.aiTip {
-		position: absolute;
-		top: 17.5%;
-		left: 32rpx;
 		color: #798eb3;
 		font-size: 30rpx;
 		font-weight: bold;
@@ -734,7 +937,7 @@ export default {
 		display: flex;
 		flex-direction: column;
 		.scroll-Y {
-			margin-top: 40%;
+			margin-top: 50%;
 			width: 750rpx;
 			flex: auto;
 			overflow: auto;
@@ -791,6 +994,7 @@ export default {
 						margin: 20rpx 24rpx;
 
 						.center {
+							width: 100%;
 							color: #333333;
 							font-size: 34rpx;
 							padding: 20rpx 24rpx;
@@ -800,11 +1004,11 @@ export default {
 
 							.msg {
 								text-align: left;
-								margin-bottom: 20rpx;
+								// margin-bottom: 20rpx;
 							}
 
 							.top1 {
-								margin-top: 10rpx;
+								// margin-top: 30rpx;
 								text-align: left;
 								color: #02134e;
 								display: flex;
@@ -813,7 +1017,7 @@ export default {
 									width: 100%;
 									.tipContent {
 										display: flex;
-										padding: 10rpx 20rpx;
+										padding: 20rpx 25rpx 20rpx 20rpx;
 										font-size: 30rpx;
 										color: #02134e;
 										background: #fff;
@@ -829,7 +1033,7 @@ export default {
 										box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.05);
 										border: 1rpx solid rgba(255, 255, 255, 0.4);
 										image {
-											width: 56rpx;
+											width: 42rpx;
 											height: 17rpx;
 										}
 									}
