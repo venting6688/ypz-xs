@@ -187,6 +187,35 @@ export default {
 			}
 			return out;
 		},
+		
+		mergeDoctorSessions(arr) {
+		  const map = new Map();
+		
+		  arr.forEach(item => {
+		    const code = item.DoctorCode;
+		
+		    if (!map.has(code)) {
+		      // 首次出现时建立医生基础信息
+		      map.set(code, {
+		        DoctorName: item.DoctorName,
+		        DoctorSessType: item.DoctorSessType,
+		        Fee: item.Fee,
+		        DepartmentName: item.DepartmentName,
+		        DoctorSpec: item.DoctorSpec,
+		        specialtyGroupId: item.specialtyGroupId,
+						ServiceDate: item.ServiceDate,
+		        scheduling: [] // 用于存放多个排班
+		      });
+		    }
+		
+		    map.get(code).scheduling.push({
+		      SessionName: item.SessionName,
+		      AvailableLeftNum: item.AvailableLeftNum,
+		    });
+		  });
+		
+		  return Array.from(map.values());
+		},
 
 	},
 }

@@ -133,9 +133,17 @@
 												<view>{{ item.DoctorName }} ({{ item.DoctorSessType }})</view>
 												<view class="fee">￥{{ parseFloat(item.Fee).toFixed(2) }}</view>
 											</view>
+											<view class="desc" style="color: #666;">{{ item.DepartmentName }}</view>
 											<view class="desc">
-												{{ item.DoctorSpec ? formatText(item.DoctorSpec, 35) : '暂无简介信息' }}
+												号源：
+												<text v-for="(sch, i) in item.scheduling" :key="i">
+													{{ sch.SessionName }}<text class="space"></text>{{ sch.AvailableLeftNum }} 
+													<text v-if="i < item.scheduling.length - 1"><text class="space"></text>|<text class="space"></text></text> 
+												</text>
 											</view>
+											<!-- <view class="desc">
+												{{ item.DoctorSpec ? formatText(item.DoctorSpec, 35) : '暂无简介信息' }}
+											</view> -->
 										</view>
 										<view class="registeredBtn" @click="footType(item, 'doctor')">去挂号</view>
 									</view>
@@ -291,10 +299,10 @@ export default {
 					msg: '猜您想问：',
 					questionList: [
 						{ type: '综合', question: ['医院导航', '今天儿科排班', '如何应对冬季高发流感'] },
-						{ type: '查药品', question: ['阿莫西林是干什么的', '抗生素可以和酒精一起服用吗', '布洛芬缓释片口服剂量'] },
-						{ type: '找医生', question: ['耳鼻喉科医生今天上班吗', '明天消化内科排班', '明天口腔修复门诊排班']},
-						{ type: '院内导航', question: ['医院地址交通指南', '神经内科在哪，具体导航', '急诊位置'] },
-						{ type: '知识问答', question: ['糖尿病患者，空腹血糖控制在多少算达标', '血常规“白细胞计数”偏低，是什么意思', '新生儿黄疸，什么情况下需要去医院'] },
+						{ type: '查药品', question: ['阿莫西林的作用', '布洛芬缓释片口服剂量', '抗生素可以和酒精一起服用吗'] },
+						{ type: '找医生', question: ['头疼挂什么科', '明天消化内科排班', '耳鼻喉科医生今天上班吗']},
+						{ type: '院内导航', question: [ '急诊位置', '医院地址交通指南', '神经内科在哪，具体导航',] },
+						{ type: '知识问答', question: ['出入院流程', '口腔修复科负责什么', '糖尿病患者，空腹血糖控制在多少算达标'] },
 					]
 				}
 			], //消息集合
@@ -408,7 +416,7 @@ export default {
 		footType(item, type) {
 			let name = '',
 				id = '';
-			let date = item.medDate ? item.medDate : dayjs().format('YYYY-MM-DD');
+			let date = item.ServiceDate ? item.ServiceDate : dayjs().format('YYYY-MM-DD');
 			let today = date == dayjs().format('YYYY-MM-DD') ? true : false;
 			let week = this.getWeekday(date);
 			let timeObj = {};
@@ -419,11 +427,8 @@ export default {
 				timeObj = {
 					date,
 					week,
-					deptCode: id,
-					status: '有号'
 				};
-				url = `/sub_packages/subscribe/doctors?title=${name}&CLGRPRowId=${id}&timeObj=${timeObj}&thatDay=${today}`;
-				// url = `/sub_packages/subscribe/departments`
+				url = `/sub_packages/subscribe/doctors?title=${name}&CLGRPRowId=${id}&timeObj=${JSON.stringify(timeObj)}&thatDay=${today}`;
 			} else {
 				name = item.name;
 				id = item.id;
@@ -614,7 +619,7 @@ export default {
 									my: false,
 									type: 2,
 									msgLoad: false,
-									scheduling: content
+									scheduling: this.mergeDoctorSessions(content)
 								});
 							} else if (type === 'A002' && content.code == 500) {
 								this.msgList.splice(this.msgList.length - 1, 1, {
@@ -1228,8 +1233,12 @@ export default {
 									}
 
 									.desc {
-										color: #999;
+										color: #5fa8ff;
 										font-size: 28rpx;
+										.space {
+										  display: inline-block;
+										  width: 20rpx;   /* 调整想要的间距 */
+										}
 									}
 								}
 							}

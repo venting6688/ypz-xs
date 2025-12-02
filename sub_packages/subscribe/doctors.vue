@@ -3,7 +3,12 @@
 		<van-notice-bar text="温馨提示：开放7天号源，每天18：00放出第八天号源" />
 		<view class="timeCard">
 			<scroll-view :scroll-x="true" :show-scrollbar="true" scroll-with-animation class="scroll-container">
-				<view v-for="(item, index) in timeList" :key="index" class="scroll-item" :class="{ back: timeObj.date === item.date }" @click="getScheduleDetail(item, index)">
+				<view v-for="(item, index) in timeList" 
+				:key="index" 
+				class="scroll-item" 
+				:class="{ back: timeObj.date === item.date }" 
+				@click="getScheduleDetail(item, index)"
+				>
 					<view>{{ item.week }}</view>
 					<view>{{ item.date.substring(item.date.indexOf('-') + 1) }}</view>
 					<view :class="{ col: item.status === '无号' }">{{ item.status }}</view>
@@ -135,7 +140,7 @@ export default {
 		getScheduleDetail(item, index, type) {
 			this.timeObj = item;
 			this.jumpType = type;
-			// this.thatDay = this.jumpType == 'click' ? '' : this.thatDay;
+			this.thatDay = this.jumpType == 'click' ? '' : this.thatDay;
 			if (index === 0) {
 				this.today = true;
 			} else {
@@ -444,9 +449,7 @@ export default {
 					.num,
 					.amount {
 						display: flex;
-						// justify-content: flex-start;
 						align-items: center;
-						// flex: 1;
 						gap: 68rpx;
 					}
 
@@ -473,39 +476,6 @@ export default {
 							margin-left: 10rpx;
 						}
 					}
-
-					// .money {
-					// 	font-size: 32rpx;
-					// 	color: #faaa03;
-					// }
-					// .num {
-					// 	display: flex;
-					// 	align-items: center;
-
-					// 	.subscribe-time {
-					// 		margin-right: 80rpx;
-					// 	}
-					// 	.subscribe-number {
-					// 		text {
-					// 			&:last-of-type {
-					// 				color: #4286ff;
-					// 			}
-					// 		}
-					// 	}
-					// }
-					// .subscribe-btn {
-					// 	width: 137.4rpx;
-					// 	height: 57.25rpx;
-					// 	background: rgba(66, 134, 255, 0.08);
-					// 	border-radius: 38.17rpx;
-					// 	color: #4286ff;
-					// 	font-size: 26.72rpx;
-					// 	line-height: 26.72rpx;
-					// 	display: flex;
-					// 	justify-content: center;
-					// 	align-items: center;
-					// 	margin-right: 20rpx;
-					// }
 				}
 			}
 		}
