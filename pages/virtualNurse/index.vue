@@ -54,10 +54,6 @@
 										</view>
 									</view>
 									<view v-else class="msg" v-html="markdown(x.msg)"></view>
-									<!-- <view class="msg" v-else>
-										<rich-text :nodes="x.msg"></rich-text>
-									</view> -->
-									<!-- 消息模板 -->
 									<view v-if="x.type == 1">
 										<scroll-view scroll-x class="tabs-scroll" :scroll-left="scrollLeft" scroll-with-animation>
 											<view class="tab-list">
@@ -115,7 +111,7 @@
 											</view>
 											<view class="ks">{{ item.DepartmentName }}</view>
 											<view class="desc">
-												号源：
+												剩余号源：
 												<text v-for="(sch, i) in item.scheduling" :key="i">
 													{{ sch.SessionName }}
 													<text class="space"></text>
@@ -138,15 +134,14 @@
 								</view>
 							</view>
 							<!-- 地图导航 -->
-							<view class="doctor" v-if="x.type == 2 && x.address">
+							<!-- <view class="doctor" v-if="x.type == 2 && x.address">
 								<view class="top2-content">
 									<view class="title">导航</view>
 									<view class="noData" v-html="markdown(x.address)"></view>
-									<!-- <view class="noData">{{x.address}}</view> -->
 									<view class="noData"><image v-if="x.image" :src="x.image" /></view>
 									<view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
 								</view>
-							</view>
+							</view> -->
 						</view>
 					</view>
 				</view>
@@ -267,14 +262,13 @@ export default {
 			siginVal: {},
 			tipMsg: 'normal',
 			showMsg: false,
+			typewriterTimer: null,
+			messages: [],
 			md: new MarkdownIt({
 				html: true,
 				breaks: true,
 				linkify: true,
 			}),
-			markdownText: '',   // AI 返回的原始 text
-			htmlContent: '',    // 渲染用 html
-			images: [],          // 提取出的图片 URL
 			pattern: 2,
 			showComponent: true,
 			text: '',
@@ -326,7 +320,7 @@ export default {
 			tabWidth: 180, // 单个 tab 的宽度(px 换算 rpx 自行调整)
 			viewWidth: 750, // scroll-view 宽度 rpx
 			videoLoaded: false,
-			videoUrl: 'https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4'
+			videoUrl: 'https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4',
 		};
 	},
 	onShow() {
@@ -391,6 +385,14 @@ export default {
 			const safeContent = typeof content === 'string' ? content : String(content || '');
 			return this.md.render(safeContent);
 		},
+
+		previewImage(url) {
+			uni.previewImage({
+				current: url,
+				urls: [url]
+			})
+		},
+		
 		more() {
 			uni.navigateTo({
 				url: `/sub_packages/subscribe/departments`
@@ -620,17 +622,6 @@ export default {
 									msgLoad: false,
 									msg: content.msg
 								});
-							} else if (type === 'A003') {
-								let images = [...content.matchAll(/!\[.*?\]\((.*?)\)/g)].map((m) => m[1]);
-								images = images != '' ? 'https://www.chinzsoft.com/api' + images : '';
-								let text = content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
-								this.msgList.splice(this.msgList.length - 1, 1, {
-									my: false,
-									type: 2,
-									msgLoad: false,
-									address: text,
-									image: images
-								});
 							} else {
 								//['A004', 'A005', 'A006', 'A999', 'A998']
 								const safeContent = typeof content === 'string' ? content : String(content || '');
@@ -641,7 +632,7 @@ export default {
 
 								lastAnswer = safeContent;
 								const lastMsg = this.msgList[this.msgList.length - 1];
-
+								console.log(newPart,'=w=w=w=w=w=w==w=w=ww');
 								if (lastMsg && lastMsg.msgLoad) {
 									lastMsg.msgLoad = false;
 									this.showTypewriterEffect(newPart, lastMsg);
@@ -654,6 +645,18 @@ export default {
 								}
 								this.$forceUpdate();
 							}
+							// else if (type === 'A003') {
+							// 	// let images = [...content.matchAll(/!\[.*?\]\((.*?)\)/g)].map((m) => m[1]);
+							// 	// images = images != '' ? 'https://www.chinzsoft.com/api' + images : '';
+							// 	// let text = content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
+							// 	this.msgList.splice(this.msgList.length - 1, 1, {
+							// 		my: false,
+							// 		type: 2,
+							// 		msgLoad: false,
+							// 		address: content,
+							// 		// image: images
+							// 	});
+							// }
 						}
 					} catch (e) {
 						console.error('解析流式返回数据异常:', e);

@@ -120,40 +120,64 @@ export default {
 		},
 
 		showTypewriterEffect(newText, lastMsg) {
-			if (!lastMsg) return
-			if (typeof newText !== 'string' || !newText.length) return
-
-			if (this.typewriterTimer) clearInterval(this.typewriterTimer)
-
-			let displayLength = 0
-			const step = 1
-			const speed = 25
-
-			this.typewriterTimer = setInterval(() => {
-				if (displayLength < newText.length) {
-					displayLength += step
-					let nextChar = newText.slice(displayLength - step, displayLength)
-
-					if (typeof nextChar !== 'string') {
-						try {
-							nextChar = String(nextChar)
-						} catch (err) {
-							console.error('Typewriter字符转换异常:', err, nextChar)
-							nextChar = ''
-						}
-					}
-
-					if (typeof lastMsg.msg !== 'string') {
-						lastMsg.msg = String(lastMsg.msg || '')
-					}
-
-					lastMsg.msg += nextChar
-					this.$forceUpdate()
-				} else {
-					clearInterval(this.typewriterTimer)
-					this.typewriterTimer = null
-				}
-			}, speed)
+		  if (!lastMsg || typeof newText !== 'string' || !newText.length) return;
+		
+		  if (this.typewriterTimer) clearInterval(this.typewriterTimer);
+		
+		  // 按文字和图片分段
+		  const regex = /!\[image\]\((https?:\/\/[^\s)]+)\)/g;
+		  const segments = [];
+		  let lastIndex = 0;
+		  let match;
+		
+		  while ((match = regex.exec(newText)) !== null) {
+		    if (match.index > lastIndex) {
+		      segments.push({ type: 'text', content: newText.slice(lastIndex, match.index) });
+		    }
+		    segments.push({ type: 'image', content: match[1] });
+		    lastIndex = regex.lastIndex;
+		  }
+		  if (lastIndex < newText.length) {
+		    segments.push({ type: 'text', content: newText.slice(lastIndex) });
+		  }
+		
+		  // 初始化 lastMsg.msg
+		  if (typeof lastMsg.msg !== 'string') lastMsg.msg = '';
+		
+		  let segIndex = 0;
+		  let charIndex = 0;
+		  const speed = 25;
+		
+		  this.typewriterTimer = setInterval(() => {
+		    if (segIndex >= segments.length) {
+		      clearInterval(this.typewriterTimer);
+		      this.typewriterTimer = null;
+		      return;
+		    }
+		
+		    const seg = segments[segIndex];
+		
+		    if (seg.type === 'text') {
+		      if (charIndex < seg.content.length) {
+		        const nextChar = seg.content[charIndex];
+		        lastMsg.msg += nextChar;
+		        charIndex++;
+		        // 每 5 个字符或段落结束更新一次，减少渲染压力
+		        if (charIndex % 5 === 0 || charIndex === seg.content.length) {
+		          this.$forceUpdate();
+		        }
+		      } else {
+		        segIndex++;
+		        charIndex = 0;
+		      }
+		    } else if (seg.type === 'image') {
+		      // 图片直接追加 Markdown 图片语法
+					lastMsg.msg += `\n\n<img src="${seg.content}" style="width:100%;margin-top:6px;" />\n\n`;
+		      segIndex++;
+		      charIndex = 0;
+		      this.$forceUpdate();
+		    }
+		  }, speed);
 		},
 		arrayBufferToString(buffer) {
 			const bytes = new Uint8Array(buffer);
