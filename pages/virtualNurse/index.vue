@@ -2,40 +2,35 @@
 	<view class="virtual">
 		<view class="" :animation="anData" style="height: 0rpx"></view>
 		<view class="head">山东第一医科大学第二附属医院</view>
-		
 		<view class="center">
 			<scroll-view scroll-y="true" :scroll-top="scrollTop" class="scroll-Y" scroll-with-animation>
 				<view class="video-wrap">
-				  <video
-				  	id="myVideo"
-				  	class="background-video"
-				  	:src="videoUrl"
-				  	autoplay
-				  	muted
-				  	loop
-				  	playsinline
-				  	webkit-playsinline
-				  	:controls="false"
-				  	:show-play-btn="false"
-				  	show-center-play-btn="false"
-				  	show-progress="false"
-				  	enable-progress-gesture="false"
-				  	show-fullscreen-btn="false"
-				  	@loadeddata="onVideoReady"
-				  	@timeupdate="forceShow"
-				  	:style="{ opacity: videoLoaded ? 1 : 0 }"
-				  ></video>
-				
-				  <!-- 底部遮挡黑线 -->
-				  <view class="video-bottom-cover" v-if="videoLoaded"></view>
+					<video
+						id="myVideo"
+						class="background-video"
+						:src="videoUrl"
+						autoplay
+						muted
+						loop
+						playsinline
+						webkit-playsinline
+						:controls="false"
+						:show-play-btn="false"
+						show-center-play-btn="false"
+						show-progress="false"
+						enable-progress-gesture="false"
+						show-fullscreen-btn="false"
+						@loadeddata="onVideoReady"
+						@timeupdate="forceShow"
+						:style="{ opacity: videoLoaded ? 1 : 0 }"
+					></video>
+					<!-- 底部遮挡黑线 -->
+					<view class="video-bottom-cover" v-if="videoLoaded"></view>
 				</view>
-				
-				
 				<view class="aiTitle">
 					<view class="aiName">Hi~ {{ siginVal.patientName != undefined ? siginVal.patientName : '' }}</view>
 					<view class="aiTip">我是"安好"，与您温暖同行，让关爱时刻在线</view>
 				</view>
-				
 				<view id="okk" style="padding-bottom: 52rpx; margin-top: 27%">
 					<view class="msgList" v-for="(x, i) in msgList" :key="i" :class="{ padd: i === msgList.length - 1 }">
 						<!-- 用户消息 -->
@@ -44,13 +39,11 @@
 								<view class="center">
 									<text class="msg">{{ x.msg }}</text>
 								</view>
-								<!-- <view class="triangle"></view> -->
 							</view>
 						</view>
 						<!-- AI消息 -->
 						<view class="robot" v-else>
 							<view class="robot-box" v-if="x.type !== 2">
-								<!-- <view class="triangle"></view> -->
 								<view class="center" style="opacity: 0.95">
 									<view class="loading" v-if="x.msgLoad">
 										<text>思考中</text>
@@ -61,15 +54,10 @@
 										</view>
 									</view>
 									<view v-else class="msg" v-html="markdown(x.msg)"></view>
-									<!-- 消息模板 -->
-									<!-- <view class="top1" v-if="x.type == 1">
-										<view class="answer" @click="answer(item)" v-for="(item, index) in x.questionList" :key="index">
-											<view class="tipContent">
-												<view>{{ item }}</view>
-												<image src="../../static/img/arrow.png" />
-											</view>
-										</view>
+									<!-- <view class="msg" v-else>
+										<rich-text :nodes="x.msg"></rich-text>
 									</view> -->
+									<!-- 消息模板 -->
 									<view v-if="x.type == 1">
 										<scroll-view scroll-x class="tabs-scroll" :scroll-left="scrollLeft" scroll-with-animation>
 											<view class="tab-list">
@@ -81,31 +69,23 @@
 												</view>
 											</view>
 										</scroll-view>
-										
 										<swiper :current="current" @change="onSwiperChange" class="swiper-body">
 											<swiper-item v-for="(item, i) in tabs" :key="i">
 												<view class="page-content">
 													<view class="top1" v-if="x.type == 1">
 														<view class="answer" v-for="msgItem in msgList" :key="msgItem.msg">
-															<view 
-																class="answer" 
-																v-for="(question, idx) in getQuestionsByType(msgItem, item)" 
-																:key="idx"
-																@click="answer(question)"
-															>
-																<view class="tipContent">
-																	<view>{{ question }}</view>
-																	<image src="../../static/img/arrow.png" />
-																</view>
+														<view class="answer" v-for="(question, idx) in getQuestionsByType(msgItem, item)" :key="idx" @click="answer(question)">
+															<view class="tipContent">
+																<view>{{ question }}</view>
+																<image src="../../static/img/arrow.png" />
 															</view>
+														</view>
 														</view>
 													</view>
 												</view>
 											</swiper-item>
 										</swiper>
 									</view>
-									
-
 									<view class="ai-tips" v-if="pattern !== 1 && !x.msgLoad && x.type !== 1">· 此内容由AI生成，仅供参考</view>
 								</view>
 							</view>
@@ -137,8 +117,14 @@
 											<view class="desc">
 												号源：
 												<text v-for="(sch, i) in item.scheduling" :key="i">
-													{{ sch.SessionName }}<text class="space"></text>{{ sch.AvailableLeftNum }} 
-													<text v-if="i < item.scheduling.length - 1"><text class="space"></text>|<text class="space"></text></text> 
+													{{ sch.SessionName }}
+													<text class="space"></text>
+													{{ sch.AvailableLeftNum }}
+													<text v-if="i < item.scheduling.length - 1">
+														<text class="space"></text>
+														|
+														<text class="space"></text>
+													</text>
 												</text>
 											</view>
 											<!-- <view class="desc">
@@ -281,7 +267,14 @@ export default {
 			siginVal: {},
 			tipMsg: 'normal',
 			showMsg: false,
-			md: new MarkdownIt(),
+			md: new MarkdownIt({
+				html: true,
+				breaks: true,
+				linkify: true,
+			}),
+			markdownText: '',   // AI 返回的原始 text
+			htmlContent: '',    // 渲染用 html
+			images: [],          // 提取出的图片 URL
 			pattern: 2,
 			showComponent: true,
 			text: '',
@@ -298,11 +291,11 @@ export default {
 					type: 1,
 					msg: '猜您想问：',
 					questionList: [
-						{ type: '综合', question: ['医院导航', '明天口腔科排班', '如何应对冬季高发流感'] },
+						{ type: '综合', question: ['医院导航', '明天口腔科排班', '门诊就诊流程'] },
 						{ type: '查药品', question: ['阿莫西林的作用', '布洛芬缓释片口服剂量', '抗生素可以和酒精一起服用吗'] },
-						{ type: '找医生', question: ['头疼挂什么科', '明天消化内科排班', '耳鼻喉科医生今天上班吗']},
-						{ type: '院内导航', question: [ '急诊位置', '医院地址交通指南', '神经内科在哪，具体导航',] },
-						{ type: '知识问答', question: ['出入院流程', '口腔修复科负责什么', '糖尿病患者，空腹血糖控制在多少算达标'] },
+						{ type: '找医生', question: ['头疼挂什么科', '明天消化内科排班', '耳鼻喉科医生今天上班吗'] },
+						{ type: '院内导航', question: ['急诊位置', '医院地址交通指南', '神经内科在哪，具体导航'] },
+						{ type: '知识问答', question: ['出入院流程', '口腔修复科负责什么', '糖尿病患者，空腹血糖控制在多少算达标'] }
 					]
 				}
 			], //消息集合
@@ -331,7 +324,7 @@ export default {
 			tabs: ['综合', '查药品', '找医生', '院内导航', '知识问答'],
 			scrollLeft: 0, // 用来控制 scroll-view 的滑动距离
 			tabWidth: 180, // 单个 tab 的宽度(px 换算 rpx 自行调整)
-			viewWidth: 750 , // scroll-view 宽度 rpx
+			viewWidth: 750, // scroll-view 宽度 rpx
 			videoLoaded: false,
 			videoUrl: 'https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4'
 		};
@@ -351,15 +344,15 @@ export default {
 	},
 	methods: {
 		onVideoReady() {
-			this.videoLoaded = true
+			this.videoLoaded = true;
 		},
 		forceShow() {
-			this.videoLoaded = true
+			this.videoLoaded = true;
 		},
 		getQuestionsByType(msgItem, type) {
-				if (!msgItem.questionList) return [];
-				const q = msgItem.questionList.find(q => q.type === type);
-				return q ? q.question : [];
+			if (!msgItem.questionList) return [];
+			const q = msgItem.questionList.find((q) => q.type === type);
+			return q ? q.question : [];
 		},
 		changeTab(index) {
 			this.current = index;
@@ -382,7 +375,7 @@ export default {
 
 			this.scrollLeft = target;
 		},
-		
+
 		formatText(str, len) {
 			if (!str) return '';
 			return str.length > len ? str.slice(0, len) + '...' : str;
@@ -426,7 +419,7 @@ export default {
 				id = item.specialtyGroupId;
 				timeObj = {
 					date,
-					week,
+					week
 				};
 				url = `/sub_packages/subscribe/doctors?title=${name}&CLGRPRowId=${id}&timeObj=${JSON.stringify(timeObj)}&thatDay=${today}`;
 			} else {
@@ -843,12 +836,11 @@ export default {
 .active-bottom {
 	display: flex;
 	justify-content: center;
-  image {
+	image {
 		width: 56rpx;
 		height: 12rpx;
 	}
 }
-
 
 .virtual {
 	height: 100%;
@@ -866,25 +858,25 @@ export default {
 	}
 	.video-wrap {
 		top: -16%;
-	  width: 100vw;
-	  height: 560rpx;
-	  overflow: hidden;
-	  position: absolute;
+		width: 100vw;
+		height: 560rpx;
+		overflow: hidden;
+		position: absolute;
 	}
-	
+
 	.background-video {
-	  width: 100%;
-	  height: 560rpx;
-	  object-fit: cover;
+		width: 100%;
+		height: 560rpx;
+		object-fit: cover;
 	}
-	
+
 	/* 底部覆盖黑线 */
 	.video-bottom-cover {
-	  position: absolute;
-	  bottom: 0;
-	  width: 100%;
-	  height: 3px; /* 调整覆盖黑线高度 */
-	  background-color: #c9e0f7;
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		height: 3px; /* 调整覆盖黑线高度 */
+		background-color: #c9e0f7;
 	}
 	// .background-video {
 	// 	top: -1%;
@@ -894,7 +886,7 @@ export default {
 	// 	object-fit: cover;
 	// 	transition: opacity .3s;
 	// }
-	
+
 	.head {
 		position: absolute;
 		top: 115rpx;
@@ -1241,8 +1233,8 @@ export default {
 										color: #666;
 										font-size: 28rpx;
 										.space {
-										  display: inline-block;
-										  width: 20rpx;   /* 调整想要的间距 */
+											display: inline-block;
+											width: 20rpx; /* 调整想要的间距 */
 										}
 									}
 								}
