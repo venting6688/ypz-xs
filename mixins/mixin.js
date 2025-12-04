@@ -121,11 +121,11 @@ export default {
 
 		showTypewriterEffect(newText, lastMsg) {
 		  if (!lastMsg || typeof newText !== 'string' || !newText.length) return;
-		
+			
 		  if (this.typewriterTimer) clearInterval(this.typewriterTimer);
-		
+			
 		  // 按文字和图片分段
-		  const regex = /!\[image\]\((https?:\/\/[^\s)]+)\)/g;
+		  const regex = /!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/g;///!\[image\]\((https?:\/\/[^\s)]+)\)/g;
 		  const segments = [];
 		  let lastIndex = 0;
 		  let match;
@@ -156,11 +156,11 @@ export default {
 		    }
 		
 		    const seg = segments[segIndex];
-		
+				
 		    if (seg.type === 'text') {
 		      if (charIndex < seg.content.length) {
 		        const nextChar = seg.content[charIndex];
-		        lastMsg.msg += nextChar;
+						lastMsg.msg += nextChar;
 		        charIndex++;
 		        // 每 5 个字符或段落结束更新一次，减少渲染压力
 		        if (charIndex % 5 === 0 || charIndex === seg.content.length) {
@@ -171,14 +171,24 @@ export default {
 		        charIndex = 0;
 		      }
 		    } else if (seg.type === 'image') {
-		      // 图片直接追加 Markdown 图片语法
-					lastMsg.msg += `\n\n<img src="${seg.content}" style="width:100%;margin-top:6px;" />\n\n`;
-		      segIndex++;
-		      charIndex = 0;
-		      this.$forceUpdate();
+					lastMsg.imgs = lastMsg.imgs || []
+					lastMsg.imgs.push(seg.content)
+				
+					const index = lastMsg.imgs.length - 1
+				
+					lastMsg.msg += `\n\n<img 
+						src="${seg.content}" 
+						data-index="${index}" 
+						class="chat-img"
+						style="width:100%;margin-top:6px;" 
+					/>\n\n`;
+					segIndex++;
+					charIndex = 0;
+					this.$forceUpdate();
 		    }
 		  }, speed);
 		},
+		
 		arrayBufferToString(buffer) {
 			const bytes = new Uint8Array(buffer);
 			let out = '',

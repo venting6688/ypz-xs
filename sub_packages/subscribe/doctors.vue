@@ -445,12 +445,12 @@ export default {
 					align-items: center;
 					height: 57.25rpx;
 					margin: 20rpx;
-					gap: 62rpx;
+					gap: 52rpx;
 					.num,
 					.amount {
 						display: flex;
 						align-items: center;
-						gap: 68rpx;
+						gap: 65rpx;
 					}
 
 					.num {

@@ -53,7 +53,7 @@
 											</view>
 										</view>
 									</view>
-									<view v-else class="msg" v-html="markdown(x.msg)"></view>
+									<view v-else class="msg" v-html="markdown(x.msg)" @tap="onMessageClick(x, $event)"></view>
 									<view v-if="x.type == 1">
 										<scroll-view scroll-x class="tabs-scroll" :scroll-left="scrollLeft" scroll-with-animation>
 											<view class="tab-list">
@@ -82,7 +82,15 @@
 											</swiper-item>
 										</swiper>
 									</view>
-									<view class="ai-tips" v-if="pattern !== 1 && !x.msgLoad && x.type !== 1">· 此内容由AI生成，仅供参考</view>
+									<view class="ai-tips" v-if="pattern !== 1 && !x.msgLoad && x.type !== 1">
+										<view>· 此内容由AI生成，仅供参考</view>
+										<view class="aiBtn">
+											<uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="20"></uni-icons>
+											<uni-icons type="hand-up" size="20" @click="likeBtn('like')"></uni-icons>
+											<uni-icons type="hand-down" size="20" @click="likeBtn('dislike')"></uni-icons>
+											<uni-icons type="redo" size="20"></uni-icons>
+										</view>
+									</view>
 								</view>
 							</view>
 							<!-- 推荐科室 -->
@@ -96,7 +104,15 @@
 											<view class="registeredBtn" @click="footType(clinic, 'department')">去挂号</view>
 										</view>
 									</view>
-									<view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
+									<view class="ai-tips" v-if="!x.msgLoad">
+										<view>· 此内容由AI生成，仅供参考</view>
+										<view class="aiBtn">
+											<uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="20"></uni-icons>
+											<uni-icons type="hand-up" size="20" @click="likeBtn('like')"></uni-icons>
+											<uni-icons type="hand-down" size="20" @click="likeBtn('dislike')"></uni-icons>
+											<uni-icons type="redo" size="20"></uni-icons>
+										</view>
+									</view>
 								</view>
 							</view>
 							<!-- 医生排班 -->
@@ -130,38 +146,21 @@
 										<view class="registeredBtn" @click="footType(item, 'doctor')">去挂号</view>
 									</view>
 									<view class="noData" v-show="x.scheduling.length == 0">很抱歉，暂无当前科室排班</view>
-									<view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
+									<view class="ai-tips" v-if="!x.msgLoad">
+										<view>· 此内容由AI生成，仅供参考</view>
+										<view class="aiBtn">
+											<uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="20"></uni-icons>
+											<uni-icons type="hand-up" size="20" @click="likeBtn('like')"></uni-icons>
+											<uni-icons type="hand-down" size="20" @click="likeBtn('dislike')"></uni-icons>
+											<uni-icons type="redo" size="20"></uni-icons>
+										</view>
+									</view>
 								</view>
 							</view>
-							<!-- 地图导航 -->
-							<!-- <view class="doctor" v-if="x.type == 2 && x.address">
-								<view class="top2-content">
-									<view class="title">导航</view>
-									<view class="noData" v-html="markdown(x.address)"></view>
-									<view class="noData"><image v-if="x.image" :src="x.image" /></view>
-									<view class="ai-tips" v-if="!x.msgLoad">· 此内容由AI生成，仅供参考</view>
-								</view>
-							</view> -->
 						</view>
 					</view>
 				</view>
 			</scroll-view>
-			<!-- 选择症状、疾病 弹窗 -->
-			<uni-popup class="Dialog" :mask-click="false" ref="popup" type="bottom" mask-background-color="transparent" :safeArea="false">
-				<view class="center">
-					<scroll-view class="scroll" scroll-y="true">
-						<view class="middle">
-							<text v-for="(item, index) in DataList.main" :key="index" @click="clickItem(index)" :class="{ colour: item.bOn }">
-								{{ item.value }}
-							</text>
-						</view>
-					</scroll-view>
-				</view>
-				<view class="foot-choice">
-					<view @click="choice(2)">手动输入</view>
-					<view @click="choice(1)">确定</view>
-				</view>
-			</uni-popup>
 			<view class="foot">
 				<view v-if="voiceState" class="foot-center">
 					<view class="image">
@@ -252,6 +251,7 @@ import { mapActions } from 'vuex';
 import MarkdownIt from 'markdown-it';
 import mixin from '@/mixins/mixin.js';
 import login from '@/utils/login.js';
+
 import { parse } from 'best-effort-json-parser';
 import { safeParseJSON } from '@/utils/jsonHelper.js';
 
@@ -278,6 +278,7 @@ export default {
 			go: 0,
 			scrollTop: 0,
 			conversation_id: '',
+			message_id: '',
 			mode: '',
 			msgList: [
 				{
@@ -285,7 +286,7 @@ export default {
 					type: 1,
 					msg: '猜您想问：',
 					questionList: [
-						{ type: '综合', question: ['医院导航', '明天口腔科排班', '门诊就诊流程'] },
+						{ type: '综合', question: ['明天口腔科排班', '门诊就诊流程', '如何应对冬季高发流感'] },
 						{ type: '查药品', question: ['阿莫西林的作用', '布洛芬缓释片口服剂量', '抗生素可以和酒精一起服用吗'] },
 						{ type: '找医生', question: ['头疼挂什么科', '明天消化内科排班', '耳鼻喉科医生今天上班吗'] },
 						{ type: '院内导航', question: ['急诊位置', '医院地址交通指南', '神经内科在哪，具体导航'] },
@@ -293,6 +294,7 @@ export default {
 					]
 				}
 			], //消息集合
+			msgType: '',
 			DataList: {}, //底部弹窗
 			voiceState: false, //底部切换状态
 			reply: [],
@@ -385,14 +387,23 @@ export default {
 			const safeContent = typeof content === 'string' ? content : String(content || '');
 			return this.md.render(safeContent);
 		},
-
-		previewImage(url) {
-			uni.previewImage({
-				current: url,
-				urls: [url]
-			})
+		
+		onMessageClick(item, e) {
+		  const target = e.target || e.mp?.target
+		  if (!target) return
+			if (item.imgs && item.imgs.length > 0) {
+				uni.previewImage({
+				  urls: item.imgs,
+				  current: item.imgs[0]
+				})
+			}
 		},
 		
+		likeBtn(type) {
+			console.log(this.message_id,'=s=s=s==s=s=s=s=s=s');
+			// /messages/:message id/feedbacks
+		},
+
 		more() {
 			uni.navigateTo({
 				url: `/sub_packages/subscribe/departments`
@@ -528,22 +539,7 @@ export default {
 						'content-type': 'application/json'
 					},
 					success: (res) => {
-						if (this.pattern === 1) {
-							this.test1 = '';
-							if (!this.test2.is_complete) {
-								this.mode = this.test2.mode;
-								if (this.test2.option.length) {
-									this.DataList.main = this.test2.option.map((item) => {
-										return { value: item };
-									});
-									this.$refs.popup.open('bottom'); //弹框
-								}
-							} else {
-								this.conversation_id = '';
-							}
-						} else {
-							this.test1 = '';
-						}
+						this.test1 = '';
 						this.msgGo();
 						this.inputState = true;
 					},
@@ -578,6 +574,7 @@ export default {
 							}
 
 							const obj = safeParseJSON(jsonStr);
+							
 							if (!obj) continue;
 
 							// 错误处理
@@ -591,14 +588,17 @@ export default {
 							}
 
 							this.conversation_id = obj.conversation_id || this.conversation_id;
-
+							this.message_id = obj.message_id || this.message_id;
+							
 							const answer = obj.answer || obj.data?.outputs?.answer;
 							if (!answer) continue;
 							const jsonData = safeParseJSON(answer);
 							if (!jsonData || !jsonData.intent || jsonData.content == null) continue;
 							const type = jsonData.intent;
 							const content = jsonData.content;
-
+							this.msgType = type;
+							
+							
 							if (type === 'A001') {
 								const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState;
 								this.msgList.splice(this.msgList.length - 1, 1, {
@@ -629,10 +629,9 @@ export default {
 
 								const newPart = safeContent.slice(lastAnswer.length);
 								if (typeof newPart !== 'string' || !newPart.trim()) return;
-
+								
 								lastAnswer = safeContent;
 								const lastMsg = this.msgList[this.msgList.length - 1];
-								console.log(newPart,'=w=w=w=w=w=w==w=w=ww');
 								if (lastMsg && lastMsg.msgLoad) {
 									lastMsg.msgLoad = false;
 									this.showTypewriterEffect(newPart, lastMsg);
@@ -641,22 +640,12 @@ export default {
 								} else {
 									const msgObj = { my: false, msgLoad: false, msg: '' };
 									this.msgList.push(msgObj);
-									this.showTypewriterEffect(newPart, msgObj);
+									this.showTypewriterEffect(newPart, msgObje);
 								}
 								this.$forceUpdate();
+								
 							}
-							// else if (type === 'A003') {
-							// 	// let images = [...content.matchAll(/!\[.*?\]\((.*?)\)/g)].map((m) => m[1]);
-							// 	// images = images != '' ? 'https://www.chinzsoft.com/api' + images : '';
-							// 	// let text = content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
-							// 	this.msgList.splice(this.msgList.length - 1, 1, {
-							// 		my: false,
-							// 		type: 2,
-							// 		msgLoad: false,
-							// 		address: content,
-							// 		// image: images
-							// 	});
-							// }
+							
 						}
 					} catch (e) {
 						console.error('解析流式返回数据异常:', e);
@@ -665,49 +654,6 @@ export default {
 			}
 		},
 
-		//弹窗事件
-		choice(index) {
-			let reply = this.reply.join(',');
-			if (index == 1) {
-				if (!reply) {
-					uni.showToast({
-						title: `您还未选择内容`,
-						icon: 'none'
-					});
-					return;
-				}
-				this.answer(reply);
-			} else if (index == 2) {
-				this.Focus = true;
-			}
-			this.$refs.popup.close();
-			this.reply = [];
-			this.msgGo();
-		},
-		//弹窗多选
-		clickItem(index) {
-			if (this.mode) {
-				// 多选
-				const temp = this.DataList.main[index];
-				temp.bOn = !this.DataList.main[index].bOn;
-				this.$set(this.DataList.main, index, temp);
-				if (this.reply.indexOf(temp.value) !== -1) {
-					this.reply.splice(this.reply.indexOf(temp.value), 1);
-				} else {
-					this.$set(this.reply, this.reply.length, temp.value);
-				}
-			} else {
-				// 单选
-				this.DataList.main.forEach((item, i) => {
-					item.bOn = false;
-					this.$set(this.DataList.main, i, item);
-				});
-				const temp = this.DataList.main[index];
-				temp.bOn = true;
-				this.$set(this.DataList.main, index, temp);
-				this.reply = [temp.value];
-			}
-		},
 		// 监听语音
 		setManagerLisener() {
 			this.manager.onRecognize = (res) => {
@@ -825,17 +771,6 @@ export default {
 	font-weight: bold;
 }
 
-// .active-bottom {
-//   width: 30px;       /* 波浪线长度 */
-// 	height: 3px;       /* 波浪线高度 */
-// 	background: #007aff;
-// 	border-top-left-radius: 50% 100%;
-// 	border-top-right-radius: 50% 100%;
-// 	border-bottom-left-radius: 50% 100%;
-// 	border-bottom-right-radius: 50% 100%;
-// 	transform: rotate(-20deg); /* 旋转调整弧度方向 */
-// }
-
 .active-bottom {
 	display: flex;
 	justify-content: center;
@@ -881,14 +816,6 @@ export default {
 		height: 3px; /* 调整覆盖黑线高度 */
 		background-color: #c9e0f7;
 	}
-	// .background-video {
-	// 	top: -1%;
-	// 	width: 100%;
-	// 	height: 560rpx;
-	// 	position: absolute;
-	// 	object-fit: cover;
-	// 	transition: opacity .3s;
-	// }
 
 	.head {
 		position: absolute;
@@ -918,6 +845,21 @@ export default {
 		color: #798eb3;
 		font-size: 30rpx;
 		font-weight: bold;
+	}
+	
+	.ai-tips {
+		display: flex;
+		align-items: center;
+		margin-top: 20rpx;
+		text-align: left;
+		font-size: 26rpx;
+		color: #919191;
+		justify-content: space-between;
+		.aiBtn {
+			gap: 10rpx;
+			display: flex;
+			align-items: center;
+		}
 	}
 
 	.center {
@@ -1027,13 +969,6 @@ export default {
 										}
 									}
 								}
-							}
-
-							.ai-tips {
-								margin-top: 20rpx;
-								text-align: left;
-								font-size: 26rpx;
-								color: #919191;
 							}
 						}
 					}
@@ -1159,13 +1094,13 @@ export default {
 							}
 						}
 
-						.ai-tips {
-							margin-top: 20rpx;
-							text-align: left;
-							font-size: 26rpx;
-							color: #919191;
-							margin-left: 20rpx;
-						}
+						// .ai-tips {
+						// 	margin-top: 20rpx;
+						// 	text-align: left;
+						// 	font-size: 26rpx;
+						// 	color: #919191;
+						// 	margin-left: 20rpx;
+						// }
 					}
 
 					.doctor {
@@ -1244,13 +1179,13 @@ export default {
 							}
 						}
 
-						.ai-tips {
-							margin-top: 20rpx;
-							text-align: left;
-							font-size: 26rpx;
-							color: #919191;
-							margin-left: 25rpx;
-						}
+						// .ai-tips {
+						// 	margin-top: 20rpx;
+						// 	text-align: left;
+						// 	font-size: 26rpx;
+						// 	color: #919191;
+						// 	margin-left: 25rpx;
+						// }
 					}
 				}
 			}
