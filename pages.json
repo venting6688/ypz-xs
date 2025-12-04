@@ -11,9 +11,10 @@
 		{
 			"path": "pages/virtualNurse/index",
 			"style": {
+				"disableScroll": true,
 				"navigationStyle": "custom",
-				"navigationBarTitleText": "智能导诊",
-				"disableScroll": true
+				"enableShareAppMessage": true,
+				"navigationBarTitleText": "智能导诊"
 			}
 		},
 		{
@@ -39,6 +40,14 @@
 					"doing": "view",
 					"inventory": "view"
 				}
+			}
+		},
+		{
+			"path": "pages/shareDetail/index",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "首页",
+				"disableScroll": true
 			}
 		},
 		{
@@ -68,6 +77,7 @@
 			{ 
 				"text": "便捷导引", 
 				"pagePath": "pages/convenient/index",
+				// "pagePath": "pages/shareDetail/index",
 				"iconPath": "static/img/tabBar/daoyin.png",
 				"selectedIconPath": "static/img/tabBar/daoyin-h.png"
 			},

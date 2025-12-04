@@ -70,12 +70,12 @@
 												<view class="page-content">
 													<view class="top1" v-if="x.type == 1">
 														<view class="answer" v-for="msgItem in msgList" :key="msgItem.msg">
-														<view class="answer" v-for="(question, idx) in getQuestionsByType(msgItem, item)" :key="idx" @click="answer(question)">
-															<view class="tipContent">
-																<view>{{ question }}</view>
-																<image src="../../static/img/arrow.png" />
+															<view class="answer" v-for="(question, idx) in getQuestionsByType(msgItem, item)" :key="idx" @click="answer(question)">
+																<view class="tipContent">
+																	<view>{{ question }}</view>
+																	<image src="../../static/img/arrow.png" />
+																</view>
 															</view>
-														</view>
 														</view>
 													</view>
 												</view>
@@ -85,10 +85,13 @@
 									<view class="ai-tips" v-if="pattern !== 1 && !x.msgLoad && x.type !== 1">
 										<view>· 此内容由AI生成，仅供参考</view>
 										<view class="aiBtn">
-											<uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="20"></uni-icons>
-											<uni-icons type="hand-up" size="20" @click="likeBtn('like')"></uni-icons>
-											<uni-icons type="hand-down" size="20" @click="likeBtn('dislike')"></uni-icons>
-											<uni-icons type="redo" size="20"></uni-icons>
+											<!-- <uni-icons type="sound" size="24" color="#9DACC6" @click="playMessage(x.msg)"></uni-icons> -->
+											<uni-icons :type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" size="24" @click="likeBtn('like', x.id)" color="#9DACC6"></uni-icons>
+											<uni-icons :type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" size="24" @click="likeBtn('dislike', x.id)" color="#9DACC6"></uni-icons>
+											<uni-icons custom-prefix="iconfont" type="icon-copycopy" size="24" color="#9DACC6" @click="copyContent(x.msg)"></uni-icons>
+											<button open-type="share" class="share-btn">
+												<uni-icons type="redo" size="24" color="#9DACC6"></uni-icons>
+											</button>
 										</view>
 									</view>
 								</view>
@@ -104,13 +107,15 @@
 											<view class="registeredBtn" @click="footType(clinic, 'department')">去挂号</view>
 										</view>
 									</view>
-									<view class="ai-tips" v-if="!x.msgLoad">
+									<view class="ai-tips" v-if="!x.msgLoad" style="padding: 0 25rpx">
 										<view>· 此内容由AI生成，仅供参考</view>
 										<view class="aiBtn">
-											<uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="20"></uni-icons>
-											<uni-icons type="hand-up" size="20" @click="likeBtn('like')"></uni-icons>
-											<uni-icons type="hand-down" size="20" @click="likeBtn('dislike')"></uni-icons>
-											<uni-icons type="redo" size="20"></uni-icons>
+											<!-- <uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="24" color="#9DACC6"></uni-icons> -->
+											<uni-icons :type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" size="24" @click="likeBtn('like', x.id)" color="#9DACC6"></uni-icons>
+											<uni-icons :type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" size="24" @click="likeBtn('dislike', x.id)" color="#9DACC6"></uni-icons>
+											<button open-type="share" class="share-btn">
+												<uni-icons type="redo" size="24" color="#9DACC6"></uni-icons>
+											</button>
 										</view>
 									</view>
 								</view>
@@ -146,13 +151,15 @@
 										<view class="registeredBtn" @click="footType(item, 'doctor')">去挂号</view>
 									</view>
 									<view class="noData" v-show="x.scheduling.length == 0">很抱歉，暂无当前科室排班</view>
-									<view class="ai-tips" v-if="!x.msgLoad">
+									<view class="ai-tips" v-if="!x.msgLoad" style="padding: 0 25rpx">
 										<view>· 此内容由AI生成，仅供参考</view>
 										<view class="aiBtn">
-											<uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="20"></uni-icons>
-											<uni-icons type="hand-up" size="20" @click="likeBtn('like')"></uni-icons>
-											<uni-icons type="hand-down" size="20" @click="likeBtn('dislike')"></uni-icons>
-											<uni-icons type="redo" size="20"></uni-icons>
+											<!-- <uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="24" color="#9DACC6"></uni-icons> -->
+											<uni-icons :type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" size="24" @click="likeBtn('like', x.id)" color="#9DACC6"></uni-icons>
+											<uni-icons :type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" size="24" @click="likeBtn('dislike', x.id)" color="#9DACC6"></uni-icons>
+											<button open-type="share" class="share-btn">
+												<uni-icons type="redo" size="24" color="#9DACC6"></uni-icons>
+											</button>
 										</view>
 									</view>
 								</view>
@@ -251,6 +258,7 @@ import { mapActions } from 'vuex';
 import MarkdownIt from 'markdown-it';
 import mixin from '@/mixins/mixin.js';
 import login from '@/utils/login.js';
+import filingApi from '@/api/filingApi.js';
 
 import { parse } from 'best-effort-json-parser';
 import { safeParseJSON } from '@/utils/jsonHelper.js';
@@ -267,7 +275,7 @@ export default {
 			md: new MarkdownIt({
 				html: true,
 				breaks: true,
-				linkify: true,
+				linkify: true
 			}),
 			pattern: 2,
 			showComponent: true,
@@ -279,9 +287,12 @@ export default {
 			scrollTop: 0,
 			conversation_id: '',
 			message_id: '',
+			aiType: '',
+			shareList: [],
 			mode: '',
 			msgList: [
 				{
+					id: '',
 					my: false,
 					type: 1,
 					msg: '猜您想问：',
@@ -291,7 +302,8 @@ export default {
 						{ type: '找医生', question: ['头疼挂什么科', '明天消化内科排班', '耳鼻喉科医生今天上班吗'] },
 						{ type: '院内导航', question: ['急诊位置', '医院地址交通指南', '神经内科在哪，具体导航'] },
 						{ type: '知识问答', question: ['出入院流程', '口腔修复科负责什么', '糖尿病患者，空腹血糖控制在多少算达标'] }
-					]
+					],
+					likeStatus: ''
 				}
 			], //消息集合
 			msgType: '',
@@ -323,6 +335,8 @@ export default {
 			viewWidth: 750, // scroll-view 宽度 rpx
 			videoLoaded: false,
 			videoUrl: 'https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4',
+			question: '',
+			aiAnswer: ''
 		};
 	},
 	onShow() {
@@ -387,21 +401,93 @@ export default {
 			const safeContent = typeof content === 'string' ? content : String(content || '');
 			return this.md.render(safeContent);
 		},
-		
+
 		onMessageClick(item, e) {
-		  const target = e.target || e.mp?.target
-		  if (!target) return
+			const target = e.target || e.mp?.target;
+			if (!target) return;
 			if (item.imgs && item.imgs.length > 0) {
 				uni.previewImage({
-				  urls: item.imgs,
-				  current: item.imgs[0]
-				})
+					urls: item.imgs,
+					current: item.imgs[0]
+				});
 			}
 		},
+
+		onShareAppMessage() {
+			let data = {
+				question: this.question,
+				answer: this.aiAnswer,
+				patientName: this.siginVal.patientName,
+				aiType: this.aiType,
+				list: this.shareList
+			};
+			return {
+				title: this.question,
+				path: `/pages/shareDetail/index?content=${encodeURIComponent(JSON.stringify(data))}`,
+				imageUrl: '../../static/image/anhao.png'
+			};
+		},
+
+		likeBtn(type, id) {
+			let data = {
+				rating: type,
+				user: this.siginVal.patientName,
+				content: ''
+			};
+			wx.request({
+				url: `https://www.chinzsoft.com/api/v1/messages/${id}/feedbacks`,
+				method: 'POST',
+				data,
+				enableChunked: true,
+				header: {
+					Authorization: `Bearer app-npuPoa4gDRhUohTtu74UaLUp`,
+					'content-type': 'application/json'
+				},
+				success: (res) => {
+					this.msgList = this.msgList.map((msg) => {
+						if (msg.id && !msg.my && msg.id === id) {
+							if (msg.likeStatus == type) {
+								return msg;
+							}
+							return {
+								...msg,
+								likeStatus: type
+							};
+						}
+						return msg;
+					});
+				},
+				fail: (err) => {
+					console.log('err', err);
+					this.inputState = true;
+				}
+			});
+		},
+
+		copyContent(content) {
+		  let html = content; // 渲染数据
+			const imgRegex = /<img.*?src=['"](.*?)['"]/g;
 		
-		likeBtn(type) {
-			console.log(this.message_id,'=s=s=s==s=s=s=s=s=s');
-			// /messages/:message id/feedbacks
+			let imgs = [];
+			let match;
+			while ((match = imgRegex.exec(html)) !== null) {
+				imgs.push(match[1]);
+			}
+		
+			let text = html.replace(/<[^>]+>/g, '').trim();
+		
+			if (imgs.length > 0) {
+				text += '\n\n【图片链接】\n' + imgs.join('\n');
+			}
+		
+			text += '\n\n此内容由AI生成，仅供参考';
+		
+			uni.setClipboardData({
+				data: text,
+				success() {
+					uni.showToast({ title: '文本复制成功，图片请保存到相册', icon: 'none' });
+				}
+			});
 		},
 
 		more() {
@@ -500,7 +586,7 @@ export default {
 				return 0;
 			}
 			// 显示消息 msg消息文本,my鉴别是谁发的消息(不能用俩个消息数组循环,否则消息不会穿插)
-			this.msgList.push({ msg: this.msg, my: true });
+			this.msgList.push({ id: '', msg: this.msg, my: true });
 			// 保证消息可见
 			this.msgGo();
 			//发送消息
@@ -542,6 +628,7 @@ export default {
 						this.test1 = '';
 						this.msgGo();
 						this.inputState = true;
+						this.question = msg;
 					},
 					fail: (err) => {
 						console.log('err', err);
@@ -574,7 +661,7 @@ export default {
 							}
 
 							const obj = safeParseJSON(jsonStr);
-							
+
 							if (!obj) continue;
 
 							// 错误处理
@@ -589,7 +676,7 @@ export default {
 
 							this.conversation_id = obj.conversation_id || this.conversation_id;
 							this.message_id = obj.message_id || this.message_id;
-							
+
 							const answer = obj.answer || obj.data?.outputs?.answer;
 							if (!answer) continue;
 							const jsonData = safeParseJSON(answer);
@@ -597,11 +684,12 @@ export default {
 							const type = jsonData.intent;
 							const content = jsonData.content;
 							this.msgType = type;
-							
-							
+							this.aiAnswer = content;
+
 							if (type === 'A001') {
 								const originalTipsState = this.msgList[this.msgList.length - 1]?.tipsState;
 								this.msgList.splice(this.msgList.length - 1, 1, {
+									id: this.message_id,
 									my: false,
 									type: 2,
 									msgLoad: false,
@@ -609,43 +697,50 @@ export default {
 									tips: content.reason,
 									tipsState: originalTipsState
 								});
+								this.aiType = 'department';
+								this.shareList = content.option;
 							} else if (type === 'A002' && content.code != 500) {
 								this.msgList.splice(this.msgList.length - 1, 1, {
+									id: this.message_id,
 									my: false,
 									type: 2,
 									msgLoad: false,
 									scheduling: this.mergeDoctorSessions(content)
 								});
+								this.aiType = 'doctor';
+								this.shareList = this.mergeDoctorSessions(content);
 							} else if (type === 'A002' && content.code == 500) {
 								this.msgList.splice(this.msgList.length - 1, 1, {
+									id: this.message_id,
 									my: false,
 									msgLoad: false,
 									msg: content.msg
 								});
+								this.aiType = 'message';
 							} else {
+								this.aiType = 'message';
 								//['A004', 'A005', 'A006', 'A999', 'A998']
 								const safeContent = typeof content === 'string' ? content : String(content || '');
 								if (typeof lastAnswer !== 'string') lastAnswer = String(lastAnswer || '');
 
 								const newPart = safeContent.slice(lastAnswer.length);
 								if (typeof newPart !== 'string' || !newPart.trim()) return;
-								
+
 								lastAnswer = safeContent;
 								const lastMsg = this.msgList[this.msgList.length - 1];
+								lastMsg.id = this.message_id;
 								if (lastMsg && lastMsg.msgLoad) {
 									lastMsg.msgLoad = false;
 									this.showTypewriterEffect(newPart, lastMsg);
 								} else if (lastMsg && !lastMsg.msgLoad) {
 									this.showTypewriterEffect(newPart, lastMsg);
 								} else {
-									const msgObj = { my: false, msgLoad: false, msg: '' };
+									const msgObj = { id: this.message_id, my: false, msgLoad: false, msg: '' };
 									this.msgList.push(msgObj);
 									this.showTypewriterEffect(newPart, msgObje);
 								}
 								this.$forceUpdate();
-								
 							}
-							
 						}
 					} catch (e) {
 						console.error('解析流式返回数据异常:', e);
@@ -846,19 +941,44 @@ export default {
 		font-size: 30rpx;
 		font-weight: bold;
 	}
-	
+
+	.share-btn {
+		padding: 0;
+		margin: 0;
+		border: none;
+		background: none;
+		box-shadow: none;
+		border-radius: 0;
+		outline: none;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: auto;
+		height: auto;
+		line-height: normal;
+	}
+
+	.share-btn::after {
+		border: none; /* 重点：清除小程序按钮自带边框 */
+	}
+
 	.ai-tips {
 		display: flex;
-		align-items: center;
 		margin-top: 20rpx;
 		text-align: left;
 		font-size: 26rpx;
 		color: #919191;
-		justify-content: space-between;
+		flex-direction: column;
+		.aiTitle {
+			padding-bottom: 25rpx;
+		}
 		.aiBtn {
-			gap: 10rpx;
+			gap: 32rpx;
 			display: flex;
 			align-items: center;
+			border-top: 1px solid #ccc;
+			padding-top: 25rpx;
+			margin-top: 25rpx;
 		}
 	}
 

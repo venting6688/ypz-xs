@@ -60,6 +60,14 @@ const patient = {
 			}, 2)
 			return res
 		},
+		async feedBackAi(id, data) {
+			const res = await cjRequest({
+				url: `https://www.chinzsoft.com/api/messages/${id}/feedbacks`,
+				method: "POST",
+				data,
+			}, 2)
+			return res
+		},
 
 }
  

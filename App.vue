@@ -12,6 +12,7 @@
 
 <style>
 	@import "@/colorui/main.css";
+	@import "@/static/iconfont/iconfont.css";
 	@import "@/colorui/animation.css";
 	@import "@/colorui/icon.css";
 	@import "@/static/css/index-app.css";
