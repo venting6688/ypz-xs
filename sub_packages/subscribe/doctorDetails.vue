@@ -357,11 +357,9 @@
 								});
 
 							} else {
-								this.toastObj = {
-									state: true,
-									type: 'fail',
-									message: res.data.msg ? res.data.msg : '',
-								}
+								let match = res.data.msg.match(/ResultContent=(.*?), LockQueueNo=/);
+								let msg = match ? match[1] : "";
+								uni.showToast({ title: msg, icon: 'none'});
 							}
 						})
 						.catch(err => {

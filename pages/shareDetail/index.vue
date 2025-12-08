@@ -16,14 +16,23 @@
 						<view class="robot">
 							<view class="robot-box" v-if="aiType == 'message'">
 								<view class="center" style="opacity: 0.95">
-									<view class="msg" v-html="markdown(answer)"></view>
-									<!-- <view class="msg">
-										<rich-text :nodes="nodes"></rich-text>
-									</view> -->
+									<!-- <view class="msg" v-html="markdown(answer)"></view> -->
+									<mp-html
+									  class="msg"
+										:preview-img="true"
+									  :content="markdown(answer)"
+										show-menu-by-longpress="true"
+									  @tap="onMessageClick(x, $event)"
+									></mp-html>
 									<view class="ai-tips">
 										<view>· 此内容由AI生成，仅供参考</view>
 										<view class="aiBtn">
-											<uni-icons custom-prefix="iconfont" type="icon-copycopy" size="24" color="#9DACC6" @click="copyContent(answer)"></uni-icons>
+											<uni-icons type="hand-up" size="24" @click="likeBtn()" color="#3c466c"></uni-icons>
+											<uni-icons type="hand-down" size="24" @click="likeBtn()" color="#3c466c"></uni-icons>
+											<button open-type="share" class="share-btn">
+												<uni-icons type="redo" size="24" color="#3c466c"></uni-icons>
+											</button>
+											<uni-icons custom-prefix="iconfont" type="icon-copycopy" size="24" color="#3c466c" @click="copyContent(answer)"></uni-icons>
 										</view>
 									</view>
 								</view>
@@ -103,6 +112,7 @@
 </template>
 
 <script>
+import { Base64 } from 'js-base64';
 import MarkdownIt from 'markdown-it';
 
 export default {
@@ -120,9 +130,9 @@ export default {
 			}),
 			videoLoaded: false,
 			videoUrl: 'https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4',
-			isMp: false,        // 是否是小程序平台（在 onLoad 设置）
-			htmlContent: '',    // markdown 渲染后的 HTML（H5/APP 使用）
-			nodes: [],          // 小程序 rich-text 用的 nodes
+			isMp: false, // 是否是小程序平台（在 onLoad 设置）
+			htmlContent: '', // markdown 渲染后的 HTML（H5/APP 使用）
+			nodes: [] // 小程序 rich-text 用的 nodes
 		};
 	},
 
@@ -141,7 +151,8 @@ export default {
 		// #endif
 		if (query.content) {
 			const parsed = JSON.parse(decodeURIComponent(query.content));
-			this.answer = parsed.answer;
+			let answer = Base64.decode(parsed.answer);
+			this.answer = answer.replace(/!\[.*?\]\((.*?)\)/g, "<img src='$1' style='width:100%;margin-top:6px;' />");
 			this.question = parsed.question;
 			this.patientName = parsed.patientName;
 			this.aiType = parsed.aiType;
@@ -160,7 +171,16 @@ export default {
 		markdown(str) {
 			return this.md.render(str);
 		},
-
+		onMessageClick(item, e) {
+			const target = e.target || e.mp?.target;
+			if (!target) return;
+			if (item.imgs && item.imgs.length > 0) {
+				uni.previewImage({
+					urls: item.imgs,
+					current: item.imgs[0]
+				});
+			}
+		},
 		renderAnswerToHtmlNodes(str) {
 			const html = this.md.render(str || '');
 			this.htmlContent = html;
@@ -235,29 +255,32 @@ export default {
 		},
 
 		copyContent(content) {
-			let html = content;
+		  let html = content; // 渲染数据
 			const imgRegex = /<img.*?src=['"](.*?)['"]/g;
-
+		
 			let imgs = [];
 			let match;
 			while ((match = imgRegex.exec(html)) !== null) {
 				imgs.push(match[1]);
 			}
-
+		
 			let text = html.replace(/<[^>]+>/g, '').trim();
-
-			if (imgs.length > 0) {
-				text += '\n\n【图片链接】\n' + imgs.join('\n');
-			}
-
+		
+			// if (imgs.length > 0) {
+			// 	text += '\n\n【图片链接】\n' + imgs.join('\n');
+			// }
+		
 			text += '\n\n此内容由AI生成，仅供参考';
-
+		
 			uni.setClipboardData({
 				data: text,
 				success() {
-					uni.showToast({ title: '文本复制成功，图片请保存到相册', icon: 'none' });
+					uni.showToast({ title: '文本复制成功，请长按图片保存', icon: 'none' });
 				}
 			});
+		},
+		likeBtn() {
+			uni.navigateTo({ url: '/sub_packages/login/index?title=山东第一医科大学第二附属医院' });
 		},
 		goPage(url) {
 			uni.switchTab({ url });
@@ -286,12 +309,33 @@ export default {
 		margin-top: 25rpx;
 	}
 }
+
+.share-btn {
+	padding: 0;
+	margin: 0;
+	border: none;
+	background: none;
+	box-shadow: none;
+	border-radius: 0;
+	outline: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: auto;
+	height: auto;
+	line-height: normal;
+}
+
+.share-btn::after {
+	border: none; /* 重点：清除小程序按钮自带边框 */
+}
+
 .custom-tabbar {
 	position: fixed;
 	bottom: 0;
 	left: 0;
 	width: 750rpx;
-	height: 180rpx;
+	padding: 18rpx 0 40rpx;
 	background: #fff;
 	display: flex;
 	justify-content: space-around;

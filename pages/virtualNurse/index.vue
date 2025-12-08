@@ -53,7 +53,15 @@
 											</view>
 										</view>
 									</view>
-									<view v-else class="msg" v-html="markdown(x.msg)" @tap="onMessageClick(x, $event)"></view>
+									<!-- <view v-else class="msg" v-html="markdown(x.msg)" @tap="onMessageClick(x, $event)"></view> -->
+									<mp-html
+									  v-else
+									  class="msg"
+										:preview-img="true"
+									  :content="markdown(x.msg)"
+										show-menu-by-longpress="true"
+									  @tap="onMessageClick(x, $event)"
+									></mp-html>
 									<view v-if="x.type == 1">
 										<scroll-view scroll-x class="tabs-scroll" :scroll-left="scrollLeft" scroll-with-animation>
 											<view class="tab-list">
@@ -85,12 +93,23 @@
 									<view class="ai-tips" v-if="pattern !== 1 && !x.msgLoad && x.type !== 1">
 										<view>· 此内容由AI生成，仅供参考</view>
 										<view class="aiBtn">
-											<!-- <uni-icons type="sound" size="24" color="#9DACC6" @click="playMessage(x.msg)"></uni-icons> -->
-											<uni-icons :type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" size="24" @click="likeBtn('like', x.id)" color="#9DACC6"></uni-icons>
-											<uni-icons :type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" size="24" @click="likeBtn('dislike', x.id)" color="#9DACC6"></uni-icons>
-											<uni-icons custom-prefix="iconfont" type="icon-copycopy" size="24" color="#9DACC6" @click="copyContent(x.msg)"></uni-icons>
+											<!-- <uni-icons type="sound" size="24" color="#3c466c" @click="playMessage(x.msg)"></uni-icons> -->
+											<uni-icons 
+											:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" 
+											size="24" 
+											@click="likeBtn('like', x.id)" 
+											:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
+											>
+											</uni-icons>
+											<uni-icons 
+											:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" 
+											size="24" 
+											@click="likeBtn('dislike', x.id)" 
+											:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
+											></uni-icons>
+											<uni-icons custom-prefix="iconfont" type="icon-copycopy" size="24" color="#3c466c" @click="copyContent(x.msg)"></uni-icons>
 											<button open-type="share" class="share-btn">
-												<uni-icons type="redo" size="24" color="#9DACC6"></uni-icons>
+												<uni-icons type="redo" size="24" color="#3c466c"></uni-icons>
 											</button>
 										</view>
 									</view>
@@ -110,11 +129,22 @@
 									<view class="ai-tips" v-if="!x.msgLoad" style="padding: 0 25rpx">
 										<view>· 此内容由AI生成，仅供参考</view>
 										<view class="aiBtn">
-											<!-- <uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="24" color="#9DACC6"></uni-icons> -->
-											<uni-icons :type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" size="24" @click="likeBtn('like', x.id)" color="#9DACC6"></uni-icons>
-											<uni-icons :type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" size="24" @click="likeBtn('dislike', x.id)" color="#9DACC6"></uni-icons>
+											<!-- <uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="24" color="#3c466c"></uni-icons> -->
+											<uni-icons
+											:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" 
+											size="24" 
+											@click="likeBtn('like', x.id)" 
+											:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
+											>
+											</uni-icons>
+											<uni-icons 
+											:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" 
+											size="24" 
+											@click="likeBtn('dislike', x.id)" 
+											:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
+											></uni-icons>
 											<button open-type="share" class="share-btn">
-												<uni-icons type="redo" size="24" color="#9DACC6"></uni-icons>
+												<uni-icons type="redo" size="24" color="#3c466c"></uni-icons>
 											</button>
 										</view>
 									</view>
@@ -154,11 +184,22 @@
 									<view class="ai-tips" v-if="!x.msgLoad" style="padding: 0 25rpx">
 										<view>· 此内容由AI生成，仅供参考</view>
 										<view class="aiBtn">
-											<!-- <uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="24" color="#9DACC6"></uni-icons> -->
-											<uni-icons :type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" size="24" @click="likeBtn('like', x.id)" color="#9DACC6"></uni-icons>
-											<uni-icons :type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" size="24" @click="likeBtn('dislike', x.id)" color="#9DACC6"></uni-icons>
+											<!-- <uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="24" color="#3c466c"></uni-icons> -->
+											<uni-icons
+											:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" 
+											size="24" 
+											@click="likeBtn('like', x.id)" 
+											:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
+											>
+											</uni-icons>
+											<uni-icons 
+											:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" 
+											size="24" 
+											@click="likeBtn('dislike', x.id)" 
+											:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
+											></uni-icons>
 											<button open-type="share" class="share-btn">
-												<uni-icons type="redo" size="24" color="#9DACC6"></uni-icons>
+												<uni-icons type="redo" size="24" color="#3c466c"></uni-icons>
 											</button>
 										</view>
 									</view>
@@ -252,19 +293,23 @@ var wh;
 // 顶部空盒子的高度
 var mgUpHeight;
 
+
 import dayjs from 'dayjs';
 import bus from '@/utils/bus';
 import { mapActions } from 'vuex';
+import { Base64 } from 'js-base64';
 import MarkdownIt from 'markdown-it';
 import mixin from '@/mixins/mixin.js';
 import login from '@/utils/login.js';
 import filingApi from '@/api/filingApi.js';
 
 import { parse } from 'best-effort-json-parser';
+import mpHtml from '@/components/mp-html/mp-html.vue'
 import { safeParseJSON } from '@/utils/jsonHelper.js';
 
 export default {
 	mixins: [mixin],
+  components: { mpHtml },
 	data() {
 		return {
 			siginVal: {},
@@ -416,7 +461,8 @@ export default {
 		onShareAppMessage() {
 			let data = {
 				question: this.question,
-				answer: this.aiAnswer,
+				answer: Base64.encode(this.aiAnswer), // BASE64 编码
+				// answer: this.aiAnswer,
 				patientName: this.siginVal.patientName,
 				aiType: this.aiType,
 				list: this.shareList
@@ -445,6 +491,7 @@ export default {
 				},
 				success: (res) => {
 					this.msgList = this.msgList.map((msg) => {
+						uni.showToast({ title: '感谢您的反馈', icon: 'none'});
 						if (msg.id && !msg.my && msg.id === id) {
 							if (msg.likeStatus == type) {
 								return msg;
@@ -476,16 +523,16 @@ export default {
 		
 			let text = html.replace(/<[^>]+>/g, '').trim();
 		
-			if (imgs.length > 0) {
-				text += '\n\n【图片链接】\n' + imgs.join('\n');
-			}
+			// if (imgs.length > 0) {
+			// 	text += '\n\n【图片链接】\n' + imgs.join('\n');
+			// }
 		
 			text += '\n\n此内容由AI生成，仅供参考';
 		
 			uni.setClipboardData({
 				data: text,
 				success() {
-					uni.showToast({ title: '文本复制成功，图片请保存到相册', icon: 'none' });
+					uni.showToast({ title: '文本复制成功，请长按图片保存', icon: 'none' });
 				}
 			});
 		},
@@ -976,7 +1023,7 @@ export default {
 			gap: 32rpx;
 			display: flex;
 			align-items: center;
-			border-top: 1px solid #ccc;
+			border-top: 1px solid #dddfec;
 			padding-top: 25rpx;
 			margin-top: 25rpx;
 		}
