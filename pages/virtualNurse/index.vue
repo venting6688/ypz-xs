@@ -54,14 +54,7 @@
 										</view>
 									</view>
 									<!-- <view v-else class="msg" v-html="markdown(x.msg)" @tap="onMessageClick(x, $event)"></view> -->
-									<mp-html
-									  v-else
-									  class="msg"
-										:preview-img="true"
-									  :content="markdown(x.msg)"
-										show-menu-by-longpress="true"
-									  @tap="onMessageClick(x, $event)"
-									></mp-html>
+									<mp-html v-else class="msg" :preview-img="true" :content="markdown(x.msg)" show-menu-by-longpress="true" @tap="onMessageClick(x, $event)"></mp-html>
 									<view v-if="x.type == 1">
 										<scroll-view scroll-x class="tabs-scroll" :scroll-left="scrollLeft" scroll-with-animation>
 											<view class="tab-list">
@@ -93,19 +86,25 @@
 									<view class="ai-tips" v-if="pattern !== 1 && !x.msgLoad && x.type !== 1">
 										<view>· 此内容由AI生成，仅供参考</view>
 										<view class="aiBtn">
-											<!-- <uni-icons type="sound" size="24" color="#3c466c" @click="playMessage(x.msg)"></uni-icons> -->
-											<uni-icons 
-											:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" 
+											<!-- type="sound" -->
+											<!-- <uni-icons 
+											:type="isPlaying ? 'micoff' : 'mic'"
 											size="24" 
-											@click="likeBtn('like', x.id)" 
-											:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
-											>
-											</uni-icons>
-											<uni-icons 
-											:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" 
-											size="24" 
-											@click="likeBtn('dislike', x.id)" 
-											:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
+											color="#3c466c" 
+											@click="handleMoreText(x.msg)"
+											></uni-icons> -->
+											<uni-icons :type="isPlaying ? 'micoff' : 'mic'" size="28" :color="isPlaying ? '#4286ff' : '#3c466c'" @click="togglePlay(x.msg)"></uni-icons>
+											<uni-icons
+												:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'"
+												size="24"
+												@click="likeBtn('like', x.id)"
+												:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
+											></uni-icons>
+											<uni-icons
+												:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'"
+												size="24"
+												@click="likeBtn('dislike', x.id)"
+												:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
 											></uni-icons>
 											<uni-icons custom-prefix="iconfont" type="icon-copycopy" size="24" color="#3c466c" @click="copyContent(x.msg)"></uni-icons>
 											<button open-type="share" class="share-btn">
@@ -131,17 +130,16 @@
 										<view class="aiBtn">
 											<!-- <uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="24" color="#3c466c"></uni-icons> -->
 											<uni-icons
-											:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" 
-											size="24" 
-											@click="likeBtn('like', x.id)" 
-											:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
-											>
-											</uni-icons>
-											<uni-icons 
-											:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" 
-											size="24" 
-											@click="likeBtn('dislike', x.id)" 
-											:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
+												:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'"
+												size="24"
+												@click="likeBtn('like', x.id)"
+												:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
+											></uni-icons>
+											<uni-icons
+												:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'"
+												size="24"
+												@click="likeBtn('dislike', x.id)"
+												:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
 											></uni-icons>
 											<button open-type="share" class="share-btn">
 												<uni-icons type="redo" size="24" color="#3c466c"></uni-icons>
@@ -186,17 +184,16 @@
 										<view class="aiBtn">
 											<!-- <uni-icons custom-prefix="iconfont" type="icon-trumpetlaba" size="24" color="#3c466c"></uni-icons> -->
 											<uni-icons
-											:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'" 
-											size="24" 
-											@click="likeBtn('like', x.id)" 
-											:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
-											>
-											</uni-icons>
-											<uni-icons 
-											:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'" 
-											size="24" 
-											@click="likeBtn('dislike', x.id)" 
-											:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
+												:type="x.likeStatus == 'like' ? 'hand-up-filled' : 'hand-up'"
+												size="24"
+												@click="likeBtn('like', x.id)"
+												:color="x.likeStatus == 'like' ? '#4286ff' : '#3c466c'"
+											></uni-icons>
+											<uni-icons
+												:type="x.likeStatus == 'dislike' ? 'hand-down-filled' : 'hand-down'"
+												size="24"
+												@click="likeBtn('dislike', x.id)"
+												:color="x.likeStatus == 'dislike' ? '#4286ff' : '#3c466c'"
 											></uni-icons>
 											<button open-type="share" class="share-btn">
 												<uni-icons type="redo" size="24" color="#3c466c"></uni-icons>
@@ -293,7 +290,6 @@ var wh;
 // 顶部空盒子的高度
 var mgUpHeight;
 
-
 import dayjs from 'dayjs';
 import bus from '@/utils/bus';
 import { mapActions } from 'vuex';
@@ -304,12 +300,16 @@ import login from '@/utils/login.js';
 import filingApi from '@/api/filingApi.js';
 
 import { parse } from 'best-effort-json-parser';
-import mpHtml from '@/components/mp-html/mp-html.vue'
+import mpHtml from '@/components/mp-html/mp-html.vue';
 import { safeParseJSON } from '@/utils/jsonHelper.js';
+
+// 同声传译
+const plugin = requirePlugin('WechatSI');
+const innerAudioContext = wx.createInnerAudioContext();
 
 export default {
 	mixins: [mixin],
-  components: { mpHtml },
+	components: { mpHtml },
 	data() {
 		return {
 			siginVal: {},
@@ -381,7 +381,10 @@ export default {
 			videoLoaded: false,
 			videoUrl: 'https://aiwz.sdtyfy.com:8099/img/ai_img/ai_new.mp4',
 			question: '',
-			aiAnswer: ''
+			aiAnswer: '',
+			isPlaying: false,
+			textQueue: [], // 存储分段后的文本
+			currentIndex: 0 // 当前播放段落下标
 		};
 	},
 	onShow() {
@@ -395,6 +398,35 @@ export default {
 			if (this.$refs.notice && this.$refs.notice.open) {
 				this.$refs.notice.open();
 			}
+		});
+
+		// innerAudioContext.onEnded(() => {
+		// 	this.isPlaying = false;
+		// });
+		// innerAudioContext.onStop(() => {
+		// 	this.isPlaying = false;
+		// });
+		// innerAudioContext.onError(() => {
+		// 	this.isPlaying = false;
+		// });
+	},
+	created() {
+		// 自动播放下一段
+		innerAudioContext.onEnded(() => {
+		  if (!this.isPlaying) return;
+		  this.currentIndex++;
+		  if (this.currentIndex < this.textQueue.length) {
+		    this.playNextSegment();
+		  } else {
+		    this.isPlaying = false;
+		  }
+		});
+
+		innerAudioContext.onError(() => {
+			this.isPlaying = false;
+		});
+		innerAudioContext.onStop(() => {
+			this.isPlaying = false;
 		});
 	},
 	methods: {
@@ -447,6 +479,81 @@ export default {
 			return this.md.render(safeContent);
 		},
 
+		cleanText(text) {
+			text = text.replace(/!\[.*?\]\(.*?\)/g, '');
+			text = text.replace(/<img[^>]*>/g, '');
+			text = text.replace(/[\*\#\`\>\[\]\(\)\_]/g, '');
+			text = text.replace(/\n+/g, ' ');
+			text = text.replace(/^[\-\*]\s*/gm, '');
+			return text.trim();
+		},
+
+		togglePlay(text) {
+		  if (!text) return wx.showToast({ title: '内容为空', icon: 'none' });
+		
+		  // 暂停播放
+		  if (this.isPlaying) {
+		    this.isPlaying = false;
+		    innerAudioContext.pause();
+		    return;
+		  }
+		
+		  // 开始播放
+		  let content = this.cleanText(text) + '。此内容由AI生成，仅供参考';
+		
+		  // 分段（建议每段 100 字
+		  const maxLen = 100;
+		  this.textQueue = [];
+		  for (let i = 0; i < content.length; i += maxLen) {
+		    this.textQueue.push(content.slice(i, i + maxLen));
+		  }
+			this.currentIndex = 0;
+		  this.isPlaying = true;
+		  this.playNextSegment();
+		},
+
+		playNextSegment() {
+		  const text = this.textQueue[this.currentIndex];
+		
+		  const play = (src) => {
+		    innerAudioContext.src = src;
+		    innerAudioContext.play();
+		  };
+		
+		  // 如果下一个音频已经提前生成，则直接播放
+		  if (this.nextAudioSrc) {
+		    play(this.nextAudioSrc);
+		    this.nextAudioSrc = null;
+		  } else {
+		    // 没有预加载时正常生成
+		    plugin.textToSpeech({
+		      lang: 'zh_CN',
+		      tts: true,
+		      content: text,
+		      speed: 5,
+		      volume: 9,
+		      success: (res) => play(res.filename),
+		      fail: () => {
+		        this.isPlaying = false;
+		        wx.showToast({ title: '语音失败', icon: 'none' });
+		      }
+		    });
+		  }
+		
+		  // 🔥提前生成下一段
+		  const nextIdx = this.currentIndex + 1;
+		  if (nextIdx < this.textQueue.length) {
+		    const nextText = this.textQueue[nextIdx];
+		    plugin.textToSpeech({
+		      lang: 'zh_CN',
+		      tts: true,
+		      content: nextText,
+		      success: (res) => {
+		        this.nextAudioSrc = res.filename; // 预缓存
+		      }
+		    });
+		  }
+		},
 		onMessageClick(item, e) {
 			const target = e.target || e.mp?.target;
 			if (!target) return;
@@ -491,7 +598,7 @@ export default {
 				},
 				success: (res) => {
 					this.msgList = this.msgList.map((msg) => {
-						uni.showToast({ title: '感谢您的反馈', icon: 'none'});
+						uni.showToast({ title: '感谢您的反馈', icon: 'none' });
 						if (msg.id && !msg.my && msg.id === id) {
 							if (msg.likeStatus == type) {
 								return msg;
@@ -512,23 +619,23 @@ export default {
 		},
 
 		copyContent(content) {
-		  let html = content; // 渲染数据
+			let html = content; // 渲染数据
 			const imgRegex = /<img.*?src=['"](.*?)['"]/g;
-		
+
 			let imgs = [];
 			let match;
 			while ((match = imgRegex.exec(html)) !== null) {
 				imgs.push(match[1]);
 			}
-		
+
 			let text = html.replace(/<[^>]+>/g, '').trim();
-		
+
 			// if (imgs.length > 0) {
 			// 	text += '\n\n【图片链接】\n' + imgs.join('\n');
 			// }
-		
+
 			text += '\n\n此内容由AI生成，仅供参考';
-		
+
 			uni.setClipboardData({
 				data: text,
 				success() {
@@ -874,8 +981,7 @@ export default {
 		l = query.screenWidth / 750;
 		wh = query.windowHeight;
 
-		// 同声传译
-		var plugin = requirePlugin('WechatSI');
+		// var plugin = requirePlugin('WechatSI');
 		this.manager = plugin.getRecordRecognitionManager();
 		this.setManagerLisener();
 		this.msgGo();
